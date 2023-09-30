@@ -10,20 +10,37 @@ from app.states import UserFollowing
 from app.handlers import admin
 from app.utils.Bridger import Bridger
 from app.utils.Estimate import Estimate
+from app.handlers.start_cmd import user_db
 
 
 @dp.message_handler(Text(equals=["➕ Load new wallets"]), state=UserFollowing.choose_point)
-async def new_private_keys(message: types.Message):
-    await UserFollowing.new_private.set()
-    await message.answer("<b>⬇️ Load-up your private keys below </b>"
+async def new_private_keys(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    current_network = data.get("current_network")
+    pk_example = '-'
+
+    if current_network == "zora":
+
+        pk_example = "<i>a692b7245354c12ca7ef7138bfdc040abc7d07612c9f3770c9be81d9459911ca</i>\n" \
+                     "<i>8cd22cacf476cd9ffebbbe05877c9cab695c6abafcad010a0194dbb1cb6e66f1</i>\n" \
+                     "<i>0b77a1a6618f75360f318e859a89ba8008b8d0ceb10294418443dc8fd643e6bb</i>\n\n"
+        await state.update_data(current_network=current_network)
+    elif current_network == "stark":
+
+        await state.update_data(current_network=current_network)
+        pk_example = "<i>STARKNET_WALLET_ADDRESS:STARKNET_PRIVATE_KEY</i>\n" \
+                     "<i>STARKNET_WALLET_ADDRESS:STARKNET_PRIVATE_KEY</i>\n\n"
+
+    max_count = user_db.get_max_wallets(user_id=message.from_user.id)
+
+    await UserFollowing.check_subscribe.set()
+    await message.answer(f"The total amount of wallets you can run: <b>{max_count}</b>\n\n"
+                         "<b>⬇️ Load-up your private keys below </b>"
                          "[<a href='https://support.metamask.io/hc/en-us/articles/360015289632-How-to-export-an-account-s-private-key'>"
                          "<b>guide</b></a>]\n\n"
                          "<b>Example:</b>\n"
-                         "<i>a692b7245354c12ca7ef7138bfdc040abc7d07612c9f3770c9be81d9459911ca</i>\n"
-                         "<i>8cd22cacf476cd9ffebbbe05877c9cab695c6abafcad010a0194dbb1cb6e66f1</i>\n"
-                         "<i>0b77a1a6618f75360f318e859a89ba8008b8d0ceb10294418443dc8fd643e6bb</i>\n\n"
-                         "<b> ⚠️Please note: We do not store your data. The bot uses one-time sessions.</b>\n\n"
-                         "[<a href='https://t.me/whatheshark'>Our GitHub</a>]",
+                         f"{pk_example}"
+                         "<b> ⚠️Please note: We do not store your data. The bot uses one-time sessions.</b>\n\n",
                          parse_mode=types.ParseMode.HTML, reply_markup=ReplyKeyboardRemove())
 
 
