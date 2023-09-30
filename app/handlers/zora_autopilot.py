@@ -6,6 +6,7 @@ from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemo
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher import FSMContext
 
+from app.handlers.start_cmd import user_db
 from app.create_bot import dp, bot
 from app.states import UserFollowing
 from app.utils.Minter import Minter
@@ -17,8 +18,10 @@ from app.utils.configs.ipfs import imageURI_list_hashes
 from app.utils.Estimate import Estimate
 from app.logs import logging as logger
 
+one_wallet_run_price = 5
 
-@dp.message_handler(Text(equals="💸 Start script"), state=UserFollowing.choose_point)
+
+@dp.message_handler(Text(equals="💸 Start Zora script"), state=UserFollowing.choose_point)
 async def tap_to_earn(message: types.Message, state: FSMContext):
     reply_message = ""
     count_ok_wallet = 0
@@ -29,6 +32,21 @@ async def tap_to_earn(message: types.Message, state: FSMContext):
     private_keys = list(data.get("private_keys"))
     bridge_amount = list(data.get("random_amount"))
     is_ready_to_start = data.get("is_ready_to_start")
+
+    balance_in_bot = user_db.get_current_balance(message.from_user.id)
+    is_free_run = user_db.is_free_run(message.from_user.id)  # 1 == free
+
+    if balance_in_bot < (len(private_keys) * one_wallet_run_price) and is_free_run == 0:
+        reply_message += f"*Your balance* {balance_in_bot}$ is less than required " \
+                         f"({len(private_keys)} x {one_wallet_run_price} = {(len(private_keys) * one_wallet_run_price)}$) \n"
+
+        b1 = KeyboardButton("⬅ Go to menu")
+
+        buttons = ReplyKeyboardMarkup(resize_keyboard=True)
+        buttons.row(b1)
+        await message.answer(reply_message, parse_mode=types.ParseMode.MARKDOWN,
+                             reply_markup=buttons)
+        return
 
     if len(private_keys) == 1:
         edit_message = "Waiting for refilling of the wallet...."
@@ -73,7 +91,8 @@ async def tap_to_earn(message: types.Message, state: FSMContext):
         len_pk = len(private_keys)
 
         average_time_of_bridge = Randomiser.average_time((len_pk - count_bridged_wallets), Randomiser.random_bridge)
-        average_time_after_bridge = Randomiser.average_time((len_pk - count_bridged_wallets), Randomiser.random_bridge_after)
+        average_time_after_bridge = Randomiser.average_time((len_pk - count_bridged_wallets),
+                                                            Randomiser.random_bridge_after)
         average_time_of_create = Randomiser.average_time(len_pk, Randomiser.random_contract)
         average_time_after_create = Randomiser.average_time(len_pk, Randomiser.random_contract_after)
         average_time_of_warm_up = 3 * Randomiser.average_time(len_pk, Randomiser.random_warm_up)
@@ -321,7 +340,8 @@ async def start_earn(message: types.Message, state: FSMContext):
             mintLimitPerAddress, editionSize, royaltyBPS, imageURI in zip(minters_obj, random_names, random_symbols,
                                                                           random_desc,
                                                                           mintPrice_list, mintLimitPerAddress_list,
-                                                                          editionSize_list, royaltyBPS_list, imageURI_list):
+                                                                          editionSize_list, royaltyBPS_list,
+                                                                          imageURI_list):
             result = await minter.createERC721(name=name, symbol=symbol, description=description, mintPrice=mintPrice,
                                                mintLimitPerAddress=mintLimitPerAddress,
                                                editionSize=editionSize, royaltyBPS=royaltyBPS, imageURI=imageURI)
@@ -907,6 +927,16 @@ async def start_earn(message: types.Message, state: FSMContext):
         reply_markup = ReplyKeyboardMarkup(keyboard=[buttons],
                                            resize_keyboard=True)
         is_ready = 0
+
+        is_free_run = user_db.is_free_run(message.from_user.id)  # 1 == free
+        if is_free_run == 1:
+            user_db.set_false_free_run(message.from_user.id)
+
+        data = await state.get_data()
+        private_keys = list(data.get("private_keys"))
+
+        user_db.update_balance(message.from_user.id, -(len(private_keys) * one_wallet_run_price))
+
         await state.update_data(is_ready=is_ready)
         await UserFollowing.wallet_menu.set()
         await message.answer(final_statistic,
