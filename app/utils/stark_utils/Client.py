@@ -210,3 +210,19 @@ class Client:
             gas_price = response.gas_price / 10 ** 9
 
         return overall_fee
+
+
+class ClientHelper:
+    def __init__(self, private_key, address, starknet_rpc):
+        self.private_key = private_key
+        self.address = address
+        self.account = Account(
+            client=FullNodeClient(starknet_rpc),
+            address=address,
+            key_pair=KeyPair.from_private_key(eval(str(self.private_key))),
+            chain=StarknetChainId.MAINNET,
+        )
+
+    async def get_balance(self, token_address=ContractInfo.ETH.get('address'), decimals=18):
+        balance = await self.account.get_balance(token_address=token_address)
+        return TokenAmount(amount=balance, wei=True, decimals=decimals).Ether
