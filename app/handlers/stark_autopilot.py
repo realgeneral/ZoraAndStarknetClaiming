@@ -1,5 +1,6 @@
 import asyncio
 import random
+from dataclasses import dataclass
 
 from aiogram import types
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
@@ -13,9 +14,34 @@ from app.states import UserFollowing
 from app.logs import logging as logger
 from app.utils.Randomiser import Randomiser
 from app.utils.configs.animals import animals
+from app.utils.defi.AvnuFi import AvnuFi
+from app.utils.defi.Dmail import Dmail
+from app.utils.defi.JediSwap import JediSwap
+from app.utils.defi.TenkSwap import TenkSwap
+from app.utils.mint.StarkMinter import Minter as Stark_Minter
 from app.utils.stark_utils.Client import Client
 
+
 one_wallet_run_price = 5
+
+@dataclass
+class RunningParams:
+    STARKNET_RPC: str = "https://starknet-mainnet.infura.io/v3/7eec932e2c324e20ac051e0aa3741d9f"
+    SWAP_SLIPPAGE: int = 2
+    RANDOM_DELAY: int = random.randint(30, 60)
+    JEDISWAP_SWAP_COUNT: int = None
+    JEDISWAP_LP_COUNT: int = None
+    AVNUFI_SWAP_COUNT: int = None
+    TENKSWAP_SWAP_COUNT: int = None
+    STARKVERSE_NFT_MINT_COUNT: int = random.randint(1, 3)
+    STARKNETID_NFT_MINT_COUNT: int = random.randint(1, 3)
+    JEDISWAP_SWAP_PERCENTAGE: int = random.randint(50, 70)
+    JEDISWAP_LIQ_PERCENTAGE: int = random.randint(60, 80)
+    AVNUFI_SWAP_PERCENTAGE: int = random.randint(50, 70)
+    TENK_SWAP_PERCENTAGE: int = random.randint(50, 70)
+    DMAIL_MESSAGES_COUNT: int = random.randint(10, 20)
+
+
 
 
 @dp.message_handler(Text(equals="💸 Start Starknet script"), state=UserFollowing.choose_point)
@@ -141,50 +167,123 @@ async def stop_earn(message: types.Message, state: FSMContext):
                          parse_mode=types.ParseMode.HTML,
                          reply_markup=reply_markup)
 
-# @dp.message_handler(Text(equals="🐳 LFG!"), state=UserFollowing.tap_to_earn)
-# async def start_earn(message: types.Message, state: FSMContext):
-#     data = await state.get_data()
-#     is_ready = data.get("is_ready")
-#
-#     if is_ready == 0:
-#
-#         is_ready = -1
-#         await state.update_data(is_ready=is_ready)
-#         private_keys = list(data.get("private_keys"))
-#
-#         await state.update_data(stop_flag=False)
-#
-#         count_keys = len(private_keys)
-#
-#         final_statistic = "\n📊 <b>Statistic</b> \n\n"
-#
-#         wait_message = await message.answer("Taking off ✈️...")
-#
-#
-#
-#         ########################################### SWAP  ###########################################
-#
-#         user_data = await state.get_data()
-#         if user_data.get("stop_flag"):
-#             return
-#
-#         for i in range(count_keys):
-#             try:
-#                 client = Client(address=int(private_keys[i][0], 16),
-#                                 private_key=int(private_keys[i][1], 16),
-#                                 address_to_log=private_keys[i][0],
-#                                 starknet_rpc="https://starknet-mainnet.infura.io/v3/7eec932e2c324e20ac051e0aa3741d9f",
-#                                 MAX_GWEI=3000)
-#
-#
-#         bridge_statistic = "📊 Statistic \n\n" \
-#                            " # Bridge (ETH Mainnet —> Zora Mainnet)  \n"
-#
-#         final_statistic += "\n <u> Bridge (ETH Mainnet —> Zora Mainnet) </u> \n"
-#
-#         for i in range(len(bridgers_result_list)):
-#             final_statistic += f"Wallet {i + 1}: {bridgers_result_list[i]} \n"
-#             bridge_statistic += f"Wallet {i + 1}: {bridgers_result_list[i]} \n"
+
+
+@dp.message_handler(Text(equals="🐳 LFG!"), state=UserFollowing.tap_to_earn)
+async def start_earn(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    is_ready = data.get("is_ready")
+
+    if is_ready == 0:
+
+        is_ready = -1
+        await state.update_data(is_ready=is_ready)
+        private_keys = list(data.get("private_keys"))
+
+        await state.update_data(stop_flag=False)
+
+        count_keys = len(private_keys)
+
+        final_statistic = "\n📊 <b>Statistic</b> \n\n"
+
+        wait_message = await message.answer("Taking off ✈️...")
+
+
+        ########################################### SWAP  ###########################################
+
+        user_data = await state.get_data()
+        if user_data.get("stop_flag"):
+            return
+
+        for i in range(count_keys):
+            try:
+                params = RunningParams()
+
+                client = Client(address=int(private_keys[i][0], 16),
+                                private_key=int(private_keys[i][1], 16),
+                                address_to_log=private_keys[i][0],
+                                starknet_rpc=params.STARKNET_RPC,
+                                MAX_GWEI=3000)
+
+                ########################################### TASKS PREPARING #################################
+                TASKS = []
+
+                JediSwap_client = JediSwap(client=client, JEDISWAP_SWAP_PERCENTAGE=params.JEDISWAP_SWAP_PERCENTAGE,
+                                           JEDISWAP_LIQ_PERCENTAGE=params.JEDISWAP_LIQ_PERCENTAGE, SLIPPAGE=params.SWAP_SLIPPAGE)
+                AvnuFi_client = AvnuFi(client=client, AVNUFI_SWAP_PERCENTAGE=params.AVNUFI_SWAP_PERCENTAGE,
+                                       SLIPPAGE=params.SWAP_SLIPPAGE)
+                TenkSwap_client = TenkSwap(client=client, TENK_SWAP_PERCENTAGE=params.TENK_SWAP_PERCENTAGE,
+                                           SLIPPAGE=params.SWAP_SLIPPAGE)
+                Minter_client = Stark_Minter(client=client)
+
+                Dmail_client = Dmail(client=client)
+
+                TASKS.append(JediSwap_client.swap)
+                TASKS.append(AvnuFi_client.swap)
+                TASKS.append(TenkSwap_client.swap)
+                TASKS.append(Minter_client.mintStarkVerse)
+                TASKS.append(Minter_client.mintStarknetIdNFT)
+                for _ in range(params.DMAIL_MESSAGES_COUNT):
+                    TASKS.append(Dmail_client.send_message)
+
+                random.shuffle(TASKS)
+                # Adding liq at the end
+                TASKS.append(JediSwap_client.add_liquidity)
+
+                ########################################### TASKS PERFORMING #################################
+
+                start_delay = params.
+                logger.info(f"[{client.address_to_log}] Sleeping for {start_delay} s before taking off")
+
+                await asyncio.sleep(start_delay)
+
+                log_counter = 0
+                for task in TASKS:
+                    delay = params.RANDOM_DELAY
+                    if log_counter != 0:
+                        # TODO ВЫВОДИТЬ СООБЩЕНИЯ О СЛИПАХ
+                        logger.info(f"[{client.address_to_log}] Sleeping for {delay} s before doing next task")
+                        task_delay = params.RANDOM_DELAY
+                        await asyncio.sleep(task_delay)
+                    try:
+                        balance = (await client.get_balance()).Ether
+                        if balance >= 0.000055:
+                            await task()
+                            log_counter = 1
+                        else:
+                            # TODO СООБЩЕНИЕ: НЕХВАТКА ДЕНЕГ
+                            logger.error(f"[{client.address_to_log}] Insufficient funds in StarkNet. Balance: {balance} ETH")
+                            break
+                    except Exception as err:
+                        if "nonce" in str(err):
+                            # TODO
+                            logger.error(f"[{client.address_to_log}] Invalid transaction nonce.")
+                        elif "Insufficient tokens on balance to add a liquidity pair. Only ETH is available" in str(err):
+                            # TODO
+                            logger.error(f"[{client.address_to_log}] {err}")
+                        elif "host starknet-mainnet.infura.io" in str(err):
+                            # TODO СООБЩЕНИЕ: ОТЪЕБНУЛА РПЦ
+                            logger.error(f"[{client.address_to_log}] {err}")
+                            try:
+                                retry_delay = random.randint(15, 30)
+                                # TODO СООБЩЕНИЕ: ПОПЫТКА РЕТРАЙНУТЬ ЗАДАНИЕ
+                                logger.info(f"[{client.address_to_log}] Sleeping for {retry_delay} s before retrying")
+                                await asyncio.sleep(retry_delay)
+                                await task()
+                            except Exception as retry_err:
+                                # TODO СООБЩЕНИЕ: ПОПЫТКА РЕТРАЙНУТЬ ЗАДАНИЕ ПОСЛЕ ПРОБЛЕМЫ КОННЕКТА С РПЦ
+                                logger.error(f"[{client.address_to_log}] Error while retrying task after connection issue: {retry_err}")
+                        elif "Transaction reverted: Error in the called contract." in str(err):
+                            # TODO СООБЩЕНИЕ: ОШИБКА ПРИ ИНТЕРАКТЕ С КОНТРАКТОМ
+                            logger.error(f"[{client.address_to_log}] {err}")
+                        else:
+                            logger.error(f"[{client.address_to_log}] Error while performing task: {err}")
+
+            except Exception as err:
+                logger.error(f"#{i} Something went wrong while client declaring or getting params: {err}")
+
+
+
 #
 #         await state.update_data(final_statistic=final_statistic)
 #
