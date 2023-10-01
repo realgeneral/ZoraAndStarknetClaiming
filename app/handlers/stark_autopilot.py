@@ -196,9 +196,9 @@ async def start_earn(message: types.Message, state: FSMContext):
 
                 params = RunningParams()
 
-                client = Client(address=int(private_keys[i][0], 16),
-                                private_key=int(private_keys[i][1], 16),
-                                address_to_log=private_keys[i][0],
+                client = Client(address=int(private_keys[i+1][0], 16),
+                                private_key=int(private_keys[i+1][1], 16),
+                                address_to_log=private_keys[i+1][0],
                                 starknet_rpc=params.STARKNET_RPC,
                                 MAX_GWEI=3000)
 
