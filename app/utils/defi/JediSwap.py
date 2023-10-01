@@ -2,11 +2,12 @@ import asyncio
 import random
 from time import time
 
-from src.utils.Client import Client
-from src.utils.GetData import GetDataForSwap, GetDataForLP
-from src.utils.Info import TokenAmount, ContractInfo
-from src.config.logger import logger
 from starknet_py.contract import Contract
+
+from app.utils.stark_utils.Client import Client
+from app.utils.stark_utils.GetData import GetDataForSwap, GetDataForLP
+from app.utils.stark_utils.Info import TokenAmount, ContractInfo
+from app.logs import logging as logger
 
 
 class JediSwap:

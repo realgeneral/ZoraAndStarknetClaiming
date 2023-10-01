@@ -11,8 +11,8 @@ from starknet_py.net.models.chains import StarknetChainId
 from starknet_py.contract import Contract
 from starknet_py.net.signer.stark_curve_signer import KeyPair
 
-from src.config.logger import logger
-from src.utils.Info import ContractInfo, TokenAmount
+from app.logs import logging as logger
+from app.utils.stark_utils.Info import ContractInfo, TokenAmount
 
 
 class Client:
