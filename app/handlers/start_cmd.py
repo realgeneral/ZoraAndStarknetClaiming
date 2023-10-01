@@ -158,17 +158,18 @@ async def private_keys(message: types.Message, state: FSMContext):
                 continue
             else:
 
-                cl = ClientHelper(keys_dict[i+1][1],
-                                  keys_dict[i+1][0],
-                                  "https://starknet-mainnet.infura.io/v3/7eec932e2c324e20ac051e0aa3741d9f")
+                try:
+                    cl = ClientHelper(keys_dict[i+1][1],
+                                      keys_dict[i+1][0],
+                                      "https://starknet-mainnet.infura.io/v3/7eec932e2c324e20ac051e0aa3741d9f")
 
-                balance_in_stark = await cl.get_balance()
-
-
-                if balance_in_stark == 0:
-                    message_response += f" <i>[Balance {round(balance_in_stark, 1)} ETH]</i> ❌\n"
-                else:
-                    message_response += f" <i>[Balance {round(balance_in_stark, 5)} ETH]</i> ✅\n"
+                    balance_in_stark = await cl.get_balance()
+                    if balance_in_stark == 0:
+                        message_response += f" <i>[Balance {round(balance_in_stark, 1)} ETH]</i> ❌\n"
+                    else:
+                        message_response += f" <i>[Balance {round(balance_in_stark, 5)} ETH]</i> ✅\n"
+                except Exception:
+                    message_response += f" <i>[INVALID FORMAT]</i> ❌\n"
 
     if current_network == 'zora':
 
