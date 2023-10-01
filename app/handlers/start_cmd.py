@@ -13,8 +13,8 @@ from app.keyboards import check_sub_menu
 from app.utils.Bridger import Bridger
 from app.utils.Estimate import Estimate
 from app.utils.UsersDb import Users
-# from app.utils.stark_utils.Client import ClientHelper
 from app.utils.stark_utils.Client import ClientHelper
+
 
 CHANNEL_ID = -1001984019900
 NOTSUB_MESSAGE = "Looks like you're not subscribed yet! 🙁 Subscribe now to access all the features"
@@ -142,6 +142,7 @@ async def private_keys(message: types.Message, state: FSMContext):
             if ":" in line:
                 stark_wallet_address, starknet_key = line.split(":")
                 keys_dict[counter_pk] = [stark_wallet_address, starknet_key]
+                print(keys_dict)
             else:
                 keys_dict[counter_pk] = None
 
@@ -164,6 +165,7 @@ async def private_keys(message: types.Message, state: FSMContext):
                                       "https://starknet-mainnet.infura.io/v3/7eec932e2c324e20ac051e0aa3741d9f")
 
                     balance_in_stark = await cl.get_balance()
+                    # balance_in_stark = 0
                     if balance_in_stark == 0:
                         message_response += f" <i>[Balance {round(balance_in_stark, 1)} ETH]</i> ❌\n"
                     else:

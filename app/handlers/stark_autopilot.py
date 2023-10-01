@@ -168,9 +168,7 @@ async def start_earn(message: types.Message, state: FSMContext):
 
         is_ready = -1
         await state.update_data(is_ready=is_ready)
-        private_keys = list(data.get("private_keys"))
-
-        await state.update_data(stop_flag=False)
+        private_keys = dict(data.get("private_keys"))
 
         count_keys = len(private_keys)
 
