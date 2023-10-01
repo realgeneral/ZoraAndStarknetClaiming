@@ -14,6 +14,7 @@ from app.utils.Bridger import Bridger
 from app.utils.Estimate import Estimate
 from app.utils.UsersDb import Users
 # from app.utils.stark_utils.Client import ClientHelper
+from app.utils.stark_utils.Client import ClientHelper
 
 CHANNEL_ID = -1001984019900
 NOTSUB_MESSAGE = "Looks like you're not subscribed yet! 🙁 Subscribe now to access all the features"
@@ -157,13 +158,12 @@ async def private_keys(message: types.Message, state: FSMContext):
                 continue
             else:
 
-                # cl = ClientHelper(keys_dict[i][1],
-                #                   keys_dict[i][0],
-                #                   "https://starknet-mainnet.infura.io/v3/7eec932e2c324e20ac051e0aa3741d9f")
+                cl = ClientHelper(keys_dict[i][1],
+                                  keys_dict[i][0],
+                                  "https://starknet-mainnet.infura.io/v3/7eec932e2c324e20ac051e0aa3741d9f")
 
-                # balance_in_stark = await cl.get_balance()
+                balance_in_stark = await cl.get_balance()
 
-                balance_in_stark = 5
 
                 if balance_in_stark == 0:
                     message_response += f" <i>[Balance {round(balance_in_stark, 1)} ETH]</i> ❌\n"

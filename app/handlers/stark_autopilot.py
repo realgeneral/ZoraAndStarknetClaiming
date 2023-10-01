@@ -64,6 +64,9 @@ async def tap_to_earn_stark(message: types.Message, state: FSMContext):
                              reply_markup=buttons)
         return
 
+    if balance_in_bot == 0:
+        reply_message += "FREE RUN "
+
     if len(private_keys) == 1:
         edit_message = "Waiting for refilling of the wallet...."
     else:
@@ -74,7 +77,7 @@ async def tap_to_earn_stark(message: types.Message, state: FSMContext):
     await bot.edit_message_text(chat_id=wait_message.chat.id,
                                 message_id=wait_message.message_id,
                                 text=f"⏳ Preparing information about the script ... 0% ...")
-    # len_pk = len(private_keys)
+    len_pk = len(private_keys)
     #
     # average_time_of_bridge = Randomiser.average_time(len_pk, Randomiser.random_bridge)
     # average_time_after_bridge = Randomiser.average_time(len_pk, Randomiser.random_bridge_after)
@@ -90,33 +93,24 @@ async def tap_to_earn_stark(message: types.Message, state: FSMContext):
     #      + average_time_after_warm_up + average_time_after_warm_up + average_time_of_mint_erc_721
     #      + average_time_of_mint_erc_1155 + average_time_after_mints) / 60)
     #
-    # await bot.edit_message_text(chat_id=wait_message.chat.id,
+    # await bot.edit_message_text(chaet_id=wait_message.chat.id,
     #                             message_id=wait_message.message_id,
     #                             text=f"⏳ Preparing information about the script ... 50% ...")
     #
-    # reply_message += f"\n📍 Total сount of wallets: <b>{len_pk}</b>\n\n"
-    # reply_message += f"<b>Bot superpower's:</b>\n\n"
-    #
-    # reply_message += f"🀄️ <b>NFT Creation</b> ~ {average_time_of_create} mins\n" \
-    #                  f"       Sleep after creating ~ {average_time_after_create} mins\n\n"
-    # reply_message += f"🏋️‍♂ <b>Wallet warm-up's</b> ~ {average_time_of_warm_up} mins\n" \
-    #                  f"       Sleep after all warm-up's ~ {average_time_after_warm_up} mins\n\n"
-    # reply_message += f"🔀 <b>Randomize mint ERC 1155 NFT'S (2)</b> ~ {average_time_of_mint_erc_1155} mins\n" \
-    #                  "       • <i><a href='https://zora.co/collect/zora:0x4c0c2dd31d2661e8bcec60a42e803dcc6f81baad'>Pattern Recognition</a></i>\n\n" \
-    # reply_message += f"🔀 <b>Randomize mint ERC 721 NFT'S (7)</b> ~ {average_time_of_mint_erc_721} mins\n" \
-    #                  "       • <i><a href='https://zora.co/collect/zora:0x3f1201a68b513049f0f6e182f742a0dce970d8cd'>Zora Merch - Limited Edition Hoodie</a></i>\n" \
-    #                  "       • <i><a href='https://zora.co/collect/zora:0x34573d139A15e5d3D129AD6AE20c3C8B221fD921'>50M LayerZero Messages</a></i>\n" \
-    #                  "       • <i><a href='https://zora.co/collect/zora:0x4ad3cd57a68149a5c5d8a41919dc8ac02d00a366'>Guild on Zora</a></i>\n" \
-    #                  "       • <i><a href='https://zora.co/collect/zora:0x02a1c9babc92d600818ea11ba5b9547f7f25887c'>LayerZero x Nomis</a></i>\n" \
-    #                  "       • <i><a href='https://zora.co/collect/zora:0xbc8ae1adbfb0052babae00d3211f0be30f1fbd5c'>3NUM Shield Opepen</a></i>\n" \
-    #                  "       • <i><a href='https://zora.co/collect/zora:0xcba60a105b5c2fdaf9dd27e733132cc4f7ac9a66'>Holograph VIP</a></i>\n" \
-    #                  "       • <i><a href='https://zora.co/collect/zora:0xcdc9c8060c7c357ee25cd80455cbe05b226d291f'>WEB3PLOTMANS</a></i>\n" \
-    #                  "       • <i><a href='https://zora.co/collect/zora:0x706bafabdd00ceac5b66600901a2b1d1f4992b9d'>Polyhedra live on Mantle Network Mainnet</a></i>\n" \
-    #                  f"  Sleep after all mints ~ {average_time_after_mints} mins\n\n"
-    #
-    # reply_message += f"🕔 <b>Total time</b> ~ {total_time} hours *\n\n" \
-    #                  f"<i>* We stretch out time to imitate how humans act</i>\n\n"
-    # reply_message += "To stop script, press   <b>«⛔️ Stop ⛔️»</b> "
+    reply_message += f"\n📍 Total сount of wallets: <b>{len_pk}</b>\n\n"
+    reply_message += f"<b>Bot superpower's:</b>\n\n" \
+                     "       🔸 <i><a href='https://app.jediswap.xyz/#/swap'>JediSwap</a></i>\n" \
+                     "       🔸 <i><a href='https://www.avnu.fi/'>AVNU</a></i>\n" \
+                     "       🔸 <i><a href='https://10kswap.com/swap'>10K Swap</a></i>\n" \
+                     "       🔸 <i><a href='https://dmailnetwork.gitbook.io/user_guide/starknet-user-guide'>Dmail message</a></i>\n" \
+                     "       🔸 <i><a href='https://www.starknet.id/'>StarkNetIDNFT Minting</a></i>\n" \
+                     "       🔸 <i><a href='https://twitter.com/Starknet_Verse'>StarkVerseNFT Minting</a></i>\n" \
+                     "       🔸 <i><a href=' https://app.jediswap.xyz/#/pool'>JediSwap Liquidity Adding</a></i>\n"
+
+    total_time = "TODO"
+    reply_message += f"🕔 <b>Total time</b> ~ {total_time} hours *\n\n" \
+                     f"<i>* We stretch out time to imitate how humans act</i>\n\n"
+    reply_message += "To stop script, press   <b>«⛔️ Stop ⛔️»</b> "
 
     await bot.edit_message_text(chat_id=wait_message.chat.id,
                                 message_id=wait_message.message_id,
@@ -213,7 +207,7 @@ async def start_earn(message: types.Message, state: FSMContext):
                 ########################################### TASKS PREPARING #################################
                 await bot.edit_message_text(chat_id=wait_message.chat.id,
                                             message_id=wait_message.message_id,
-                                            text=f"⏳Preparing tasks...")
+                                            text=f"⏳ Preparing tasks...")
 
                 TASKS = []
 
@@ -289,7 +283,8 @@ async def start_earn(message: types.Message, state: FSMContext):
                                                         message_id=wait_message.message_id,
                                                         text=f"[{client.address_to_log}] Invalid transaction nonce")
                             wallet_statistics[task_name] = "❌ Invalid transaction nonce"
-                        elif "Insufficient tokens on balance to add a liquidity pair. Only ETH is available" in str(err):
+                        elif "Insufficient tokens on balance to add a liquidity pair. Only ETH is available" in str(
+                                err):
                             logger.error(f"[{client.address_to_log}] {err}")
                             await bot.edit_message_text(chat_id=wait_message.chat.id,
                                                         message_id=wait_message.message_id,
