@@ -12,3 +12,5 @@ class UserFollowing(StatesGroup):
     tap_to_earn = State()
     create_session = State()
     choose_bridge = State()
+    tap_to_earn_stark = State()
+

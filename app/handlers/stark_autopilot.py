@@ -64,8 +64,6 @@ async def tap_to_earn_stark(message: types.Message, state: FSMContext):
                              reply_markup=buttons)
         return
 
-    if balance_in_bot == 0:
-        reply_message += "FREE RUN "
 
     if len(private_keys) == 1:
         edit_message = "Waiting for refilling of the wallet...."
@@ -125,7 +123,7 @@ async def tap_to_earn_stark(message: types.Message, state: FSMContext):
 
     is_ready = 0
     await state.update_data(is_ready=is_ready)
-    await UserFollowing.tap_to_earn.set()
+    await UserFollowing.tap_to_earn_stark.set()
 
     await bot.delete_message(chat_id=wait_message.chat.id,
                              message_id=wait_message.message_id)
@@ -133,7 +131,7 @@ async def tap_to_earn_stark(message: types.Message, state: FSMContext):
                          reply_markup=buttons)
 
 
-@dp.message_handler(Text(equals="⛔️ Stop ⛔️"), state=UserFollowing.tap_to_earn)
+@dp.message_handler(Text(equals="⛔️ Stop ⛔️"), state=UserFollowing.tap_to_earn_stark)
 async def stop_earn(message: types.Message, state: FSMContext):
     message_response = "❗️ Stopping ... \n"
 
@@ -160,7 +158,7 @@ async def stop_earn(message: types.Message, state: FSMContext):
                          reply_markup=reply_markup)
 
 
-@dp.message_handler(Text(equals="🐳 LFG!"), state=UserFollowing.tap_to_earn)
+@dp.message_handler(Text(equals="🐳 LFG!"), state=UserFollowing.tap_to_earn_stark)
 async def start_earn(message: types.Message, state: FSMContext):
     data = await state.get_data()
     is_ready = data.get("is_ready")
