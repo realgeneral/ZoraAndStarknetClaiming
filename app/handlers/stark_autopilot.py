@@ -21,8 +21,8 @@ from app.utils.defi.TenkSwap import TenkSwap
 from app.utils.mint.StarkMinter import Minter as Stark_Minter
 from app.utils.stark_utils.Client import Client
 
-
 one_wallet_run_price = 5
+
 
 @dataclass
 class RunningParams:
@@ -40,8 +40,6 @@ class RunningParams:
     AVNUFI_SWAP_PERCENTAGE: int = random.randint(50, 70)
     TENK_SWAP_PERCENTAGE: int = random.randint(50, 70)
     DMAIL_MESSAGES_COUNT: int = random.randint(10, 20)
-
-
 
 
 @dp.message_handler(Text(equals="💸 Start Starknet script"), state=UserFollowing.choose_point)
@@ -168,11 +166,11 @@ async def stop_earn(message: types.Message, state: FSMContext):
                          reply_markup=reply_markup)
 
 
-
 @dp.message_handler(Text(equals="🐳 LFG!"), state=UserFollowing.tap_to_earn)
 async def start_earn(message: types.Message, state: FSMContext):
     data = await state.get_data()
     is_ready = data.get("is_ready")
+    TOTAL_SLEEP_TIME = 0
 
     if is_ready == 0:
 
@@ -184,12 +182,9 @@ async def start_earn(message: types.Message, state: FSMContext):
 
         count_keys = len(private_keys)
 
-        final_statistic = "\n📊 <b>Statistic</b> \n\n"
+        final_statistic = "\n📊📊📊📊📊📊📊 <b>Statistic</b> \n\n"
 
         wait_message = await message.answer("Taking off ✈️...")
-
-
-        ########################################### SWAP  ###########################################
 
         user_data = await state.get_data()
         if user_data.get("stop_flag"):
@@ -197,6 +192,16 @@ async def start_earn(message: types.Message, state: FSMContext):
 
         for i in range(count_keys):
             try:
+                wallet_statistics = {
+                    "JediSwap Swap": "",
+                    "AvnuFi Swap": "",
+                    "10kSwap Swap": "",
+                    "Dmail message": "",
+                    "StarkVerseNFT Minting": "",
+                    "StarkNetIDNFT Minting": "",
+                    "JediSwap Liquidity Adding": ""
+                }
+
                 params = RunningParams()
 
                 client = Client(address=int(private_keys[i][0], 16),
@@ -206,10 +211,15 @@ async def start_earn(message: types.Message, state: FSMContext):
                                 MAX_GWEI=3000)
 
                 ########################################### TASKS PREPARING #################################
+                await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                            message_id=wait_message.message_id,
+                                            text=f"⏳Preparing tasks...")
+
                 TASKS = []
 
                 JediSwap_client = JediSwap(client=client, JEDISWAP_SWAP_PERCENTAGE=params.JEDISWAP_SWAP_PERCENTAGE,
-                                           JEDISWAP_LIQ_PERCENTAGE=params.JEDISWAP_LIQ_PERCENTAGE, SLIPPAGE=params.SWAP_SLIPPAGE)
+                                           JEDISWAP_LIQ_PERCENTAGE=params.JEDISWAP_LIQ_PERCENTAGE,
+                                           SLIPPAGE=params.SWAP_SLIPPAGE)
                 AvnuFi_client = AvnuFi(client=client, AVNUFI_SWAP_PERCENTAGE=params.AVNUFI_SWAP_PERCENTAGE,
                                        SLIPPAGE=params.SWAP_SLIPPAGE)
                 TenkSwap_client = TenkSwap(client=client, TENK_SWAP_PERCENTAGE=params.TENK_SWAP_PERCENTAGE,
@@ -218,72 +228,138 @@ async def start_earn(message: types.Message, state: FSMContext):
 
                 Dmail_client = Dmail(client=client)
 
-                TASKS.append(JediSwap_client.swap)
-                TASKS.append(AvnuFi_client.swap)
-                TASKS.append(TenkSwap_client.swap)
-                TASKS.append(Minter_client.mintStarkVerse)
-                TASKS.append(Minter_client.mintStarknetIdNFT)
-                for _ in range(params.DMAIL_MESSAGES_COUNT):
-                    TASKS.append(Dmail_client.send_message)
+                TASKS.append(("JediSwap Swap", JediSwap_client.swap))
+                TASKS.append(("AvnuFi Swap", AvnuFi_client.swap))
+                TASKS.append(("10kSwap Swap", TenkSwap_client.swap))
+                TASKS.append(("StarkVerseNFT Minting", Minter_client.mintStarkVerse))
+                TASKS.append(("StarkNetIDNFT Minting", Minter_client.mintStarknetIdNFT))
+                TASKS.append(("Dmail message", Dmail_client.send_message))
 
                 random.shuffle(TASKS)
                 # Adding liq at the end
-                TASKS.append(JediSwap_client.add_liquidity)
+                TASKS.append(("JediSwap Liquidity Adding", JediSwap_client.add_liquidity))
 
                 ########################################### TASKS PERFORMING #################################
 
-                start_delay = params.
+                start_delay = params.RANDOM_DELAY
                 logger.info(f"[{client.address_to_log}] Sleeping for {start_delay} s before taking off")
 
+                await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                            message_id=wait_message.message_id,
+                                            text=f"⏳[{client.address_to_log}] Sleeping for {start_delay} s before taking off")
+
                 await asyncio.sleep(start_delay)
+                TOTAL_SLEEP_TIME += start_delay
+
+                final_statistic += f"\n <u> <b> {client.address_to_log} </b> </u> \n"
 
                 log_counter = 0
-                for task in TASKS:
+                for task_name, task in TASKS:
+                    params = RunningParams()  # новый объект для генерации нового рандом делея
                     delay = params.RANDOM_DELAY
                     if log_counter != 0:
-                        # TODO ВЫВОДИТЬ СООБЩЕНИЯ О СЛИПАХ
                         logger.info(f"[{client.address_to_log}] Sleeping for {delay} s before doing next task")
-                        task_delay = params.RANDOM_DELAY
-                        await asyncio.sleep(task_delay)
+
+                        await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                                    message_id=wait_message.message_id,
+                                                    text=f"[{client.address_to_log}] Sleeping for {delay} s before doing next task")
+                        await asyncio.sleep(delay)
+                        TOTAL_SLEEP_TIME += delay
                     try:
                         balance = (await client.get_balance()).Ether
                         if balance >= 0.000055:
                             await task()
+                            wallet_statistics[task_name] = "✅"
                             log_counter = 1
                         else:
-                            # TODO СООБЩЕНИЕ: НЕХВАТКА ДЕНЕГ
-                            logger.error(f"[{client.address_to_log}] Insufficient funds in StarkNet. Balance: {balance} ETH")
+                            logger.error(
+                                f"[{client.address_to_log}] Insufficient funds in StarkNet. Balance: {balance} ETH")
+                            await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                                        message_id=wait_message.message_id,
+                                                        text=f"[{client.address_to_log}] Insufficient funds. Balance: {balance} ETH")
+
+                            # заполнение оставшейся статистики крестиками в случае нехватки денег
+                            for remaining_task_name, _ in TASKS[TASKS.index((task_name, task)):]:
+                                wallet_statistics[remaining_task_name] = f"❌ Insufficient funds. Balance: {balance} ETH"
                             break
                     except Exception as err:
                         if "nonce" in str(err):
-                            # TODO
-                            logger.error(f"[{client.address_to_log}] Invalid transaction nonce.")
+                            logger.error(f"[{client.address_to_log}] Invalid transaction nonce")
+                            await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                                        message_id=wait_message.message_id,
+                                                        text=f"[{client.address_to_log}] Invalid transaction nonce")
+                            wallet_statistics[task_name] = "❌ Invalid transaction nonce"
                         elif "Insufficient tokens on balance to add a liquidity pair. Only ETH is available" in str(err):
-                            # TODO
                             logger.error(f"[{client.address_to_log}] {err}")
+                            await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                                        message_id=wait_message.message_id,
+                                                        text=f"[{client.address_to_log}] {err}")
+                            wallet_statistics[task_name] = "❌ Insufficient tokens on balance to add a liquidity pair"
                         elif "host starknet-mainnet.infura.io" in str(err):
-                            # TODO СООБЩЕНИЕ: ОТЪЕБНУЛА РПЦ
                             logger.error(f"[{client.address_to_log}] {err}")
+                            await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                                        message_id=wait_message.message_id,
+                                                        text=f"[{client.address_to_log}] {err}")
                             try:
                                 retry_delay = random.randint(15, 30)
-                                # TODO СООБЩЕНИЕ: ПОПЫТКА РЕТРАЙНУТЬ ЗАДАНИЕ
                                 logger.info(f"[{client.address_to_log}] Sleeping for {retry_delay} s before retrying")
+                                await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                                            message_id=wait_message.message_id,
+                                                            text=f"[{client.address_to_log}] Sleeping for {retry_delay} s before retrying")
                                 await asyncio.sleep(retry_delay)
+                                TOTAL_SLEEP_TIME += retry_delay
                                 await task()
+                                wallet_statistics[task_name] = "✅"
                             except Exception as retry_err:
-                                # TODO СООБЩЕНИЕ: ПОПЫТКА РЕТРАЙНУТЬ ЗАДАНИЕ ПОСЛЕ ПРОБЛЕМЫ КОННЕКТА С РПЦ
-                                logger.error(f"[{client.address_to_log}] Error while retrying task after connection issue: {retry_err}")
+                                logger.error(
+                                    f"[{client.address_to_log}] Error while retrying task after connection issue: {retry_err}")
+                                await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                                            message_id=wait_message.message_id,
+                                                            text=f"[{client.address_to_log}] Error while retrying task after connection issue: {retry_err}")
+                                wallet_statistics[task_name] = "❌ Lost connection with starknet-mainnet.infura.io"
+
                         elif "Transaction reverted: Error in the called contract." in str(err):
-                            # TODO СООБЩЕНИЕ: ОШИБКА ПРИ ИНТЕРАКТЕ С КОНТРАКТОМ
                             logger.error(f"[{client.address_to_log}] {err}")
+                            await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                                        message_id=wait_message.message_id,
+                                                        text=f"[{client.address_to_log}] Transaction reverted: Error in the called contract")
+                            wallet_statistics[task_name] = "❌ Transaction reverted: Error in the called contract"
+
                         else:
                             logger.error(f"[{client.address_to_log}] Error while performing task: {err}")
+                            await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                                        message_id=wait_message.message_id,
+                                                        text=f"[{client.address_to_log}] Error while performing task: {err}")
+                            wallet_statistics[task_name] = f"❌ Error while performing task: {err}"
+
+                    # формирую финальное сообщение о статистике исходя из собранной статистики одного прогнанного кошелька
+                    final_statistic += f"\n<u><b>{client.address_to_log}</b></u>\n"
+
+                    for task_name, status in wallet_statistics.items():
+                        final_statistic += f"<u>{task_name} </u>: {status}\n"
 
             except Exception as err:
                 logger.error(f"#{i} Something went wrong while client declaring or getting params: {err}")
+                await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                            message_id=wait_message.message_id,
+                                            text=f"#{i} Something went wrong while client declaring or getting params: {err}")
 
+        await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                    message_id=wait_message.message_id,
+                                    text=f"Preparing statistics...")
 
+        await bot.delete_message(chat_id=wait_message.chat.id,
+                                 message_id=wait_message.message_id)
 
+        buttons = [
+            KeyboardButton(text="⬅ Go to menu"),
+        ]
+        reply_markup = ReplyKeyboardMarkup(keyboard=[buttons],
+                                           resize_keyboard=True)
+
+        await message.answer(final_statistic,
+                             parse_mode=types.ParseMode.HTML,
+                             reply_markup=reply_markup)
 #
 #         await state.update_data(final_statistic=final_statistic)
 #
