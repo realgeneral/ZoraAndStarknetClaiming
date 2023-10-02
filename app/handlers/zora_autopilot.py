@@ -123,8 +123,7 @@ async def tap_to_earn(message: types.Message, state: FSMContext):
         reply_message += f"🏋️‍♂ <b>Wallet warm-up's</b> ~ {average_time_of_warm_up} mins\n" \
                          f"       Sleep after all warm-up's ~ {average_time_after_warm_up} mins\n\n"
         reply_message += f"🔀 <b>Randomize mint ERC 1155 NFT'S (2)</b> ~ {average_time_of_mint_erc_1155} mins\n" \
-                         "       • <i><a href='https://zora.co/collect/zora:0x4c0c2dd31d2661e8bcec60a42e803dcc6f81baad'>Pattern Recognition</a></i>\n\n" \
-
+                         "       • <i><a href='https://zora.co/collect/zora:0x4c0c2dd31d2661e8bcec60a42e803dcc6f81baad'>Pattern Recognition</a></i>\n\n"
         reply_message += f"🔀 <b>Randomize mint ERC 721 NFT'S (7)</b> ~ {average_time_of_mint_erc_721} mins\n" \
                          "       • <i><a href='https://zora.co/collect/zora:0x3f1201a68b513049f0f6e182f742a0dce970d8cd'>Zora Merch - Limited Edition Hoodie</a></i>\n" \
                          "       • <i><a href='https://zora.co/collect/zora:0x34573d139A15e5d3D129AD6AE20c3C8B221fD921'>50M LayerZero Messages</a></i>\n" \
@@ -929,21 +928,25 @@ async def start_earn(message: types.Message, state: FSMContext):
         is_ready = 0
 
         is_free_run = user_db.is_free_run(message.from_user.id)  # 1 == free
-        if is_free_run == 1:
-            user_db.set_false_free_run(message.from_user.id)
-            final_statistic += "\n\n🎉 Congratulations!  You have farmed 1 wallet on a Tier 1 Project." \
-                               "😤 In the past the average web3 user has made $500 for doing the same actions in air drops. "
 
         data = await state.get_data()
         private_keys = list(data.get("private_keys"))
 
-        user_db.update_balance(message.from_user.id, -(len(private_keys) * one_wallet_run_price))
+        if is_free_run == 0:
+            user_db.update_balance(message.from_user.id, -(len(private_keys) * one_wallet_run_price))
 
         await state.update_data(is_ready=is_ready)
         await UserFollowing.wallet_menu.set()
         await message.answer(final_statistic,
                              parse_mode=types.ParseMode.HTML,
                              reply_markup=reply_markup)
+        if is_free_run == 1:
+            user_db.set_false_free_run(message.from_user.id)
+            congratulations = "\n\n🎉 Congratulations!  You have farmed 1 wallet on a Tier 1 Project." \
+                              "😤 In the past the average web3 user has made $500 for doing the same actions in air drops. "
+            await message.answer(congratulations,
+                                 parse_mode=types.ParseMode.HTML,
+                                 reply_markup=reply_markup)
     else:
         b1 = KeyboardButton("🐳 LFG!")
         b2 = KeyboardButton("⛔️ Stop ⛔️")
