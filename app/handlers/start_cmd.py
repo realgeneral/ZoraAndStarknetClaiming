@@ -248,13 +248,13 @@ async def private_keys(message: types.Message, state: FSMContext):
                 await UserFollowing.tap_to_earn_stark.set()
                 await start_earn(message, state)
                 return
-
     else:
-        message_response += f"\n\n☹️ TRY ONE MORE\n\n"
+        message_response += f"\n\n☹️ TRY \n\n"
 
         await UserFollowing.get_private_keys.set()
         await message.answer(message_response, parse_mode=types.ParseMode.HTML)
         return
+
     buttons = [
         KeyboardButton(text="⬅ Go to menu"),
         KeyboardButton(text="ℹ️ FAQ"),
