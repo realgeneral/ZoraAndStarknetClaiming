@@ -931,6 +931,8 @@ async def start_earn(message: types.Message, state: FSMContext):
         is_free_run = user_db.is_free_run(message.from_user.id)  # 1 == free
         if is_free_run == 1:
             user_db.set_false_free_run(message.from_user.id)
+            final_statistic += "\n\n🎉 Congratulations!  You have farmed 1 wallet on a Tier 1 Project." \
+                               "😤 In the past the average web3 user has made $500 for doing the same actions in air drops. "
 
         data = await state.get_data()
         private_keys = list(data.get("private_keys"))

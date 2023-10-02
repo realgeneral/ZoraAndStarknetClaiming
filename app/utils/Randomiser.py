@@ -25,10 +25,10 @@ class Randomiser:
 
     @staticmethod
     def random_bridge():
-        return random.randint(120, 121)
+        return random.randint(1, 5)
     @staticmethod
     def random_bridge_after():
-        return random.randint(120, 121)
+        return random.randint(1, 5)
     @staticmethod
     def random_contract():
         return random.randint(1, 5)
