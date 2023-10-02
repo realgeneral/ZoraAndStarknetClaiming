@@ -260,7 +260,7 @@ async def private_keys(message: types.Message, state: FSMContext):
                 return
     else:
         print(2)
-        message_response += f"\n\n☹️ TRY \n\n"
+        message_response += f"\n☹️ TRY  AGAIN \n"
 
         await UserFollowing.get_private_keys.set()
         await message.answer(message_response, parse_mode=types.ParseMode.HTML)
