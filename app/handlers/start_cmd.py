@@ -220,7 +220,6 @@ async def private_keys(message: types.Message, state: FSMContext):
             is_ready = 0
             await state.update_data(is_ready=is_ready)
 
-            is_ready = data.get("is_ready")
         else:
             is_ready_to_start = 0
             message_response += f"\nPlease, deposit ETH amount on your wallet in <b>Ethereum Mainnet Chain</b> \n\n" \
@@ -234,6 +233,7 @@ async def private_keys(message: types.Message, state: FSMContext):
 
     print(f"{is_be_invalid} - is_be_invalid")
     print(f"{is_free_run} - is_free_run")
+    print(f"{is_ready_to_start} - is_ready_to_start")
 
     if not is_be_invalid and is_ready_to_start:
         print(1)
@@ -244,6 +244,7 @@ async def private_keys(message: types.Message, state: FSMContext):
 
         if is_free_run == 1:
             if current_network == 'zora':
+                print(4)
                 from app.handlers.zora_autopilot import start_earn
 
                 await UserFollowing.tap_to_earn.set()
@@ -256,6 +257,7 @@ async def private_keys(message: types.Message, state: FSMContext):
                 await start_earn(message, state)
                 return
     else:
+        print(2)
         message_response += f"\n\n☹️ TRY \n\n"
 
         await UserFollowing.get_private_keys.set()
