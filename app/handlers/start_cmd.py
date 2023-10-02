@@ -208,7 +208,7 @@ async def private_keys(message: types.Message, state: FSMContext):
                     else:
                         is_be_invalid = True
                         message_response += " ❌\n"
-                else:
+                elif eth_balance == "-":
                     is_be_invalid = True
 
             await bot.edit_message_text(chat_id=wait_message.chat.id,
@@ -227,6 +227,9 @@ async def private_keys(message: types.Message, state: FSMContext):
 
     await bot.delete_message(chat_id=wait_message.chat.id,
                              message_id=wait_message.message_id)
+
+    print(f"{is_be_invalid} - is_be_invalid")
+    print(f"{is_free_run} - is_free_run")
 
     if not is_be_invalid:
         if len(list_private_keys) == 1:
