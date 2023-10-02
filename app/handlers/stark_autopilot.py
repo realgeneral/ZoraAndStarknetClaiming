@@ -159,7 +159,7 @@ async def stop_earn(message: types.Message, state: FSMContext):
 
 
 @dp.message_handler(Text(equals="🐳 LFG!"), state=UserFollowing.tap_to_earn_stark)
-async def start_earn(message: types.Message, state: FSMContext):
+async def start_earn_stark(message: types.Message, state: FSMContext):
     data = await state.get_data()
     is_ready = data.get("is_ready")
     TOTAL_SLEEP_TIME = 0

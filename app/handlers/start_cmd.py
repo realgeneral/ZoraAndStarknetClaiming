@@ -9,7 +9,8 @@ from aiogram.dispatcher import FSMContext
 from app.create_bot import dp, bot
 from app.states import UserFollowing
 from app.keyboards import check_sub_menu
-
+from app.handlers.zora_autopilot import start_earn
+from app.handlers.stark_autopilot import start_earn_stark
 from app.utils.Bridger import Bridger
 from app.utils.Estimate import Estimate
 from app.utils.UsersDb import Users
@@ -116,6 +117,7 @@ async def is_subscribe(callback_query: types.CallbackQuery, state: FSMContext):
 @dp.message_handler(state=UserFollowing.get_private_keys)
 async def private_keys(message: types.Message, state: FSMContext):
     max_count = user_db.get_max_wallets(user_id=message.from_user.id)
+    is_free_run = user_db.is_free_run(message.from_user.id)  # 1 == free
 
     message_response = ""
     is_be_invalid = False
@@ -206,6 +208,8 @@ async def private_keys(message: types.Message, state: FSMContext):
                     else:
                         is_be_invalid = True
                         message_response += " ❌\n"
+                else:
+                    is_be_invalid = True
 
             await bot.edit_message_text(chat_id=wait_message.chat.id,
                                         message_id=wait_message.message_id,
@@ -223,17 +227,28 @@ async def private_keys(message: types.Message, state: FSMContext):
 
     await bot.delete_message(chat_id=wait_message.chat.id,
                              message_id=wait_message.message_id)
+
     if not is_be_invalid:
         if len(list_private_keys) == 1:
             message_response += f"\n\nWallet is successfully loaded! (max. {max_count})\n\n"
         else:
             message_response += f"<b>{len(list_private_keys)}</b> wallets are successfully loaded! (max. {max_count})\n\n"
+
+        if is_free_run == 1:
+            if current_network == 'zora':
+                await UserFollowing.get_private_keys.set()
+                await start_earn_stark(message, state)
+                return
+            if current_network == 'stark':
+                await UserFollowing.tap_to_earn_stark.set()
+                await start_earn(message, state)
+                return
+
     else:
         message_response += f"\n\n☹️ TRY ONE MORE\n\n"
 
-        await UserFollowing.get_private_keys.set(),
-        await message.answer(message_response,
-                             parse_mode=types.ParseMode.HTML)
+        await UserFollowing.tap_to_earn.set()
+        await message.answer(message_response, parse_mode=types.ParseMode.HTML)
         return
     buttons = [
         KeyboardButton(text="⬅ Go to menu"),
