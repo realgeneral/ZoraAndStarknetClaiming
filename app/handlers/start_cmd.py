@@ -172,6 +172,7 @@ async def private_keys(message: types.Message, state: FSMContext):
                 except Exception:
                     is_be_invalid = True
                     message_response += f" <i>[INVALID FORMAT]</i> ❌\n"
+        is_ready_to_start = 1
 
     if current_network == 'zora':
 
@@ -229,7 +230,8 @@ async def private_keys(message: types.Message, state: FSMContext):
     print(f"{is_be_invalid} - is_be_invalid")
     print(f"{is_free_run} - is_free_run")
 
-    if not is_be_invalid:
+    if not is_be_invalid and is_ready_to_start:
+        print(1)
         if len(list_private_keys) == 1:
             message_response += f"\n\nWallet is successfully loaded! (max. {max_count})\n\n"
         else:
@@ -237,10 +239,10 @@ async def private_keys(message: types.Message, state: FSMContext):
 
         if is_free_run == 1:
             if current_network == 'zora':
-                from app.handlers.stark_autopilot import start_earn_stark
+                from app.handlers.zora_autopilot import start_earn
 
-                await UserFollowing.get_private_keys.set()
-                await start_earn_stark(message, state)
+                await UserFollowing.tap_to_earn.set()
+                await start_earn(message, state)
                 return
             if current_network == 'stark':
                 from app.handlers.zora_autopilot import start_earn
