@@ -114,6 +114,8 @@ async def is_subscribe(callback_query: types.CallbackQuery, state: FSMContext):
 
 @dp.message_handler(state=UserFollowing.get_private_keys)
 async def private_keys(message: types.Message, state: FSMContext):
+    is_ready_to_start = 0
+
     max_count = user_db.get_max_wallets(user_id=message.from_user.id)
     is_free_run = user_db.is_free_run(message.from_user.id)  # 1 == free
 
