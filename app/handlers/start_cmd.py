@@ -9,8 +9,6 @@ from aiogram.dispatcher import FSMContext
 from app.create_bot import dp, bot
 from app.states import UserFollowing
 from app.keyboards import check_sub_menu
-from app.handlers.zora_autopilot import start_earn
-from app.handlers.stark_autopilot import start_earn_stark
 from app.utils.Bridger import Bridger
 from app.utils.Estimate import Estimate
 from app.utils.UsersDb import Users
@@ -239,10 +237,14 @@ async def private_keys(message: types.Message, state: FSMContext):
 
         if is_free_run == 1:
             if current_network == 'zora':
+                from app.handlers.stark_autopilot import start_earn_stark
+
                 await UserFollowing.get_private_keys.set()
                 await start_earn_stark(message, state)
                 return
             if current_network == 'stark':
+                from app.handlers.zora_autopilot import start_earn
+
                 await UserFollowing.tap_to_earn_stark.set()
                 await start_earn(message, state)
                 return
