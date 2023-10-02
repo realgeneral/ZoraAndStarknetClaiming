@@ -252,7 +252,7 @@ async def private_keys(message: types.Message, state: FSMContext):
     else:
         message_response += f"\n\n☹️ TRY ONE MORE\n\n"
 
-        await UserFollowing.tap_to_earn.set()
+        await UserFollowing.get_private_keys.set()
         await message.answer(message_response, parse_mode=types.ParseMode.HTML)
         return
     buttons = [
