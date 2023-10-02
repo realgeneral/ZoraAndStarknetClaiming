@@ -217,6 +217,8 @@ async def private_keys(message: types.Message, state: FSMContext):
                                         text=f"⏳ Getting information about wallets {i + 1}/{len(list_private_keys)}")
 
         if count_ok_wallet == len(list_private_keys):
+            is_ready_to_start = 1
+
             is_ready = 0
             await state.update_data(is_ready=is_ready)
 
