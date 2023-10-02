@@ -27,7 +27,7 @@ async def start_cmd(message: types.Message):
     user_id = message.from_user.id
     formatted_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-    user_db.add_user(user_id, formatted_date, wallet_count=5)
+    user_db.add_user(user_id, formatted_date, wallet_count=1)
 
     buttons = [
         KeyboardButton(text="🔮 Zora"),
@@ -38,8 +38,8 @@ async def start_cmd(message: types.Message):
                                        resize_keyboard=True)
 
     await UserFollowing.check_claim_net.set()
-    await message.answer(f"Welcome, <b> {message.from_user.first_name}</b>! \n\n"
-                         "<b>⬇️ Choose network </b>",
+    await message.answer(f"Hi, <b> {message.from_user.first_name}</b>! \n\n"
+                         "<b>⬇️Pick the project you want to do:</b>",
                          parse_mode=types.ParseMode.HTML, reply_markup=reply_markup)
 
 
@@ -118,6 +118,7 @@ async def private_keys(message: types.Message, state: FSMContext):
     max_count = user_db.get_max_wallets(user_id=message.from_user.id)
 
     message_response = ""
+    is_be_invalid = False
 
     lines = message.text.strip().split("\n")
     list_private_keys = lines[:max_count]
@@ -125,10 +126,7 @@ async def private_keys(message: types.Message, state: FSMContext):
     await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
 
     wait_message = await message.answer("⏳ Getting information about wallets ...")
-    if len(list_private_keys) == 1:
-        message_response += f"Wallet is successfully loaded! (max. {max_count})\n\n"
-    else:
-        message_response += f"<b>{len(list_private_keys)}</b> wallets are successfully loaded! (max. {max_count})\n\n"
+
 
     data = await state.get_data()
     current_network = data.get("current_network")
@@ -155,6 +153,7 @@ async def private_keys(message: types.Message, state: FSMContext):
 
             message_response += f"Wallet <b>#{i + 1}</b>"
             if keys_dict[i+1] is None:
+                is_be_invalid = True
                 message_response += f" <i>[INVALID FORMAT]</i> ❌\n"
                 continue
             else:
@@ -171,6 +170,7 @@ async def private_keys(message: types.Message, state: FSMContext):
                     else:
                         message_response += f" <i>[Balance {round(balance_in_stark, 5)} ETH]</i> ✅\n"
                 except Exception:
+                    is_be_invalid = True
                     message_response += f" <i>[INVALID FORMAT]</i> ❌\n"
 
     if current_network == 'zora':
@@ -204,6 +204,7 @@ async def private_keys(message: types.Message, state: FSMContext):
                         message_response += " ✅\n"
                         count_ok_wallet += 1
                     else:
+                        is_be_invalid = True
                         message_response += " ❌\n"
 
             await bot.edit_message_text(chat_id=wait_message.chat.id,
@@ -216,13 +217,24 @@ async def private_keys(message: types.Message, state: FSMContext):
             is_ready_to_start = 0
             message_response += f"\nPlease, deposit ETH amount on your wallet in <b>Ethereum Mainnet Chain</b> \n\n" \
                                 f"* <i>Withdrawal takes ~ 5 minutes</i>\n\n "
-            message_response += "<b>⚠️ Be sure to use CEX or you'll link your wallets and become sybil</b>"
+            message_response += "<b>⚠️ Be sure to use CEX or you'll link your wallets and become sybil</b>\n\n"
 
         await state.update_data(is_ready_to_start=is_ready_to_start)  # если на кошельках достаточно ETH для бриджа
 
     await bot.delete_message(chat_id=wait_message.chat.id,
                              message_id=wait_message.message_id)
+    if not is_be_invalid:
+        if len(list_private_keys) == 1:
+            message_response += f"\n\nWallet is successfully loaded! (max. {max_count})\n\n"
+        else:
+            message_response += f"<b>{len(list_private_keys)}</b> wallets are successfully loaded! (max. {max_count})\n\n"
+    else:
+        message_response += f"\n\n☹️ TRY ONE MORE\n\n"
 
+        await UserFollowing.get_private_keys.set(),
+        await message.answer(message_response,
+                             parse_mode=types.ParseMode.HTML)
+        return
     buttons = [
         KeyboardButton(text="⬅ Go to menu"),
         KeyboardButton(text="ℹ️ FAQ"),
