@@ -41,9 +41,23 @@ class PaymentSession:
         except sqlite3.Error as e:
             logging.error(f"Error adding session: {e}")
 
+    def stop_session(self, telegram_id):
+        try:
+            self.cursor.execute("""
+                UPDATE payment_sessions
+                SET wallet_address = NULL,
+                    private_key = NULL,
+                    mnemonic_phrase = NULL,
+                    network = NULL,
+                    deposit_amount = 0,
+                    deposit_time = NULL
+                WHERE telegram_id = ?
+            """, (telegram_id,))
+            self.conn.commit()
+        except sqlite3.Error as e:
+            logging.error(f"Error updating data for telegram_id {telegram_id}: {e}")
+
     def close(self):
         self.conn.close()
 
-# Если вы хотите создать базу данных сразу же после запуска этого кода,
-# просто создайте экземпляр этого класса:
-# session = PaymentSessions()
+

@@ -50,7 +50,7 @@ async def save_user_money(message: types.Message):
     telegram_id, money_usdt = message.text.split(':')
 
     try:
-        user_db.update_balance(telegram_id, money_usdt)
+        user_db.update_balance(telegram_id, float(money_usdt))
         message_response = f"To `{telegram_id}` added {money_usdt}$"
     except Exception as err_:
         message_response = f"Not added: {err_}"

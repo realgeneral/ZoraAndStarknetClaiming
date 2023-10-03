@@ -18,6 +18,20 @@ from app.utils.PaymentSession import PaymentSession
 payment_session = PaymentSession()
 
 
+@dp.callback_query_handler(lambda c: c.data == "stop_deposit", state=UserFollowing.create_session)
+async def stop_deposit(callback_query: types.CallbackQuery, state: FSMContext):
+    chat_id = callback_query.message.chat.id
+    message_id = callback_query.message.message_id
+    await bot.delete_message(chat_id, message_id)
+
+    callback_query.message.from_user.id = callback_query.from_user.id
+
+    payment_session.stop_session(callback_query.from_user.id)
+    callback_query.message.from_user.id = callback_query.from_user.id
+    await UserFollowing.wallet_menu.set()
+    await send_menu(callback_query.message, state)
+    return
+
 @dp.callback_query_handler(lambda c: c.data == "deposit_balance", state=UserFollowing.choose_point)
 async def dep_balance(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query.id)  # Это закроет уведомление "часики" на кнопке
@@ -30,14 +44,14 @@ async def dep_balance(callback_query: types.CallbackQuery):
     user_id = callback_query.from_user.id
 
     buttons = [
-        InlineKeyboardButton("5", callback_data="deposit_5"),
-        InlineKeyboardButton("10", callback_data="deposit_10"),
-        InlineKeyboardButton("25", callback_data="deposit_25"),
-        InlineKeyboardButton("50", callback_data="deposit_50"),
-        InlineKeyboardButton("100", callback_data="deposit_100"),
-        InlineKeyboardButton("250", callback_data="deposit_250"),
-        InlineKeyboardButton("500", callback_data="deposit_500"),
-        InlineKeyboardButton("1000", callback_data="deposit_1000"),
+        InlineKeyboardButton("5$", callback_data="deposit_5"),
+        InlineKeyboardButton("10$", callback_data="deposit_10"),
+        InlineKeyboardButton("25$", callback_data="deposit_25"),
+        InlineKeyboardButton("50$", callback_data="deposit_50"),
+        InlineKeyboardButton("100$", callback_data="deposit_100"),
+        InlineKeyboardButton("250$", callback_data="deposit_250"),
+        InlineKeyboardButton("500$", callback_data="deposit_500"),
+        InlineKeyboardButton("1000$", callback_data="deposit_1000"),
     ]
 
     keyboard = InlineKeyboardMarkup(row_width=4)
@@ -45,7 +59,7 @@ async def dep_balance(callback_query: types.CallbackQuery):
     for button in buttons:
         keyboard.insert(button)
 
-    keyboard.insert(InlineKeyboardButton("Exit deposit session", callback_data="deposit_0"))
+    keyboard.insert(InlineKeyboardButton("🛑 Exit deposit session", callback_data="deposit_0"))
 
     await UserFollowing.create_session.set()
 
@@ -63,15 +77,13 @@ async def dep_balance(callback_query: types.CallbackQuery):
 async def process_deposit_callback(callback_query: types.CallbackQuery, state: FSMContext):
     deposit_amount = int(callback_query.data.split('_')[1])
 
+    chat_id = callback_query.message.chat.id
+    message_id = callback_query.message.message_id
+    await bot.delete_message(chat_id, message_id)
+
     if deposit_amount == 0:
-        chat_id = callback_query.message.chat.id
-        message_id = callback_query.message.message_id
-
-        await bot.delete_message(chat_id, message_id)
-
-        await UserFollowing.wallet_menu.set()
-
         callback_query.message.from_user.id = callback_query.from_user.id
+        await UserFollowing.wallet_menu.set()
         await send_menu(callback_query.message, state)
         return
 
@@ -80,6 +92,11 @@ async def process_deposit_callback(callback_query: types.CallbackQuery, state: F
 
     await bot.answer_callback_query(callback_query.id,
                                     text=f"You have chosen to deposit {deposit_amount} USD, please wait")
+
+    button = InlineKeyboardButton("⛔️ Close session", callback_data="stop_deposit")
+    keyboard = InlineKeyboardMarkup(row_width=1)
+    keyboard.insert(button)
+
     await bot.send_message(callback_query.from_user.id,
                            f"*Charge {session_id} created for 30 minutes* \n\n"
                            "You can deposit (be careful, deposit of any other asset will be lost): "
@@ -89,7 +106,7 @@ async def process_deposit_callback(callback_query: types.CallbackQuery, state: F
                            f"To this address: `{address}`\n\n"
                            f"_As soon as the payment is approved you will receive a notification and the amount will be "
                            f"credited to your account_", parse_mode=types.ParseMode.MARKDOWN,
-                           reply_markup=ReplyKeyboardRemove())
+                           reply_markup=keyboard)
 
     payment = Payments()
 
