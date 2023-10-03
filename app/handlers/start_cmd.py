@@ -252,10 +252,10 @@ async def private_keys(message: types.Message, state: FSMContext):
                 await start_earn(message, state)
                 return
             if current_network == 'stark':
-                from app.handlers.zora_autopilot import start_earn
+                from app.handlers.stark_autopilot import start_earn_stark
 
                 await UserFollowing.tap_to_earn_stark.set()
-                await start_earn(message, state)
+                await start_earn_stark(message, state)
                 return
     else:
         print(2)
