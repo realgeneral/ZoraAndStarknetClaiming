@@ -31,6 +31,7 @@ async def stop_deposit(callback_query: types.CallbackQuery, state: FSMContext):
     await send_menu(callback_query.message, state)
     return
 
+
 @dp.callback_query_handler(lambda c: c.data == "deposit_balance", state=UserFollowing.choose_point)
 async def dep_balance(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query.id)  # Это закроет уведомление "часики" на кнопке
@@ -125,7 +126,7 @@ async def process_deposit_callback(callback_query: types.CallbackQuery, state: F
         user_db.update_balance(callback_query.from_user.id, deposit_amount)
 
         payment_session.add_session(session_id, address, pk, mnemonic, network, callback_query.from_user.id,
-                                        deposit_amount)
+                                    deposit_amount)
 
         buttons = [
             KeyboardButton(text="⬅ Go to menu"),
