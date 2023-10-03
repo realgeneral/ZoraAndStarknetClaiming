@@ -218,10 +218,6 @@ async def private_keys(message: types.Message, state: FSMContext):
 
         if count_ok_wallet == len(list_private_keys):
             is_ready_to_start = 1
-
-            is_ready = 0
-            await state.update_data(is_ready=is_ready)
-
         else:
             is_ready_to_start = 0
             message_response += f"\nPlease, deposit ETH amount on your wallet in <b>Ethereum Mainnet Chain</b> \n\n" \
@@ -245,6 +241,9 @@ async def private_keys(message: types.Message, state: FSMContext):
             message_response += f"<b>{len(list_private_keys)}</b> wallets are successfully loaded! (max. {max_count})\n\n"
 
         if is_free_run == 1:
+            is_ready = 0
+            await state.update_data(is_ready=is_ready)
+
             if current_network == 'zora':
                 print(4)
                 from app.handlers.zora_autopilot import start_earn
