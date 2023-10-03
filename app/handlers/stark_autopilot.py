@@ -255,6 +255,7 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
                         TOTAL_SLEEP_TIME += delay
                     try:
                         balance = (await client.get_balance()).Ether
+                        balance_to_print = round((await client.get_balance()).Ether, 5)
                         if balance >= 0.000055:
                             await bot.edit_message_text(chat_id=wait_message.chat.id,
                                                         message_id=wait_message.message_id,
@@ -264,14 +265,14 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
                             log_counter = 1
                         else:
                             logger.error(
-                                f"[{client.address_to_log}] Insufficient funds in StarkNet. Balance: {balance} ETH")
+                                f"[{client.address_to_log}] Insufficient funds in StarkNet. Balance: {balance_to_print} ETH")
                             await bot.edit_message_text(chat_id=wait_message.chat.id,
                                                         message_id=wait_message.message_id,
-                                                        text=f"[{client.address_to_log}] Insufficient funds. Balance: {balance} ETH")
+                                                        text=f"[{client.address_to_log}] Insufficient funds. Balance: {balance_to_print} ETH")
 
                             # заполнение оставшейся статистики крестиками в случае нехватки денег
                             for remaining_task_name, _ in TASKS[TASKS.index((task_name, task)):]:
-                                wallet_statistics[remaining_task_name] = f"❌ Insufficient funds. Balance: {balance} ETH"
+                                wallet_statistics[remaining_task_name] = f"❌ Insufficient funds. Balance: {balance_to_print} ETH"
                             break
                     except Exception as err:
                         if "nonce" in str(err):
@@ -325,10 +326,10 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
                             wallet_statistics[task_name] = f"❌ Error while performing task: {err}"
 
                 # формирую финальное сообщение о статистике исходя из собранной статистики одного прогнанного кошелька
-                final_statistic += f"\n<u><b>{client.address_to_log}</b></u>\n"
+                final_statistic += f"\nWallet <b>[{client.address_to_log}]</b>\n\n"
 
                 for task_name, status in wallet_statistics.items():
-                    final_statistic += f"<i>{task_name}</i>: {status}\n"
+                    final_statistic += f"{task_name}: <i>{status}</i>\n"
 
             except Exception as err:
                 logger.error(f"#{i} Something went wrong while client declaring or getting params: {err}")
@@ -356,17 +357,17 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
         ]
         reply_markup = ReplyKeyboardMarkup(keyboard=[buttons],
                                            resize_keyboard=True)
+        await message.answer(final_statistic,
+                             parse_mode=types.ParseMode.HTML,
+                             reply_markup=reply_markup)
 
         if is_free_run == 1:
             user_db.set_false_free_run(message.from_user.id)
-            congratulations = "\n\n🎉 Congratulations!  You have farmed 1 wallet on a Tier 1 Project." \
+            congratulations = "🎉 Congratulations!  You have farmed 1 wallet on a Tier 1 Project.\n" \
                               "😤 In the past the average web3 user has made $500 for doing the same actions in air drops. "
             await message.answer(congratulations,
                                  parse_mode=types.ParseMode.HTML,
                                  reply_markup=reply_markup)
-        await message.answer(final_statistic,
-                             parse_mode=types.ParseMode.HTML,
-                             reply_markup=reply_markup)
 
     else:
             b1 = KeyboardButton("🐳 LFG!")
