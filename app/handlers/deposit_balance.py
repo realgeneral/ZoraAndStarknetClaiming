@@ -26,8 +26,7 @@ async def stop_deposit(callback_query: types.CallbackQuery, state: FSMContext):
 
     callback_query.message.from_user.id = callback_query.from_user.id
 
-    payment_session.stop_session(callback_query.from_user.id)
-    callback_query.message.from_user.id = callback_query.from_user.id
+    await state.update_data(stop_session=True)
     await UserFollowing.wallet_menu.set()
     await send_menu(callback_query.message, state)
     return
@@ -109,14 +108,24 @@ async def process_deposit_callback(callback_query: types.CallbackQuery, state: F
                            reply_markup=keyboard)
 
     payment = Payments()
+    result = False
+    network = '_'
+    await state.update_data(stop_session=False)
 
-    result, network = await payment.start_payment_session(deposit_amount, address)
-    await asyncio.sleep(10)
+    for _ in range(30):
+        await asyncio.sleep(5)
+        result, network = await payment.start_payment_session(deposit_amount, address)
+        print(result)
+
+        user_data = await state.get_data()
+        if user_data.get("stop_session"):
+            return
 
     if result:
         user_db.update_balance(callback_query.from_user.id, deposit_amount)
+
         payment_session.add_session(session_id, address, pk, mnemonic, network, callback_query.from_user.id,
-                                    deposit_amount)
+                                        deposit_amount)
 
         buttons = [
             KeyboardButton(text="⬅ Go to menu"),

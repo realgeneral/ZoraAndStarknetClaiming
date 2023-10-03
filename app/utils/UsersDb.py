@@ -37,7 +37,6 @@ class Users:
         except sqlite3.Error as e:
             logging.error(f"Error updating time_wait: {e}")
 
-
     def set_max_wallets_count(self, user_id, wallet_count):
         try:
             self.cursor.execute("""

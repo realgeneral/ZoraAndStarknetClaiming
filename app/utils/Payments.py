@@ -67,9 +67,6 @@ class Payments:
         return balance >= expected_amount
 
     async def start_payment_session(self, expected_amount, address):
-        for _ in range(30):
-            await asyncio.sleep(10)
-
             if await self.check_token_transaction(self.polygon_w3, address, expected_amount, 'USDC', 'polygon'):
                 return True, "polygon"
 
@@ -82,4 +79,4 @@ class Payments:
             if await self.check_token_transaction(self.arbitrum_w3, address, expected_amount, 'USDT', 'arbitrum'):
                 return True, "arbitrum"
 
-        return False
+            return False, "-"
