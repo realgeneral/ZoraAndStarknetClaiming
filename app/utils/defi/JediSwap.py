@@ -63,9 +63,8 @@ class JediSwap:
                                                 decimals=6)
                 elif from_token_name == 'DAI':
                     min_to_amount = TokenAmount(amount=float(amount.Ether) * (1 - self.slippage / 100),
-                                                decimals=6) \
- \
-                            elif from_token_name == 'USDT' or from_token_name == 'USDC':
+                                                decimals=6)
+                elif from_token_name == 'USDT' or from_token_name == 'USDC':
                     min_to_amount = TokenAmount(amount=float(amount.Ether) * (1 - self.slippage / 100), decimals=18)
 
             elif to_token_name == 'ETH':
