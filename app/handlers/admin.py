@@ -9,7 +9,7 @@ from app.states import AdminMode
 from app.handlers.start_cmd import user_db
 
 global one_wallet_run_price
-one_wallet_run_price = 5
+
 
 @dp.message_handler(Text(equals=["⬅ Go to admin menu"]), state=AdminMode.admin_menu)
 async def go_admin_menu(message: types.Message):
@@ -197,3 +197,8 @@ async def user_list_handler(message: types.Message):
 
 def get_one_wallet_run_price():
     return one_wallet_run_price
+
+
+def set_one_wallet_run_price():
+    global one_wallet_run_price
+    one_wallet_run_price = 15
