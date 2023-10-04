@@ -120,6 +120,8 @@ async def process_deposit_callback(callback_query: types.CallbackQuery, state: F
 
         result, network = await payment.start_payment_session(deposit_amount, address)
         logging.info(f"result - {result}, network - {network}")
+        if result:
+            break
         user_data = await state.get_data()
         if user_data.get("stop_session"):
             return
