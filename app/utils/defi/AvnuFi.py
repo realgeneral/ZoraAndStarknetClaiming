@@ -6,7 +6,6 @@ from app.utils.stark_utils.Info import ContractInfo, TokenAmount
 
 from app.logs import logging as logger
 
-
 class AvnuFi:
     AVNUFI_CONTRACT_ADDRESS = ContractInfo.AVNUFI.get('address')
     AVNUFI_ABI = ContractInfo.AVNUFI.get('abi')
@@ -51,6 +50,10 @@ class AvnuFi:
                                                     decimals=6)
                         min_amount = min_to_amount
 
+                    elif from_token_name == 'USDT' or from_token_name == 'USDC':
+                        min_to_amount = TokenAmount(amount=float(amount.Ether) * (1 - self.slippage / 100), decimals=18)
+                        min_amount = min_to_amount
+
                 elif to_token_name == 'ETH':
                     min_to_amount = TokenAmount(amount=float(amount.Ether) / eth_price * (1 - self.slippage / 100), decimals=18)
                     min_amount = min_to_amount
@@ -81,7 +84,8 @@ class AvnuFi:
                                                      from_token_address,
                                                      to_token_address,
                                                      router,
-                                                     0x64
+                                                     0x64,
+                                                     0
                                                  ],
                                                  selector_name='multi_route_swap')
                 if tx_hash:
@@ -89,7 +93,7 @@ class AvnuFi:
                     return True
         except Exception as err:
             if "Contract not found" in str(err):
-                logger.error(f"[{self.client.address_to_log}] Seems contract (address) is not deployed yet because it did not have any txs before [AvnuFi]")
+                raise ValueError("Seems contract (address) is not deployed yet because it did not have any txs before [AvnuFi]")
             elif "Invalid transaction nonce" in str(err):
                 raise ValueError("Invalid transaction nonce [AvnuFi]")
             elif "Cannot connect to host" in str(err):
@@ -97,4 +101,4 @@ class AvnuFi:
             elif "Transaction reverted: Error in the called contract." in str(err):
                 raise ValueError(str(err))
             else:
-                logger.error(f"[{self.client.address_to_log}] Error while swapping: {err} [AvnuFi]")
+                raise ValueError(f"{str(err)} [AvnuFi]")

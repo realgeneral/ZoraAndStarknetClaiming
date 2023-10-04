@@ -17,9 +17,11 @@ class Minter:
 
     async def mint(self, nft_address, nft_id: int):
 
-        web3 = Web3(Web3.HTTPProvider(rpcs["zora"], request_kwargs={
-            'proxies': {'https': "http://pnorwyha:snmfocltb81h@45.192.134.110:6431",
-                        'http':  "http://pnorwyha:snmfocltb81h@45.192.134.110:6431"}}))
+        web3 = Web3(Web3.HTTPProvider(rpcs["zora"]
+            #                           , request_kwargs={
+            # 'proxies': {'https': "http://pnorwyha:snmfocltb81h@45.192.134.110:6431",
+            #             'http':  "http://pnorwyha:snmfocltb81h@45.192.134.110:6431"}}
+                                      ))
 
         logger.info(f"Successfully connected to {rpcs['zora']}")
 
@@ -88,9 +90,11 @@ class Minter:
 
     async def purchase(self, nft_contract_address, value_to_send): # ZoraCreator1155Impl
 
-        web3 = Web3(Web3.HTTPProvider(rpcs["zora"], request_kwargs={
-            'proxies': {'https': "http://pnorwyha:snmfocltb81h@45.192.134.110:6431",
-                        'http': "http://pnorwyha:snmfocltb81h@45.192.134.110:6431"}}))
+        web3 = Web3(Web3.HTTPProvider(rpcs["zora"]
+            #                           , request_kwargs={
+            # 'proxies': {'https': "http://pnorwyha:snmfocltb81h@45.192.134.110:6431",
+            #             'http': "http://pnorwyha:snmfocltb81h@45.192.134.110:6431"}}
+                                      ))
 
         logger.info(f"Successfully connected to {rpcs['zora']}")
 
@@ -155,9 +159,11 @@ class Minter:
 
     async def createERC721(self, name, symbol, mintPrice, mintLimitPerAddress, editionSize, royaltyBPS, description, imageURI): # ZoraNFTCreator
 
-        web3 = Web3(Web3.HTTPProvider(rpcs["zora"], request_kwargs={
-            'proxies': {'https': "http://pnorwyha:snmfocltb81h@45.192.134.110:6431",
-                        'http': "http://pnorwyha:snmfocltb81h@45.192.134.110:6431"}}))
+        web3 = Web3(Web3.HTTPProvider(rpcs["zora"]
+            #                           , request_kwargs={
+            # 'proxies': {'https': "http://pnorwyha:snmfocltb81h@45.192.134.110:6431",
+            #             'http': "http://pnorwyha:snmfocltb81h@45.192.134.110:6431"}}
+                                      ))
 
         logger.info(f"Successfully connected to {rpcs['zora']}")
 
@@ -227,9 +233,11 @@ class Minter:
                 return "❌ Something went wrong"
 
     async def walletWarmUp1(self, nft_collection_address, uri): # Mint web page update emulating
-        web3 = Web3(Web3.HTTPProvider(rpcs["zora"], request_kwargs={
-            'proxies': {'https': "http://pnorwyha:snmfocltb81h@45.192.134.110:6431",
-                        'http': "http://pnorwyha:snmfocltb81h@45.192.134.110:6431"}}))
+        web3 = Web3(Web3.HTTPProvider(rpcs["zora"]
+            #                           , request_kwargs={
+            # 'proxies': {'https': "http://pnorwyha:snmfocltb81h@45.192.134.110:6431",
+            #             'http': "http://pnorwyha:snmfocltb81h@45.192.134.110:6431"}}
+                                      ))
         try:
             wallet_address = web3.eth.account.from_key(self.pk).address
             wallet_balance = web3.eth.get_balance(wallet_address)
@@ -284,10 +292,11 @@ class Minter:
                 return "❌ Something went wrong"
 
     async def walletWarmUp2(self, nft_collection_address, publicSalePrice):  # Mint price updating
-        web3 = Web3(Web3.HTTPProvider(rpcs["zora"], request_kwargs={
-            'proxies': {'https': "http://pnorwyha:snmfocltb81h@45.192.134.110:6431",
-                        'http': "http://pnorwyha:snmfocltb81h@45.192.134.110:6431"}}))
-
+        web3 = Web3(Web3.HTTPProvider(rpcs["zora"]
+            #                           , request_kwargs={
+            # 'proxies': {'https': "http://pnorwyha:snmfocltb81h@45.192.134.110:6431",
+            #             'http': "http://pnorwyha:snmfocltb81h@45.192.134.110:6431"}}
+                                      ))
 
 
         try:

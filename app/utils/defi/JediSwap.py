@@ -11,7 +11,6 @@ from app.logs import logging as logger
 
 
 class JediSwap:
-
     ETH_ADDRESS = ContractInfo.ETH.get('address')
     ETH_ABI = ContractInfo.ETH.get('abi')
 
@@ -38,7 +37,8 @@ class JediSwap:
 
     def __init__(self, client: Client, JEDISWAP_SWAP_PERCENTAGE, JEDISWAP_LIQ_PERCENTAGE, SLIPPAGE):
         self.client = client
-        self.contract = Contract(address=JediSwap.JEDISWAP_CONTRACT, abi=JediSwap.JEDISWAP_ABI, provider=self.client.account)
+        self.contract = Contract(address=JediSwap.JEDISWAP_CONTRACT, abi=JediSwap.JEDISWAP_ABI,
+                                 provider=self.client.account)
         self.swap_percentage = JEDISWAP_SWAP_PERCENTAGE
         self.liq_percentage = JEDISWAP_LIQ_PERCENTAGE
         self.slippage = SLIPPAGE
@@ -46,9 +46,10 @@ class JediSwap:
     async def swap(self, swap_to_eth=False):
         try:
             global min_to_amount
-            #min_amount = 0
+            # min_amount = 0
 
-            data_for_swap = await GetDataForSwap(client=self.client, SWAP_PERCENTAGE=self.swap_percentage, swap_to_eth=swap_to_eth)
+            data_for_swap = await GetDataForSwap(client=self.client, SWAP_PERCENTAGE=self.swap_percentage,
+                                                 swap_to_eth=swap_to_eth)
 
             if data_for_swap == {}:
                 return False
@@ -62,7 +63,11 @@ class JediSwap:
                                                 decimals=6)
                 elif from_token_name == 'DAI':
                     min_to_amount = TokenAmount(amount=float(amount.Ether) * (1 - self.slippage / 100),
-                                                decimals=6)
+                                                decimals=6) \
+ \
+                            elif from_token_name == 'USDT' or from_token_name == 'USDC':
+                    min_to_amount = TokenAmount(amount=float(amount.Ether) * (1 - self.slippage / 100), decimals=18)
+
             elif to_token_name == 'ETH':
                 min_to_amount = TokenAmount(amount=float(amount.Ether) / eth_price * (1 - self.slippage / 100),
                                             decimals=18)
@@ -73,11 +78,8 @@ class JediSwap:
                     min_to_amount = TokenAmount(amount=eth_price * float(amount.Ether) * (1 - self.slippage / 100),
                                                 decimals=18)
 
-
-
-
-
-            logger.info(f"[{self.client.address_to_log}] Swapping {amount.Ether} {from_token_name} to {to_token_name} [JediSwap]")
+            logger.info(
+                f"[{self.client.address_to_log}] Swapping {amount.Ether} {from_token_name} to {to_token_name} [JediSwap]")
             is_approved = await self.client.approve_interface(token_address=from_token_address,
                                                               spender=JediSwap.JEDISWAP_CONTRACT,
                                                               decimals=from_token_decimals, amount=amount)
@@ -113,11 +115,13 @@ class JediSwap:
                                                              to=self.client.address,
                                                              deadline=int(time() + 3600))
                 if tx_hash:
-                    logger.info(f"[{self.client.address_to_log}] Successfully swapped {amount.Ether} {from_token_name} to {min_to_amount.Ether} {to_token_name} [JediSwap]")
+                    logger.info(
+                        f"[{self.client.address_to_log}] Successfully swapped {amount.Ether} {from_token_name} to {min_to_amount.Ether} {to_token_name} [JediSwap]")
                     return True
         except Exception as err:
             if "Contract not found" in str(err):
-                logger.error(f"[{self.client.address_to_log}] Seems contract (address) is not deployed yet because it did not have any txs before [JediSwap]")
+                raise ValueError(
+                    "Seems contract (address) is not deployed yet because it did not have any txs before [JediSwap]")
             elif "nonce" in str(err):
                 raise ValueError("Invalid transaction nonce [JediSwap]")
             elif "Cannot connect to host" in str(err):
@@ -125,23 +129,25 @@ class JediSwap:
             elif "Transaction reverted: Error in the called contract." in str(err):
                 raise ValueError(str(err))
             else:
-                logger.error(f"[{self.client.address_to_log}] Error while swapping: {err} [JediSwap]")
+                raise ValueError(f"{str(err)} [JediSwap]")
 
     async def add_liquidity(self):
         try:
-            data_for_adding_liquidity = await GetDataForLP(client=self.client, JEDISWAP_LIQ_PERCENTAGE=self.liq_percentage, dex='jediswap')
+            data_for_adding_liquidity = await GetDataForLP(client=self.client,
+                                                           JEDISWAP_LIQ_PERCENTAGE=self.liq_percentage, dex='jediswap')
 
             lp_contract, lp_name, amount_one, amount_two, amount_in_usdt, token_one_address, token_two_address, token_one_name, token_two_name, token_one_decimals, token_two_decimals = data_for_adding_liquidity.values()
 
-            logger.info(f"[{self.client.address_to_log}] Adding liquidity to {lp_name} LP {amount_one.Ether} {token_one_name} [JediSwap]")
+            logger.info(
+                f"[{self.client.address_to_log}] Adding liquidity to {lp_name} LP {amount_one.Ether} {token_one_name} [JediSwap]")
 
             is_approved_one = await self.client.approve_interface(token_address=token_one_address,
-                                                              spender=JediSwap.JEDISWAP_CONTRACT,
-                                                              decimals=token_one_decimals, amount=amount_one)
+                                                                  spender=JediSwap.JEDISWAP_CONTRACT,
+                                                                  decimals=token_one_decimals, amount=amount_one)
 
             is_approved_two = await self.client.approve_interface(token_address=token_two_address,
-                                                              spender=JediSwap.JEDISWAP_CONTRACT,
-                                                              decimals=token_two_decimals, amount=amount_two)
+                                                                  spender=JediSwap.JEDISWAP_CONTRACT,
+                                                                  decimals=token_two_decimals, amount=amount_two)
             if is_approved_one and is_approved_two:
                 tx_hash = await self.client.send_transaction(interacted_contract=self.contract,
                                                              function_name='add_liquidity',
@@ -154,21 +160,26 @@ class JediSwap:
                                                              to=self.client.address,
                                                              deadline=int(time() + 3600))
                 if tx_hash:
-                    logger.info(f"[{self.client.address_to_log}] Successfully added ${amount_in_usdt} to {lp_name} LP [JediSwap]")
+                    logger.info(
+                        f"[{self.client.address_to_log}] Successfully added ${amount_in_usdt} to {lp_name} LP [JediSwap]")
                     random_sleep = random.randint(30, 90)
-                    logger.info(f"[{self.client.address_to_log}] Sleeping for {random_sleep} s before removing liquidity [JediSwap]")
+                    logger.info(
+                        f"[{self.client.address_to_log}] Sleeping for {random_sleep} s before removing liquidity [JediSwap]")
                     await asyncio.sleep(random_sleep)
-                    await self.remove_liquidity(lp_contract=lp_contract, amountA=int(amount_one.Wei * (1 - self.slippage / 100)), amountB=int(amount_two.Wei * (1 - self.slippage / 100)))
+                    await self.remove_liquidity(lp_contract=lp_contract,
+                                                amountA=int(amount_one.Wei * (1 - self.slippage / 100)),
+                                                amountB=int(amount_two.Wei * (1 - self.slippage / 100)))
                     return True
         except Exception as err:
             if "Contract not found" in str(err):
-                logger.error(f"[{self.client.address_to_log}] Seems contract (address) is not deployed yet because it did not have any txs before [JediSwap]")
+                raise ValueError(
+                    "Seems contract (address) is not deployed yet because it did not have any txs before [JediSwap]")
             elif "Invalid transaction nonce" in str(err):
                 raise ValueError("Invalid transaction nonce")
             elif "Insufficient tokens on balance to add a liquidity pair. Only ETH is available" in str(err):
                 raise ValueError("Insufficient tokens on balance to add a liquidity pair. Only ETH is available")
             else:
-                logger.error(f"[{self.client.address_to_log}] {err} [JediSwap]")
+                raise ValueError(f"{str(err)} [JediSwap]")
 
     async def remove_liquidity(self, lp_contract, amountA=None, amountB=None):
         global tokenA, tokenB
@@ -202,8 +213,10 @@ class JediSwap:
                     return True
         except Exception as err:
             if "Contract not found" in str(err):
-                logger.error(f"[{self.client.address_to_log}] Seems contract (address) is not deployed yet because it did not have any txs before [JediSwap]")
+                raise ValueError(
+                    "Seems contract (address) is not deployed yet because it did not have any txs before [JediSwap]")
             elif "Invalid transaction nonce" in str(err):
                 raise ValueError("Invalid transaction nonce")
             else:
                 logger.error(f"[{self.client.address_to_log}] Error while removing $ from LP: {err} [JediSwap]")
+                raise ValueError(f"{str(err)} [JediSwap]")

@@ -17,12 +17,14 @@ from app.utils.Randomiser import Randomiser
 from app.utils.configs.ipfs import imageURI_list_hashes
 from app.utils.Estimate import Estimate
 from app.logs import logging as logger
+from app.handlers.admin import get_one_wallet_run_price
 
-one_wallet_run_price = 5
-
+one_wallet_run_price = get_one_wallet_run_price()
 
 @dp.message_handler(Text(equals="💸 Start Zora script"), state=UserFollowing.choose_point)
 async def tap_to_earn(message: types.Message, state: FSMContext):
+    print(f"one_wallet_run_price zora - {one_wallet_run_price}")
+
     reply_message = ""
     count_ok_wallet = 0
     count_bridged_wallets = 0

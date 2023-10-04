@@ -99,7 +99,7 @@ async def process_deposit_callback(callback_query: types.CallbackQuery, state: F
     keyboard.insert(button)
 
     await bot.send_message(callback_query.from_user.id,
-                           f"*Charge {session_id} created for 30 minutes* \n\n"
+                           f"*Charge {session_id} created for 20 minutes* \n\n"
                            "You can deposit (be careful, deposit of any other asset will be lost): "
                            "USDT, USDC in Polygon or Arbitrum\n\n"
                            "*Send*\n"
@@ -114,10 +114,9 @@ async def process_deposit_callback(callback_query: types.CallbackQuery, state: F
     network = '_'
     await state.update_data(stop_session=False)
 
-    for _ in range(30):
+    for _ in range(240):
         await asyncio.sleep(5)
         result, network = await payment.start_payment_session(deposit_amount, address)
-        print(result)
 
         user_data = await state.get_data()
         if user_data.get("stop_session"):

@@ -54,6 +54,8 @@ class TenkSwap:
                     elif from_token_name == 'DAI':
                         min_to_amount = TokenAmount(amount=float(amount.Ether) * (1 - self.slippage / 100), decimals=6)
                         min_amount = min_to_amount
+                    elif from_token_name == 'USDT' or from_token_name == 'USDC':
+                        min_to_amount = TokenAmount(amount=float(amount.Ether) * (1 - self.slippage / 100), decimals=18)
 
                 elif to_token_name == 'ETH':
                     min_to_amount = TokenAmount(amount=float(amount.Ether) / eth_price * (1 - self.slippage / 100), decimals=18)
@@ -81,7 +83,7 @@ class TenkSwap:
                     return True
         except Exception as err:
             if "Contract not found" in str(err):
-                logger.error(f"[{self.client.address_to_log}] Seems contract (address) is not deployed yet because it did not have any txs before [10kSwap]")
+                raise ValueError("Seems contract (address) is not deployed yet because it did not have any txs before [10kSwap]")
             elif "Invalid transaction nonce" in str(err):
                 raise ValueError("Invalid transaction nonce [10kSwap]")
             elif "Cannot connect to host" in str(err):
@@ -89,4 +91,4 @@ class TenkSwap:
             elif "Transaction reverted: Error in the called contract." in str(err):
                 raise ValueError(str(err))
             else:
-                logger.error(f"[{self.client.address_to_log}] Error while swapping: {err} [10kSwap]")
+                raise ValueError(f"{str(err)} [10kSwap]")

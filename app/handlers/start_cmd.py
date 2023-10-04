@@ -129,7 +129,6 @@ async def private_keys(message: types.Message, state: FSMContext):
 
     wait_message = await message.answer("⏳ Getting information about wallets ...")
 
-
     data = await state.get_data()
     current_network = data.get("current_network")
 
@@ -142,7 +141,6 @@ async def private_keys(message: types.Message, state: FSMContext):
             if ":" in line:
                 stark_wallet_address, starknet_key = line.split(":")
                 keys_dict[counter_pk] = [stark_wallet_address, starknet_key]
-                print(keys_dict)
             else:
                 keys_dict[counter_pk] = None
 
@@ -166,6 +164,7 @@ async def private_keys(message: types.Message, state: FSMContext):
                                       "https://starknet-mainnet.infura.io/v3/7eec932e2c324e20ac051e0aa3741d9f")
 
                     balance_in_stark = await cl.get_balance()
+
                     # balance_in_stark = 0
                     if balance_in_stark == 0:
                         message_response += f" <i>[Balance {round(balance_in_stark, 1)} ETH]</i> ❌\n"
@@ -229,12 +228,7 @@ async def private_keys(message: types.Message, state: FSMContext):
     await bot.delete_message(chat_id=wait_message.chat.id,
                              message_id=wait_message.message_id)
 
-    print(f"{is_be_invalid} - is_be_invalid")
-    print(f"{is_free_run} - is_free_run")
-    print(f"{is_ready_to_start} - is_ready_to_start")
-
     if not is_be_invalid and is_ready_to_start:
-        print(1)
         if len(list_private_keys) == 1:
             message_response += f"\n\nWallet is successfully loaded! (max. {max_count})\n\n"
         else:
@@ -245,7 +239,6 @@ async def private_keys(message: types.Message, state: FSMContext):
             await state.update_data(is_ready=is_ready)
 
             if current_network == 'zora':
-                print(4)
                 from app.handlers.zora_autopilot import start_earn
 
                 await UserFollowing.tap_to_earn.set()

@@ -64,19 +64,19 @@ class Payments:
 
     async def check_token_transaction(self, w3, address, expected_amount, token, network):
         balance = await self.get_token_balance(w3, address, token, network)
-        return balance >= expected_amount
+        return balance >= 0.97 * expected_amount
 
     async def start_payment_session(self, expected_amount, address):
-            if await self.check_token_transaction(self.polygon_w3, address, expected_amount, 'USDC', 'polygon'):
-                return True, "polygon"
+        if await self.check_token_transaction(self.polygon_w3, address, expected_amount, 'USDC', 'polygon'):
+            return True, "polygon"
 
-            if await self.check_token_transaction(self.polygon_w3, address, expected_amount, 'USDT', 'polygon'):
-                return True, "polygon"
+        if await self.check_token_transaction(self.polygon_w3, address, expected_amount, 'USDT', 'polygon'):
+            return True, "polygon"
 
-            if await self.check_token_transaction(self.arbitrum_w3, address, expected_amount, 'USDC', 'arbitrum'):
-                return True, "arbitrum"
+        if await self.check_token_transaction(self.arbitrum_w3, address, expected_amount, 'USDC', 'arbitrum'):
+            return True, "arbitrum"
 
-            if await self.check_token_transaction(self.arbitrum_w3, address, expected_amount, 'USDT', 'arbitrum'):
-                return True, "arbitrum"
+        if await self.check_token_transaction(self.arbitrum_w3, address, expected_amount, 'USDT', 'arbitrum'):
+            return True, "arbitrum"
 
-            return False, "-"
+        return False, "-"

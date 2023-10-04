@@ -20,8 +20,9 @@ from app.utils.defi.JediSwap import JediSwap
 from app.utils.defi.TenkSwap import TenkSwap
 from app.utils.mint.StarkMinter import Minter as Stark_Minter
 from app.utils.stark_utils.Client import Client
+from app.handlers.admin import get_one_wallet_run_price
 
-one_wallet_run_price = 5
+one_wallet_run_price = get_one_wallet_run_price()
 
 
 @dataclass
@@ -142,8 +143,8 @@ async def stop_earn(message: types.Message, state: FSMContext):
 
     data = await state.get_data()
 
-    if "final_statistic" in data:
-        message_response += data.get("final_statistic")
+    if "final_statistic_stark" in data:
+        message_response += data.get("final_statistic_stark")
 
     buttons = [
         KeyboardButton(text="⬅ Go to menu"),
@@ -275,12 +276,30 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
                                 wallet_statistics[remaining_task_name] = f"❌ Insufficient funds. Balance: {balance_to_print} ETH"
                             break
                     except Exception as err:
+
                         if "nonce" in str(err):
                             logger.error(f"[{client.address_to_log}] Invalid transaction nonce")
                             await bot.edit_message_text(chat_id=wait_message.chat.id,
                                                         message_id=wait_message.message_id,
                                                         text=f"[{client.address_to_log}] Invalid transaction nonce")
                             wallet_statistics[task_name] = "❌ Invalid transaction nonce"
+                        elif "Client failed with code 63" in str(err):
+                            logger.error(f"[{client.address_to_log}] {err}")
+                            try:
+                                retry_delay = random.randint(15, 30)
+                                logger.info(f"[{client.address_to_log}] Sleeping for {retry_delay} s before retrying")
+                                await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                                            message_id=wait_message.message_id,
+                                                            text=f"[{client.address_to_log}] Sleeping for {retry_delay} s before retrying")
+                                await asyncio.sleep(retry_delay)
+                                await task()
+                                wallet_statistics[task_name] = "✅"
+                            except Exception as retry_err:
+                                logger.error(f"[{client.address_to_log}] Error while retrying task after 63 error: {retry_err}")
+                                await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                                            message_id=wait_message.message_id,
+                                                            text=f"[{client.address_to_log}] Error while retrying task after 63 error: {retry_err}")
+                                wallet_statistics[task_name] = "❌ Client failed"
                         elif "Insufficient tokens on balance to add a liquidity pair. Only ETH is available" in str(
                                 err):
                             logger.error(f"[{client.address_to_log}] {err}")

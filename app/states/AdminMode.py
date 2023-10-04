@@ -5,3 +5,4 @@ class AdminMode(StatesGroup):
     admin_menu = State()
     add_user = State()
     add_money = State()
+    set_new_price = State()
