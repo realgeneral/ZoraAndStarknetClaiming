@@ -14,7 +14,7 @@ from app.states import UserFollowing
 from app.utils.Estimate import Estimate
 from app.utils.Payments import Payments
 from app.utils.PaymentSession import PaymentSession
-
+from app.logs import logging
 payment_session = PaymentSession()
 
 
@@ -117,8 +117,9 @@ async def process_deposit_callback(callback_query: types.CallbackQuery, state: F
                                 deposit_amount, 0)
     for _ in range(240):
         await asyncio.sleep(5)
-        result, network = await payment.start_payment_session(deposit_amount, address)
 
+        result, network = await payment.start_payment_session(deposit_amount, address)
+        logging.info(f"result - {result}, network - {network}")
         user_data = await state.get_data()
         if user_data.get("stop_session"):
             return

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from web3 import Web3
 from web3.auto import w3
 import asyncio
-
+from app.logs import logging
 
 @dataclass
 class Data:
@@ -64,6 +64,7 @@ class Payments:
 
     async def check_token_transaction(self, w3, address, expected_amount, token, network):
         balance = await self.get_token_balance(w3, address, token, network)
+        logging.info(f"balance - {balance}, 0.97 * expected_amount - {0.97 * expected_amount}")
         return balance >= 0.97 * expected_amount
 
     async def start_payment_session(self, expected_amount, address):
@@ -77,6 +78,8 @@ class Payments:
             return True, "arbitrum"
 
         if await self.check_token_transaction(self.arbitrum_w3, address, expected_amount, 'USDT', 'arbitrum'):
+            flag = await self.check_token_transaction(self.arbitrum_w3, address, expected_amount, 'USDT', 'arbitrum')
+            logging.info(f"{flag}")
             return True, "arbitrum"
 
         return False, "-"
