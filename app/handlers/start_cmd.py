@@ -13,13 +13,13 @@ from app.utils.Bridger import Bridger
 from app.utils.Estimate import Estimate
 from app.utils.UsersDb import Users
 from app.utils.stark_utils.Client import ClientHelper
-from app.handlers.admin import set_one_wallet_run_price
+
 
 CHANNEL_ID = -1001984019900
 NOTSUB_MESSAGE = "Looks like you're not subscribed yet! 🙁 Subscribe now to access all the features"
 
 user_db = Users()
-set_one_wallet_run_price()
+
 
 
 @dp.message_handler(commands=['start'])
