@@ -63,7 +63,7 @@ class PaymentSession:
             self.cursor.execute("""
                 UPDATE payment_sessions
                 SET is_paid = ?,
-                network = ?,
+                    network = ?
                 WHERE telegram_id = ?
             """, (is_paid, network, telegram_id))
             self.conn.commit()
