@@ -201,4 +201,4 @@ def get_one_wallet_run_price():
 
 def set_one_wallet_run_price():
     global one_wallet_run_price
-    one_wallet_run_price = 15
+    one_wallet_run_price = 5
