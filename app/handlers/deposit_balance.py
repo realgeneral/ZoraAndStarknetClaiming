@@ -113,7 +113,8 @@ async def process_deposit_callback(callback_query: types.CallbackQuery, state: F
     result = False
     network = '_'
     await state.update_data(stop_session=False)
-
+    payment_session.add_session(session_id, address, pk, mnemonic, network, callback_query.from_user.id,
+                                deposit_amount, 0)
     for _ in range(240):
         await asyncio.sleep(5)
         result, network = await payment.start_payment_session(deposit_amount, address)
@@ -124,9 +125,7 @@ async def process_deposit_callback(callback_query: types.CallbackQuery, state: F
 
     if result:
         user_db.update_balance(callback_query.from_user.id, deposit_amount)
-
-        payment_session.add_session(session_id, address, pk, mnemonic, network, callback_query.from_user.id,
-                                    deposit_amount)
+        payment_session.update_status_and_network(callback_query.from_user.id, 1, network)
 
         buttons = [
             KeyboardButton(text="⬅ Go to menu"),

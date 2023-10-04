@@ -51,6 +51,7 @@ async def send_new_price(message: types.Message):
 @dp.message_handler(state=AdminMode.set_new_price)
 async def save_new_price(message: types.Message):
 
+    global one_wallet_run_price
     try:
         one_wallet_run_price = int(message.text)
         message_response = f"*[SUCCESS]:* New one wallet price: _{one_wallet_run_price}_"
@@ -73,6 +74,7 @@ async def save_new_price(message: types.Message):
 
 @dp.message_handler(Text(equals="Give money"), state=AdminMode.admin_menu)
 async def send_money_to_user(message: types.Message):
+    print(f"one_wallet_run_price admin - {one_wallet_run_price}")
     message_response = "Send user telegram_id:adding_usd"
 
     await AdminMode.add_money.set()
