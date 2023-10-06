@@ -71,7 +71,7 @@ async def send_data_dump(message: types.Message):
 
         with open(csv_path, 'rb') as csv_file:
             sent_message = await message.answer_document(csv_file,
-                                                         caption="⬇️ Here is a CSV dump of your database ⬇️\n\n"
+                                                         caption="⬆️ Here is a CSV dump of your database ⬆️\n\n"
                                                                  "_📍 After 10 seconds, the bot will delete the file from the chat_",
                                                          parse_mode=types.ParseMode.MARKDOWN)
 

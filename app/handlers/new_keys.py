@@ -41,7 +41,7 @@ async def new_private_keys(message: types.Message, state: FSMContext):
     btn_how_to = InlineKeyboardButton("🤔 How to do that?", callback_data="send_gif")
     keyboard.add(btn_how_to)
 
-    await message.answer(f"<b>⬇️ Load-up your private keys below </b>\n"
+    await message.answer(f"<b>⬇️ Load-up your private keys below </b>\n\n"
                          "<b>Example:</b>\n"
                          f"{pk_example}"
                          "<b> ⚠️Please note: We do not store your data. The bot uses one-time sessions.</b>\n\n",
