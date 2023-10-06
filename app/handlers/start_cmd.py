@@ -21,13 +21,12 @@ NOTSUB_MESSAGE = "Looks like you're not subscribed yet! 🙁 Subscribe now to ac
 user_db = Users()
 
 
-
 @dp.message_handler(commands=['start'])
 async def start_cmd(message: types.Message):
     user_id = message.from_user.id
     formatted_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-    user_db.add_user(user_id, formatted_date, wallet_count=1)
+    user_db.add_user(user_id, formatted_date, 1)
 
     buttons = [
         KeyboardButton(text="🔮 Zora"),

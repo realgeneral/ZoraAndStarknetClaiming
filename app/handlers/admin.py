@@ -12,7 +12,7 @@ _one_wallet_run_price = 5
 
 
 def get_one_wallet_run_price():
-    return _one_wallet_run_price
+    return int(_one_wallet_run_price)
 
 
 def set_one_wallet_run_price(value):

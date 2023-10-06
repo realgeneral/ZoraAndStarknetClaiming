@@ -24,7 +24,7 @@ from app.handlers.admin import get_one_wallet_run_price
 @dp.message_handler(Text(equals="💸 Start Zora script"), state=UserFollowing.choose_point)
 async def tap_to_earn(message: types.Message, state: FSMContext):
     one_wallet_run_price = get_one_wallet_run_price()
-    print(f"one_wallet_run_price zora - {one_wallet_run_price}")
+    print(f"one_wallet_run_price zora < {one_wallet_run_price} >")
 
     reply_message = ""
     count_ok_wallet = 0
