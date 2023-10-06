@@ -90,7 +90,7 @@ async def send_gif(callback_query: CallbackQuery):
         else:
             print(f"File {gif_path} does not exist!")
 
-        await bot.send_document(callback_query.from_user.id, gif_path)
+        await bot.send_animation(callback_query.from_user.id, gif_path)
         await bot.answer_callback_query(callback_query.id)
         await UserFollowing.check_subscribe.set()
 
