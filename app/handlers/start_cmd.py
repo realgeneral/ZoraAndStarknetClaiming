@@ -2,7 +2,8 @@ import asyncio
 from datetime import date, datetime
 
 from aiogram import types
-from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
+from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardButton, \
+    InlineKeyboardMarkup, CallbackQuery
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher import FSMContext
 
@@ -65,14 +66,25 @@ async def check_claim_net(message: types.Message, state: FSMContext):
     max_count = user_db.get_max_wallets(user_id=message.from_user.id)
 
     await UserFollowing.check_subscribe.set()
-    await message.answer(f"{message.text[0]} The total amount of wallets you can run: <b>{max_count}</b>\n\n"
-                         "<b>⬇️ Load-up your private keys below </b>"
-                         "[<a href='https://support.metamask.io/hc/en-us/articles/360015289632-How-to-export-an-account-s-private-key'>"
+    await message.answer(f"{message.text[0]} The total amount of wallets you can run: <b>{max_count}</b>\n\n",
+                         parse_mode=types.ParseMode.HTML, reply_markup=ReplyKeyboardRemove())
+
+    keyboard = InlineKeyboardMarkup()
+    btn_how_to = InlineKeyboardButton("🤔 How to do that?", callback_data="send_gif")
+    keyboard.add(btn_how_to)
+
+    await message.answer(f"<b>⬇️ Load-up your private keys below </b>"
                          "<b>guide</b></a>]\n\n"
                          "<b>Example:</b>\n"
                          f"{pk_example}"
                          "<b> ⚠️Please note: We do not store your data. The bot uses one-time sessions.</b>\n\n",
-                         parse_mode=types.ParseMode.HTML, reply_markup=ReplyKeyboardRemove())
+                         parse_mode=types.ParseMode.HTML, reply_markup=keyboard)
+
+    @dp.callback_query_handler(lambda c: c.data == 'send_gif')
+    async def send_gif(callback_query: CallbackQuery):
+        gif_path = "app/data/private key.gif.mp4"
+        await bot.send_document(callback_query.from_user.id, gif_path)
+        await bot.answer_callback_query(callback_query.id)
 
 
 def check_sub_channel(chat_member):

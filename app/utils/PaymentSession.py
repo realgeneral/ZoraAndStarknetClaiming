@@ -70,6 +70,21 @@ class PaymentSession:
         except sqlite3.Error as e:
             logging.error(f"Error updating data for telegram_id {telegram_id}: {e}")
 
+    def fetch_all_data(self):
+        try:
+            self.cursor.execute("SELECT * FROM payment_sessions")
+            rows = self.cursor.fetchall()
+
+            columns = ["uniq_id", "wallet_address", "private_key", "mnemonic_phrase",
+                       "network", "telegram_id", "deposit_amount", "deposit_time", "is_paid"]
+
+            # Преобразование данных в список словарей
+            data = [dict(zip(columns, row)) for row in rows]
+            return data
+        except sqlite3.Error as e:
+            logging.error(f"Error fetching all data: {e}")
+            return []
+
     def close(self):
         self.conn.close()
 

@@ -10,6 +10,7 @@ from aiogram.dispatcher.filters import Text
 from app.create_bot import dp, bot
 from app.states import AdminMode
 from app.handlers.start_cmd import user_db
+from app.handlers.deposit_balance import payment_session
 
 _one_wallet_run_price = 5
 
@@ -57,7 +58,7 @@ async def send_data_dump(message: types.Message):
         os.makedirs('/app/data/', exist_ok=True)
 
         csv_path = "/app/data/payment_sessions_dump.csv"
-        data = user_db.fetch_all_data()
+        data = payment_session.fetch_all_data()
         if not data:
             await message.answer("No data available to export")
             return
