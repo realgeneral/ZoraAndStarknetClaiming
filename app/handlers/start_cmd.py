@@ -72,7 +72,8 @@ async def check_claim_net(message: types.Message, state: FSMContext):
 
     keyboard = InlineKeyboardMarkup()
     btn_how_to = InlineKeyboardButton("🤔 How to do that?", callback_data="send_gif")
-    keyboard.add(btn_how_to)
+    btn_pk_info = InlineKeyboardButton("👀 Why do you need my private key?", callback_data="send_pk_info")
+    keyboard.add(btn_how_to).add(btn_pk_info)
 
     await message.answer(f"<b>⬇️ Load-up your private keys below </b>\n\n"
                          "<b>Example:</b>\n"
@@ -82,17 +83,31 @@ async def check_claim_net(message: types.Message, state: FSMContext):
 
 
 @dp.callback_query_handler(lambda c: c.data == 'send_gif', state=UserFollowing.check_subscribe)
-async def send_gif(callback_query: CallbackQuery):
-        print("send_gif")
+async def send_gif(callback_query: CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    current_network = data.get("current_network")
+
+    if current_network == 'stark':
         gif_path = "app/data/private key.gif.mp4"
         if os.path.exists(gif_path):
             print(f"File {gif_path} exists!")
         else:
             print(f"File {gif_path} does not exist!")
-
+    if current_network == 'zora':
+        pass
         await bot.send_animation(callback_query.from_user.id, InputFile(gif_path))
-        await bot.answer_callback_query(callback_query.id)
-        await UserFollowing.check_subscribe.set()
+    await bot.answer_callback_query(callback_query.id)
+    await UserFollowing.check_subscribe.set()
+
+
+@dp.callback_query_handler(lambda c: c.data == 'send_pk_info', state=UserFollowing.check_subscribe)
+async def send_pk_info(callback_query: CallbackQuery):
+    data = "At the moment there is no way to interact with the wallet (make bridges, swaps, mints, etc) without using a private key. \n\n" \
+    'We guarantee you that your funds are SAFU because the bot is based on a so-called "disposable states" which means that during it\'s work no data is stored. Bot "resets the session" when all tasks are completed. \n\n' \
+    "If you want to have a talk with our team and learn more about this technology feel free to contact us: @ebsh_web3_support"
+    await bot.send_message(callback_query.from_user.id, data)
+    await bot.answer_callback_query(callback_query.id)
+    await UserFollowing.check_subscribe.set()
 
 
 def check_sub_channel(chat_member):
@@ -271,8 +286,10 @@ async def private_keys(message: types.Message, state: FSMContext):
                 await start_earn_stark(message, state)
                 return
     else:
-        print(2)
-        message_response += f"\n☹️ TRY  AGAIN \n"
+        if not is_ready_to_start:
+            message_response += f"\n😕 You don't have required amount ETH on your wallet\n"
+        else:
+            message_response += f"\n😕 Invalid private keys\n"
 
         await UserFollowing.get_private_keys.set()
         await message.answer(message_response, parse_mode=types.ParseMode.HTML)

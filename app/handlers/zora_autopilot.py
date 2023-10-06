@@ -140,18 +140,18 @@ async def tap_to_earn(message: types.Message, state: FSMContext):
 
         reply_message += f"🕔 <b>Total time</b> ~ {total_time} hours *\n\n" \
                          f"<i>* We stretch out time to imitate how humans act</i>\n\n"
-        reply_message += "To stop script, press   <b>«⛔️ Stop ⛔️»</b> "
+
 
         await bot.edit_message_text(chat_id=wait_message.chat.id,
                                     message_id=wait_message.message_id,
                                     text=f"⏳ Preparing information about the script ... 100% ...")
 
         b1 = KeyboardButton("🐳 LFG!")
-        b2 = KeyboardButton("⛔️ Stop ⛔️")
+        # b2 = KeyboardButton("⛔️ Stop ⛔️")
         b3 = KeyboardButton("⬅ Go to menu")
 
         buttons = ReplyKeyboardMarkup(resize_keyboard=True)
-        buttons.row(b1, b2).row(b3)
+        buttons.row(b1).row(b3)
 
         is_ready = 0
         await state.update_data(is_ready=is_ready)
@@ -253,6 +253,12 @@ async def start_earn(message: types.Message, state: FSMContext):
         final_statistic = "\n📊 <b>Statistic</b> \n\n"
 
         wait_message = await message.answer("Starting *Zora* script ✈️...", parse_mode=types.ParseMode.MARKDOWN)
+
+        one_wallet_run_price = get_one_wallet_run_price()
+        is_free_run = user_db.is_free_run(message.from_user.id)  # 1 == free
+
+        if is_free_run == 0:
+            user_db.update_balance(message.from_user.id, -(len(private_keys) * one_wallet_run_price))
 
         minters_obj = [Minter(private_key) for private_key in private_keys]
 
@@ -1050,14 +1056,6 @@ async def start_earn(message: types.Message, state: FSMContext):
 
         is_free_run = user_db.is_free_run(message.from_user.id)  # 1 == free
 
-        data = await state.get_data()
-        private_keys = list(data.get("private_keys"))
-
-        one_wallet_run_price = get_one_wallet_run_price()
-
-        if is_free_run == 0:
-            user_db.update_balance(message.from_user.id, -(len(private_keys) * one_wallet_run_price))
-
         await state.update_data(is_ready=is_ready)
         await UserFollowing.wallet_menu.set()
         await message.answer(final_statistic,
@@ -1066,17 +1064,18 @@ async def start_earn(message: types.Message, state: FSMContext):
         if is_free_run == 1:
             user_db.set_false_free_run(message.from_user.id)
             congratulations = "\n\n🎉 Congratulations!  You have farmed 1 wallet on a Tier 1 Project." \
-                              "😤 In the past the average web3 user has made $500 for doing the same actions in air drops. "
+                              "😤 In the past the average web3 user has made $500 for doing the same actions in air drops. \n\n" \
+                              "⬇️If you want to run another wallet - top up your balance in the <b>🏦 My account</b> section!"
             await message.answer(congratulations,
                                  parse_mode=types.ParseMode.HTML,
                                  reply_markup=reply_markup)
     else:
         b1 = KeyboardButton("🐳 LFG!")
-        b2 = KeyboardButton("⛔️ Stop ⛔️")
+        # b2 = KeyboardButton("⛔️ Stop ⛔️")
         b3 = KeyboardButton("⬅ Go to menu")
 
         buttons = ReplyKeyboardMarkup(resize_keyboard=True)
-        buttons.row(b1, b2).row(b3)
+        buttons.row(b1).row(b3)
 
         is_ready = 0
         await state.update_data(is_ready=is_ready)

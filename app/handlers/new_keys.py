@@ -39,7 +39,8 @@ async def new_private_keys(message: types.Message, state: FSMContext):
 
     keyboard = InlineKeyboardMarkup()
     btn_how_to = InlineKeyboardButton("🤔 How to do that?", callback_data="send_gif")
-    keyboard.add(btn_how_to)
+    btn_pk_info = InlineKeyboardButton("👀 Why do you need my private key?", callback_data="send_pk_info")
+    keyboard.add(btn_how_to).add(btn_pk_info)
 
     await message.answer(f"<b>⬇️ Load-up your private keys below </b>\n\n"
                          "<b>Example:</b>\n"

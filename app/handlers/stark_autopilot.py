@@ -81,30 +81,31 @@ async def tap_to_earn_stark(message: types.Message, state: FSMContext):
     len_pk = len(private_keys)
 
     reply_message += f"\n📍 Total сount of wallets: <b>{len_pk}</b>\n\n"
-    reply_message += f"<b>Bot superpower's:</b>\n\n" \
-                     "       🔸 <i><a href='https://app.jediswap.xyz/#/swap'>JediSwap</a></i>\n" \
-                     "       🔸 <i><a href='https://www.avnu.fi/'>AVNU</a></i>\n" \
-                     "       🔸 <i><a href='https://10kswap.com/swap'>10K Swap</a></i>\n" \
-                     "       🔸 <i><a href='https://dmailnetwork.gitbook.io/user_guide/starknet-user-guide'>Dmail message</a></i>\n" \
-                     "       🔸 <i><a href='https://www.starknet.id/'>StarkNetIDNFT Minting</a></i>\n" \
-                     "       🔸 <i><a href='https://twitter.com/Starknet_Verse'>StarkVerseNFT Minting</a></i>\n" \
-                     "       🔸 <i><a href=' https://app.jediswap.xyz/#/pool'>JediSwap Liquidity Adding</a></i>\n"
+    reply_message += f"<b>🎡 Starknet script includes: </b>\n\n" \
+                     f"<b>Interaction with dexes: </b>\n\n" \
+                     "       🔸 <i>JediSwap ( Swaps; Liquidity Adding)</i>\n" \
+                     "       🔸 <i>AvnuFi (Swaps)</i>\n" \
+                     "       🔸 <i>10K Swap (Swaps)</i>\n" \
+                     "       🔸 <i>Dmail (Message sender)</i>\n" \
+                     f"<b>NFT mint : </b>\n\n" \
+                     "       🔸 <i>StarkNetID NFT</i>\n" \
+                     "       🔸 <i>StarkVerse NFT</i>\n" \
 
-    total_time = "TODO"
-    reply_message += f"🕔 <b>Total time</b> ~ {total_time} hours *\n\n" \
+    total_time = "30"
+    reply_message += f"🕔 <b>Total time</b> ~ {total_time} mins *\n\n" \
                      f"<i>* We stretch out time to imitate how humans act</i>\n\n"
-    reply_message += "To stop script, press   <b>«⛔️ Stop ⛔️»</b> "
+
 
     await bot.edit_message_text(chat_id=wait_message.chat.id,
                                 message_id=wait_message.message_id,
                                 text=f"⏳ Preparing information about the script ... 100% ...")
 
     b1 = KeyboardButton("🐳 LFG!")
-    b2 = KeyboardButton("⛔️ Stop ⛔️")
-    # b3 = KeyboardButton("⬅ Go to menu")
+    # b2 = KeyboardButton("⛔️ Stop ⛔️")
+    b3 = KeyboardButton("⬅ Go to menu")
 
     buttons = ReplyKeyboardMarkup(resize_keyboard=True)
-    buttons.row(b1, b2)
+    buttons.row(b1).row(b3)
 
     await state.update_data(is_ready=0)
     await state.update_data(stop_flag=False)
@@ -233,6 +234,12 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
                                             text=f"⏳ *[{client.address_to_log}]* Sleeping for _{start_delay} s_ "
                                                  f"before starting script",
                                             parse_mode=types.ParseMode.MARKDOWN)
+
+                one_wallet_run_price = get_one_wallet_run_price()
+                is_free_run = user_db.is_free_run(message.from_user.id)  # 1 == free
+
+                if is_free_run == 0:
+                    user_db.update_balance(message.from_user.id, -(len(private_keys) * one_wallet_run_price))
 
                 await asyncio.sleep(start_delay)
                 TOTAL_SLEEP_TIME += start_delay
@@ -442,16 +449,7 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
 
         is_free_run = user_db.is_free_run(message.from_user.id)  # 1 == free
 
-        data = await state.get_data()
-        private_keys = list(data.get("private_keys"))
-
-        one_wallet_run_price = get_one_wallet_run_price()
-
-        if is_free_run == 0:
-            user_db.update_balance(message.from_user.id, -(len(private_keys) * one_wallet_run_price))
-
-        is_ready = 0
-        await state.update_data(is_ready=is_ready)
+        await state.update_data(is_ready=0)
         await UserFollowing.wallet_menu.set()
 
         await bot.delete_message(chat_id=wait_message.chat.id,
@@ -468,19 +466,21 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
 
         if is_free_run == 1:
             user_db.set_false_free_run(message.from_user.id)
-            congratulations = "🎉 Congratulations!  You have farmed 1 wallet on a Tier 1 Project.\n" \
-                              "😤 In the past the average web3 user has made $500 for doing the same actions in air drops. "
+            congratulations = "\n\n🎉 Congratulations!  You have farmed 1 wallet on a Tier 1 Project." \
+                              "😤 In the past the average web3 user has made $500 for doing the same actions in air drops. \n\n" \
+                              "⬇️If you want to run another wallet - top up your balance in the <b>🏦 My account</b> section!"
+
             await message.answer(congratulations,
                                  parse_mode=types.ParseMode.HTML,
                                  reply_markup=reply_markup)
 
     else:
             b1 = KeyboardButton("🐳 LFG!")
-            b2 = KeyboardButton("⛔️ Stop ⛔️")
+            # b2 = KeyboardButton("⛔️ Stop ⛔️")
             b3 = KeyboardButton("⬅ Go to menu")
 
             buttons = ReplyKeyboardMarkup(resize_keyboard=True)
-            buttons.row(b1, b2).row(b3)
+            buttons.row(b1).row(b3)
 
             is_ready = 0
             await state.update_data(is_ready=is_ready)
