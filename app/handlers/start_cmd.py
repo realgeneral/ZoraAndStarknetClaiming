@@ -4,7 +4,7 @@ from datetime import date, datetime
 
 from aiogram import types
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardButton, \
-    InlineKeyboardMarkup, CallbackQuery
+    InlineKeyboardMarkup, CallbackQuery, InputFile
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher import FSMContext
 
@@ -90,7 +90,7 @@ async def send_gif(callback_query: CallbackQuery):
         else:
             print(f"File {gif_path} does not exist!")
 
-        await bot.send_animation(callback_query.from_user.id, gif_path)
+        await bot.send_animation(callback_query.from_user.id, InputFile(gif_path))
         await bot.answer_callback_query(callback_query.id)
         await UserFollowing.check_subscribe.set()
 
