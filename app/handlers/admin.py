@@ -1,10 +1,13 @@
+import asyncio
+import csv
 import datetime
+import os
 
 from aiogram import types
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from aiogram.dispatcher.filters import Text
 
-from app.create_bot import dp
+from app.create_bot import dp, bot
 from app.states import AdminMode
 from app.handlers.start_cmd import user_db
 
@@ -46,6 +49,54 @@ async def send_admin_menu(message: types.Message):
         await AdminMode.admin_menu.set()
         await message.answer(message_response, parse_mode=types.ParseMode.MARKDOWN, reply_markup=buttons)
 
+# ================================================= DATA DUMP ================================================
+
+
+@dp.message_handler(Text(equals="🔐 DATA DUMP"), state=AdminMode.admin_menu)
+async def send_data_dump(message: types.Message):
+        csv_path = "/app/data/payment_sessions_dump.csv"
+        data = user_db.fetch_all_data()
+
+        with open(csv_path, 'w', newline='') as csv_file:
+            writer = csv.DictWriter(csv_file, fieldnames=data[0].keys())
+
+            writer.writeheader()
+
+            for row in data:
+                writer.writerow(row)
+
+        with open(csv_path, 'rb') as csv_file:
+            sent_message = await message.answer_document(csv_file,
+                                                         caption="⬇️ Here is a CSV dump of your database ⬇️\n\n"
+                                                                 "_📍 After 10 seconds, the bot will delete the file from the chat_",
+                                                         parse_mode=types.ParseMode.MARKDOWN)
+
+        os.remove(csv_path)
+
+        await asyncio.sleep(10)
+        await bot.delete_message(chat_id=message.chat.id, message_id=sent_message.message_id)
+
+
+@dp.message_handler(state=AdminMode.set_new_price)
+async def save_new_price(message: types.Message):
+
+    try:
+        set_one_wallet_run_price(int(message.text))
+        message_response = f"*[SUCCESS]:* New one wallet price: _{int(message.text)}_"
+    except Exception as err_:
+        message_response = f"*[ERROR]:* {err_}"
+
+    buttons = [
+        KeyboardButton(text="⬅ Go to admin menu"),
+    ]
+    reply_markup = ReplyKeyboardMarkup(keyboard=[buttons], resize_keyboard=True)
+
+    print(f"one_wallet_run_price admin - {_one_wallet_run_price}")
+    await AdminMode.admin_menu.set()
+    await message.answer(message_response, reply_markup=reply_markup, parse_mode=types.ParseMode.MARKDOWN)
+
+
+# ===============================================================================================================
 
 # ================================================= Сonfig settings ================================================
 
@@ -61,10 +112,9 @@ async def send_new_price(message: types.Message):
 @dp.message_handler(state=AdminMode.set_new_price)
 async def save_new_price(message: types.Message):
 
-    global one_wallet_run_price
     try:
-        one_wallet_run_price = int(message.text)
-        message_response = f"*[SUCCESS]:* New one wallet price: _{one_wallet_run_price}_"
+        set_one_wallet_run_price(int(message.text))
+        message_response = f"*[SUCCESS]:* New one wallet price: _{int(message.text)}_"
     except Exception as err_:
         message_response = f"*[ERROR]:* {err_}"
 
@@ -73,18 +123,20 @@ async def save_new_price(message: types.Message):
     ]
     reply_markup = ReplyKeyboardMarkup(keyboard=[buttons], resize_keyboard=True)
 
-    print(f"one_wallet_run_price admin - {one_wallet_run_price}")
+    print(f"one_wallet_run_price admin - {_one_wallet_run_price}")
     await AdminMode.admin_menu.set()
     await message.answer(message_response, reply_markup=reply_markup, parse_mode=types.ParseMode.MARKDOWN)
 
 
 # ===============================================================================================================
 
+
+
 # =================================================GIVE MONEY================================================
 
 @dp.message_handler(Text(equals="Give money"), state=AdminMode.admin_menu)
 async def send_money_to_user(message: types.Message):
-    print(f"one_wallet_run_price admin - {one_wallet_run_price}")
+    print(f"one_wallet_run_price admin - {_one_wallet_run_price}")
     message_response = "Send user telegram_id:adding_usd"
 
     await AdminMode.add_money.set()
