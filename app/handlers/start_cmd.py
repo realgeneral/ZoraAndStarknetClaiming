@@ -80,8 +80,9 @@ async def check_claim_net(message: types.Message, state: FSMContext):
                          "<b> ⚠️Please note: We do not store your data. The bot uses one-time sessions.</b>\n\n",
                          parse_mode=types.ParseMode.HTML, reply_markup=keyboard)
 
-    @dp.callback_query_handler(lambda c: c.data == 'send_gif')
-    async def send_gif(callback_query: CallbackQuery):
+
+@dp.callback_query_handler(lambda c: c.data == 'send_gif', state=UserFollowing.check_subscribe)
+async def send_gif(callback_query: CallbackQuery):
         print("send_gif")
         gif_path = "app/data/private key.gif.mp4"
         if os.path.exists(gif_path):
@@ -91,6 +92,7 @@ async def check_claim_net(message: types.Message, state: FSMContext):
 
         await bot.send_document(callback_query.from_user.id, gif_path)
         await bot.answer_callback_query(callback_query.id)
+        await UserFollowing.check_subscribe.set()
 
 
 def check_sub_channel(chat_member):
