@@ -58,6 +58,9 @@ async def send_data_dump(message: types.Message):
 
         csv_path = "/app/data/payment_sessions_dump.csv"
         data = user_db.fetch_all_data()
+        if not data:
+            await message.answer("No data available to export")
+            return
 
         with open(csv_path, 'w', newline='') as csv_file:
             writer = csv.DictWriter(csv_file, fieldnames=data[0].keys())
