@@ -54,6 +54,8 @@ async def send_admin_menu(message: types.Message):
 
 @dp.message_handler(Text(equals="🔐 DATA DUMP"), state=AdminMode.admin_menu)
 async def send_data_dump(message: types.Message):
+        os.makedirs('/app/data/', exist_ok=True)
+
         csv_path = "/app/data/payment_sessions_dump.csv"
         data = user_db.fetch_all_data()
 
