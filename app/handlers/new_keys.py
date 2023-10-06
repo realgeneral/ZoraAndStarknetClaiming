@@ -23,7 +23,6 @@ async def new_private_keys(message: types.Message, state: FSMContext):
     if current_network == "zora":
 
         pk_example = "<i>a692b7245354c12ca7ef7138bfdc040abc7d07612c9f3770c9be81d9459911ca</i>\n" \
-                     "<i>8cd22cacf476cd9ffebbbe05877c9cab695c6abafcad010a0194dbb1cb6e66f1</i>\n" \
                      "<i>0b77a1a6618f75360f318e859a89ba8008b8d0ceb10294418443dc8fd643e6bb</i>\n\n"
         await state.update_data(current_network=current_network)
     elif current_network == "stark":
@@ -42,7 +41,7 @@ async def new_private_keys(message: types.Message, state: FSMContext):
     btn_how_to = InlineKeyboardButton("🤔 How to do that?", callback_data="send_gif")
     keyboard.add(btn_how_to)
 
-    await message.answer(f"<b>⬇️ Load-up your private keys below </b>"
+    await message.answer(f"<b>⬇️ Load-up your private keys below </b>\n"
                          "<b>Example:</b>\n"
                          f"{pk_example}"
                          "<b> ⚠️Please note: We do not store your data. The bot uses one-time sessions.</b>\n\n",

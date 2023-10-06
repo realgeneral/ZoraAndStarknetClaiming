@@ -1,4 +1,5 @@
 import asyncio
+import os
 from datetime import date, datetime
 
 from aiogram import types
@@ -73,7 +74,7 @@ async def check_claim_net(message: types.Message, state: FSMContext):
     btn_how_to = InlineKeyboardButton("🤔 How to do that?", callback_data="send_gif")
     keyboard.add(btn_how_to)
 
-    await message.answer(f"<b>⬇️ Load-up your private keys below </b>"
+    await message.answer(f"<b>⬇️ Load-up your private keys below </b>\n"
                          "<b>Example:</b>\n"
                          f"{pk_example}"
                          "<b> ⚠️Please note: We do not store your data. The bot uses one-time sessions.</b>\n\n",
@@ -81,7 +82,13 @@ async def check_claim_net(message: types.Message, state: FSMContext):
 
     @dp.callback_query_handler(lambda c: c.data == 'send_gif')
     async def send_gif(callback_query: CallbackQuery):
+        print("send_gif")
         gif_path = "app/data/private key.gif.mp4"
+        if os.path.exists(gif_path):
+            print(f"File {gif_path} exists!")
+        else:
+            print(f"File {gif_path} does not exist!")
+
         await bot.send_document(callback_query.from_user.id, gif_path)
         await bot.answer_callback_query(callback_query.id)
 
