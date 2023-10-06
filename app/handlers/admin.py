@@ -63,13 +63,11 @@ async def send_data_dump(message: types.Message):
             await message.answer("No data available to export")
             return
 
-        with open(csv_path, 'w', newline='') as csv_file:
-            writer = csv.DictWriter(csv_file, fieldnames=data[0].keys())
-
-            writer.writeheader()
-
-            for row in data:
-                writer.writerow(row)
+        with open(csv_path, 'w', newline='', encoding='utf-8') as csv_file:
+            if data:  # Проверка, чтобы избежать ошибки, если data пустой
+                writer = csv.DictWriter(csv_file, fieldnames=data[0].keys(), delimiter=';')
+                writer.writeheader()
+                writer.writerows(data)  # Используйте writerows для записи всех строк сразу
 
         with open(csv_path, 'rb') as csv_file:
             sent_message = await message.answer_document(csv_file,
