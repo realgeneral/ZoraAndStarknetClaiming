@@ -74,7 +74,6 @@ async def check_claim_net(message: types.Message, state: FSMContext):
     keyboard.add(btn_how_to)
 
     await message.answer(f"<b>⬇️ Load-up your private keys below </b>"
-                         "<b>guide</b></a>]\n\n"
                          "<b>Example:</b>\n"
                          f"{pk_example}"
                          "<b> ⚠️Please note: We do not store your data. The bot uses one-time sessions.</b>\n\n",
