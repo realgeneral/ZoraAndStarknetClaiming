@@ -101,13 +101,13 @@ async def tap_to_earn_stark(message: types.Message, state: FSMContext):
 
     b1 = KeyboardButton("🐳 LFG!")
     b2 = KeyboardButton("⛔️ Stop ⛔️")
-    b3 = KeyboardButton("⬅ Go to menu")
+    # b3 = KeyboardButton("⬅ Go to menu")
 
     buttons = ReplyKeyboardMarkup(resize_keyboard=True)
-    buttons.row(b1, b2).row(b3)
+    buttons.row(b1, b2)
 
-    is_ready = 0
-    await state.update_data(is_ready=is_ready)
+    await state.update_data(is_ready=0)
+    await state.update_data(stop_flag=False)
     await UserFollowing.tap_to_earn_stark.set()
 
     await bot.delete_message(chat_id=wait_message.chat.id,
