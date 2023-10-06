@@ -22,7 +22,7 @@ from app.utils.mint.StarkMinter import Minter as Stark_Minter
 from app.utils.stark_utils.Client import Client
 from app.handlers.admin import get_one_wallet_run_price
 
-one_wallet_run_price = get_one_wallet_run_price()
+
 
 
 @dataclass
@@ -53,6 +53,9 @@ async def tap_to_earn_stark(message: types.Message, state: FSMContext):
     balance_in_bot = user_db.get_current_balance(message.from_user.id)
     is_free_run = user_db.is_free_run(message.from_user.id)  # 1 == free
 
+    one_wallet_run_price = get_one_wallet_run_price()
+    print(f"one_wallet_run_price stark - {one_wallet_run_price}")
+
     if balance_in_bot < (len(private_keys) * one_wallet_run_price) and is_free_run == 0:
         reply_message += f"*Your balance* {balance_in_bot}$ is less than required " \
                          f"({len(private_keys)} x {one_wallet_run_price} = {(len(private_keys) * one_wallet_run_price)}$) \n"
@@ -65,7 +68,6 @@ async def tap_to_earn_stark(message: types.Message, state: FSMContext):
                              reply_markup=buttons)
         return
 
-
     if len(private_keys) == 1:
         edit_message = "Waiting for refilling of the wallet...."
     else:
@@ -77,25 +79,7 @@ async def tap_to_earn_stark(message: types.Message, state: FSMContext):
                                 message_id=wait_message.message_id,
                                 text=f"⏳ Preparing information about the script ... 0% ...")
     len_pk = len(private_keys)
-    #
-    # average_time_of_bridge = Randomiser.average_time(len_pk, Randomiser.random_bridge)
-    # average_time_after_bridge = Randomiser.average_time(len_pk, Randomiser.random_bridge_after)
-    # average_time_of_create = Randomiser.average_time(len_pk, Randomiser.random_contract)
-    # average_time_after_create = Randomiser.average_time(len_pk, Randomiser.random_contract_after)
-    # average_time_of_warm_up = 3 * Randomiser.average_time(len_pk, Randomiser.random_warm_up)
-    # average_time_after_warm_up = 3 * Randomiser.average_time(len_pk, Randomiser.random_warm_up_after)
-    # average_time_of_mint_erc_721 = 7 * Randomiser.average_time(len_pk, Randomiser.random_mint)
-    # average_time_of_mint_erc_1155 = 2 * Randomiser.average_time(len_pk, Randomiser.random_mint)
-    # average_time_after_mints = 8 * Randomiser.average_time(len_pk, Randomiser.random_mint_after)
-    # total_time = int(
-    #     (average_time_of_bridge + average_time_after_bridge + average_time_of_create + average_time_after_create
-    #      + average_time_after_warm_up + average_time_after_warm_up + average_time_of_mint_erc_721
-    #      + average_time_of_mint_erc_1155 + average_time_after_mints) / 60)
-    #
-    # await bot.edit_message_text(chaet_id=wait_message.chat.id,
-    #                             message_id=wait_message.message_id,
-    #                             text=f"⏳ Preparing information about the script ... 50% ...")
-    #
+
     reply_message += f"\n📍 Total сount of wallets: <b>{len_pk}</b>\n\n"
     reply_message += f"<b>Bot superpower's:</b>\n\n" \
                      "       🔸 <i><a href='https://app.jediswap.xyz/#/swap'>JediSwap</a></i>\n" \
@@ -206,6 +190,10 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
                                             message_id=wait_message.message_id,
                                             text=f"⏳ Preparing tasks...")
 
+                user_data = await state.get_data()
+                if user_data.get("stop_flag"):
+                    return
+
                 TASKS = []
 
                 JediSwap_client = JediSwap(client=client, JEDISWAP_SWAP_PERCENTAGE=params.JEDISWAP_SWAP_PERCENTAGE,
@@ -235,6 +223,10 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
                 start_delay = params.RANDOM_DELAY
                 logger.info(f"[{client.address_to_log}] Sleeping for {start_delay} s before taking off")
 
+                user_data = await state.get_data()
+                if user_data.get("stop_flag"):
+                    return
+
                 await bot.edit_message_text(chat_id=wait_message.chat.id,
                                             message_id=wait_message.message_id,
                                             text=f"⏳[{client.address_to_log}] Sleeping for {start_delay} s before taking off")
@@ -243,7 +235,17 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
                 TOTAL_SLEEP_TIME += start_delay
 
                 log_counter = 0
+
+                user_data = await state.get_data()
+                if user_data.get("stop_flag"):
+                    return
+
                 for task_name, task in TASKS:
+
+                    user_data = await state.get_data()
+                    if user_data.get("stop_flag"):
+                        return
+
                     params = RunningParams()  # новый объект для генерации нового рандом делея
                     delay = params.RANDOM_DELAY
                     if log_counter != 0:
@@ -254,9 +256,19 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
                                                     text=f"[{client.address_to_log}] Sleeping for {delay} s before doing next task")
                         await asyncio.sleep(delay)
                         TOTAL_SLEEP_TIME += delay
+
+                    user_data = await state.get_data()
+                    if user_data.get("stop_flag"):
+                        return
+
                     try:
                         balance = (await client.get_balance()).Ether
                         balance_to_print = round((await client.get_balance()).Ether, 5)
+
+                        user_data = await state.get_data()
+                        if user_data.get("stop_flag"):
+                            return
+
                         if balance >= 0.000055:
                             await bot.edit_message_text(chat_id=wait_message.chat.id,
                                                         message_id=wait_message.message_id,
@@ -265,6 +277,11 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
                             wallet_statistics[task_name] = "✅"
                             log_counter = 1
                         else:
+
+                            user_data = await state.get_data()
+                            if user_data.get("stop_flag"):
+                                return
+
                             logger.error(
                                 f"[{client.address_to_log}] Insufficient funds in StarkNet. Balance: {balance_to_print} ETH")
                             await bot.edit_message_text(chat_id=wait_message.chat.id,
@@ -276,6 +293,10 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
                                 wallet_statistics[remaining_task_name] = f"❌ Insufficient funds. Balance: {balance_to_print} ETH"
                             break
                     except Exception as err:
+
+                        user_data = await state.get_data()
+                        if user_data.get("stop_flag"):
+                            return
 
                         if "nonce" in str(err):
                             logger.error(f"[{client.address_to_log}] Invalid transaction nonce")
@@ -313,12 +334,22 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
                                                         message_id=wait_message.message_id,
                                                         text=f"[{client.address_to_log}] {err}")
                             try:
+                                user_data = await state.get_data()
+                                if user_data.get("stop_flag"):
+                                    return
+
                                 retry_delay = random.randint(15, 30)
                                 logger.info(f"[{client.address_to_log}] Sleeping for {retry_delay} s before retrying")
                                 await bot.edit_message_text(chat_id=wait_message.chat.id,
                                                             message_id=wait_message.message_id,
                                                             text=f"[{client.address_to_log}] Sleeping for {retry_delay} s before retrying")
+
                                 await asyncio.sleep(retry_delay)
+
+                                user_data = await state.get_data()
+                                if user_data.get("stop_flag"):
+                                    return
+
                                 TOTAL_SLEEP_TIME += retry_delay
                                 await task()
                                 wallet_statistics[task_name] = "✅"
@@ -360,6 +391,8 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
 
         data = await state.get_data()
         private_keys = list(data.get("private_keys"))
+
+        one_wallet_run_price = get_one_wallet_run_price()
 
         if is_free_run == 0:
             user_db.update_balance(message.from_user.id, -(len(private_keys) * one_wallet_run_price))

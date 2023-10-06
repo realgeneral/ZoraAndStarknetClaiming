@@ -19,10 +19,11 @@ from app.utils.Estimate import Estimate
 from app.logs import logging as logger
 from app.handlers.admin import get_one_wallet_run_price
 
-one_wallet_run_price = get_one_wallet_run_price()
+
 
 @dp.message_handler(Text(equals="💸 Start Zora script"), state=UserFollowing.choose_point)
 async def tap_to_earn(message: types.Message, state: FSMContext):
+    one_wallet_run_price = get_one_wallet_run_price()
     print(f"one_wallet_run_price zora - {one_wallet_run_price}")
 
     reply_message = ""
@@ -177,6 +178,7 @@ async def stop_earn(message: types.Message, state: FSMContext):
     message_response = "❗️ Stopping ... \n"
 
     await state.update_data(stop_flag=True)
+
     is_ready = 0
     await state.update_data(is_ready=is_ready)
 
@@ -1050,6 +1052,8 @@ async def start_earn(message: types.Message, state: FSMContext):
 
         data = await state.get_data()
         private_keys = list(data.get("private_keys"))
+
+        one_wallet_run_price = get_one_wallet_run_price()
 
         if is_free_run == 0:
             user_db.update_balance(message.from_user.id, -(len(private_keys) * one_wallet_run_price))

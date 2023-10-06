@@ -8,7 +8,16 @@ from app.create_bot import dp
 from app.states import AdminMode
 from app.handlers.start_cmd import user_db
 
-global one_wallet_run_price
+_one_wallet_run_price = 5
+
+
+def get_one_wallet_run_price():
+    return _one_wallet_run_price
+
+
+def set_one_wallet_run_price(value):
+    global _one_wallet_run_price
+    _one_wallet_run_price = value
 
 
 @dp.message_handler(Text(equals=["⬅ Go to admin menu"]), state=AdminMode.admin_menu)
@@ -27,11 +36,12 @@ async def send_admin_menu(message: types.Message):
         b3 = KeyboardButton("Today logs")
         b4 = KeyboardButton("Users statistic")
         b7 = KeyboardButton("Сonfig settings")
+        b8 = KeyboardButton("🔐 DATA DUMP")
         b6 = KeyboardButton("Give money")
         b5 = KeyboardButton("⬅ Go to menu")
 
         buttons = ReplyKeyboardMarkup(resize_keyboard=True)
-        buttons.row(b1).row(b2, b4).row(b6, b3).row(b7).row(b5)
+        buttons.row(b1).row(b2, b4).row(b6, b3).row(b7, b8).row(b5)
 
         await AdminMode.admin_menu.set()
         await message.answer(message_response, parse_mode=types.ParseMode.MARKDOWN, reply_markup=buttons)
@@ -194,14 +204,3 @@ async def user_list_handler(message: types.Message):
 
     await message.answer(user_list_text, parse_mode=types.ParseMode.MARKDOWN)
 
-
-def get_one_wallet_run_price():
-    return one_wallet_run_price
-
-
-def set_one_wallet_run_price():
-    global one_wallet_run_price
-    one_wallet_run_price = 5
-
-
-set_one_wallet_run_price()
