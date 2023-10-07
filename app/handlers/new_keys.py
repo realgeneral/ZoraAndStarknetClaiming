@@ -22,14 +22,15 @@ async def new_private_keys(message: types.Message, state: FSMContext):
 
     if current_network == "zora":
 
-        pk_example = "<i>a692b7245354c12ca7ef7138bfdc040abc7d07612c9f3770c9be81d9459911ca</i>\n" \
-                     "<i>0b77a1a6618f75360f318e859a89ba8008b8d0ceb10294418443dc8fd643e6bb</i>\n\n"
+        pk_example = "<i>private_key_of_your_wallet_1</i>\n" \
+                     "<i>private_key_of_your_wallet_2</i>\n\n"
+
         await state.update_data(current_network=current_network)
     elif current_network == "stark":
 
         await state.update_data(current_network=current_network)
-        pk_example = "<i>STARKNET_WALLET_ADDRESS:STARKNET_PRIVATE_KEY</i>\n" \
-                     "<i>STARKNET_WALLET_ADDRESS:STARKNET_PRIVATE_KEY</i>\n\n"
+        pk_example = "<i>address_of_your wallet_1:private_key_of_your wallet_1</i>\n" \
+                     "<i>address_of_your wallet_2:private_key_of_your wallet_2</i>\n\n"
 
     max_count = user_db.get_max_wallets(user_id=message.from_user.id)
 
