@@ -59,7 +59,7 @@ async def send_menu(message: types.Message, state: FSMContext):
     message_response = "🫡 Waiting for your instructions...\n " \
                        "🔽 Choose the button below 🔽"
 
-    b1 = KeyboardButton("🏦 My account")
+    b1 = KeyboardButton("💵 Balance and deposit")
     b2 = KeyboardButton("⛽️ Check GWEI")
     b5 = KeyboardButton("⚙️ Change network")
 

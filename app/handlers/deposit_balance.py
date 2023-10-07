@@ -44,14 +44,14 @@ async def dep_balance(callback_query: types.CallbackQuery):
     user_id = callback_query.from_user.id
 
     buttons = [
-        InlineKeyboardButton("5$", callback_data="deposit_5"),
-        InlineKeyboardButton("10$", callback_data="deposit_10"),
-        InlineKeyboardButton("25$", callback_data="deposit_25"),
-        InlineKeyboardButton("50$", callback_data="deposit_50"),
-        InlineKeyboardButton("100$", callback_data="deposit_100"),
-        InlineKeyboardButton("250$", callback_data="deposit_250"),
-        InlineKeyboardButton("500$", callback_data="deposit_500"),
-        InlineKeyboardButton("1000$", callback_data="deposit_1000"),
+        InlineKeyboardButton("$5", callback_data="deposit_5"),
+        InlineKeyboardButton("$10", callback_data="deposit_10"),
+        InlineKeyboardButton("$25", callback_data="deposit_25"),
+        InlineKeyboardButton("$50", callback_data="deposit_50"),
+        InlineKeyboardButton("$100", callback_data="deposit_100"),
+        InlineKeyboardButton("$250", callback_data="deposit_250"),
+        InlineKeyboardButton("$500", callback_data="deposit_500"),
+        InlineKeyboardButton("$1000", callback_data="deposit_1000"),
     ]
 
     keyboard = InlineKeyboardMarkup(row_width=4)

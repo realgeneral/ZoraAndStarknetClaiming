@@ -130,8 +130,8 @@ async def send_gif(callback_query: CallbackQuery, state: FSMContext):
         metamask_video_path = "app/data/metamask.mp4"
         await bot.send_animation(callback_query.from_user.id, InputFile(metamask_video_path), caption="🦊 Metamask")
     if current_network == 'stark':
-        gif_path = "app/data/metamask.mp4"
-        await bot.send_animation(callback_query.from_user.id, InputFile(gif_path), caption="🦊 Metamask")
+        gif_path = "app/data/argentx.mp4"
+        await bot.send_animation(callback_query.from_user.id, InputFile(gif_path), caption="🅰️rgentX")
 
 
     await bot.answer_callback_query(callback_query.id)

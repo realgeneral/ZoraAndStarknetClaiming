@@ -12,7 +12,7 @@ from app.handlers.start_cmd import user_db
 from app.states import UserFollowing
 
 
-@dp.message_handler(Text(equals=["🏦 My account"]), state=UserFollowing.choose_point)
+@dp.message_handler(Text(equals=["💵 Balance and deposit"]), state=UserFollowing.choose_point)
 async def my_account(message: types.Message):
     username = message.from_user.first_name
     telegram_id = message.from_user.id

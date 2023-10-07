@@ -466,9 +466,9 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
 
         if is_free_run == 1:
             user_db.set_false_free_run(message.from_user.id)
-            congratulations = "\n\n🎉 Congratulations!  You have farmed 1 wallet on a Tier 1 Project." \
-                              "😤 In the past the average web3 user has made $500 for doing the same actions in air drops. \n\n" \
-                              "⬇️If you want to run another wallet - top up your balance in the <b>🏦 My account</b> section!"
+            congratulations = "\n\n🎉 Congratulations, Arnold AIO has successfully done <b>Starknet script</b> for you! \n\n" \
+                              "😤 In the past, the average web3 user has made $550 per wallet for doing the same actions in airdrops. \n\n" \
+                              "⬇️If you want to run another wallet - top up your balance in the <b>💵 Balance and deposit</b> section!"
 
             await message.answer(congratulations,
                                  parse_mode=types.ParseMode.HTML,
