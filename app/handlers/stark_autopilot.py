@@ -91,7 +91,7 @@ async def tap_to_earn_stark(message: types.Message, state: FSMContext):
                      "       🔸 <i>StarkNetID NFT</i>\n" \
                      "       🔸 <i>StarkVerse NFT</i>\n" \
 
-    total_time = "30"
+    total_time = "45"
     reply_message += f"🕔 <b>Total time</b> ~ {total_time} mins *\n\n" \
                      f"<i>* We stretch out time to imitate how humans act</i>\n\n"
 
