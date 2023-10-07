@@ -87,15 +87,16 @@ async def send_gif(callback_query: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     current_network = data.get("current_network")
 
-    if current_network == 'stark':
-        gif_path = "app/data/private key.gif.mp4"
+    if current_network == 'zora':
+        gif_path = "app/data/metamask.mp4"
         if os.path.exists(gif_path):
             print(f"File {gif_path} exists!")
         else:
             print(f"File {gif_path} does not exist!")
-    if current_network == 'zora':
+    if current_network == 'stark':
         pass
-        await bot.send_animation(callback_query.from_user.id, InputFile(gif_path))
+
+    await bot.send_animation(callback_query.from_user.id, InputFile(gif_path), caption="🦊 Metamask")
     await bot.answer_callback_query(callback_query.id)
     await UserFollowing.check_subscribe.set()
 
