@@ -106,7 +106,7 @@ async def tap_to_earn(message: types.Message, state: FSMContext):
         total_time = int(
             (average_time_of_bridge + average_time_after_bridge + average_time_of_create + average_time_after_create
              + average_time_after_warm_up + average_time_of_warm_up + average_time_of_mint_erc_721
-             + average_time_of_mint_erc_1155 + average_time_after_mints) / 60)
+             + average_time_of_mint_erc_1155 + average_time_after_mints))
 
         await bot.edit_message_text(chat_id=wait_message.chat.id,
                                     message_id=wait_message.message_id,
@@ -120,7 +120,7 @@ async def tap_to_earn(message: types.Message, state: FSMContext):
                          "       🔸 <i>Wallet warm-up (simulation of real human actions)</i>\n" \
                          "       🔸 <i>GWEI downgrade mode - literally lowers the fees to zero</i>\n\n" \
 
-        reply_message += f"🕔 <b>Estimated running time:e</b> ~ {total_time} hours \n\n" \
+        reply_message += f"🕔 <b>Estimated running time:</b> ~ {total_time} mins \n\n" \
                          f"<i>* We stretch out time to imitate how humans act</i>\n\n"
 
         await bot.edit_message_text(chat_id=wait_message.chat.id,
