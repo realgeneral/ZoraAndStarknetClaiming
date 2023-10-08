@@ -11,13 +11,18 @@ from app.keyboards import faq_buttons
 
 
 @dp.message_handler(Text(equals=["ℹ️ FAQ"]), state='*')
-async def faq_handler(message: types.Message):
+async def faq_handler(message: types.Message, state: FSMContext):
     reply_message_1 = "ℹ️ <b>FAQ</b> "
     reply_message_2 = "<i>Choose your question and hit that button on the menu below!</i>"
 
+    data = await state.get_data()
+    is_from_back = data.get("is_from_back")
+    await state.update_data(is_from_back=0)
+
     await UserFollowing.choose_faq.set()
-    await message.answer(reply_message_1, parse_mode=types.ParseMode.HTML,
-                         reply_markup=ReplyKeyboardRemove())
+    if not is_from_back:
+        await message.answer(reply_message_1, parse_mode=types.ParseMode.HTML,
+                             reply_markup=ReplyKeyboardRemove())
 
     await message.answer(reply_message_2, parse_mode=types.ParseMode.HTML,
                          reply_markup=faq_buttons)
@@ -99,7 +104,10 @@ async def go_back_to_faq(callback_query: types.CallbackQuery, state: FSMContext)
     message_id = callback_query.message.message_id
 
     await bot.delete_message(chat_id, message_id)
+    await state.update_data(is_from_back=1)
 
+    print(callback_query.message.from_user.id)
+    print(callback_query.from_user.id)
     # callback_query.message.from_user.id = callback_query.from_user.id
     await faq_handler(callback_query.message)
 
