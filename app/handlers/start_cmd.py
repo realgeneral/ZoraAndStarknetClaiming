@@ -115,7 +115,7 @@ async def send_ready_stark(callback_query: CallbackQuery, state: FSMContext):
                            f"<b>⬇️ Load-up your private keys below </b>\n\n"
                            "<b>Example:</b>\n"
                            f"{pk_example}"
-                           "<b> ⚠️Please note: We do not store your data. The bot uses one-time sessions.</b>\n\n",
+                           "<b> ⚠️ Please note: We do not store your data. The bot uses one-time sessions.</b>\n\n",
                            parse_mode=types.ParseMode.HTML, reply_markup=keyboard)
 
     await bot.answer_callback_query(callback_query.id)

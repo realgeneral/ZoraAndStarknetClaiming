@@ -46,5 +46,5 @@ async def new_private_keys(message: types.Message, state: FSMContext):
     await message.answer(f"<b>⬇️ Load-up your private keys below </b>\n\n"
                          "<b>Example:</b>\n"
                          f"{pk_example}"
-                         "<b> ⚠️Please note: We do not store your data. The bot uses one-time sessions.</b>\n\n",
+                         "<b> ⚠️ Please note: We do not store your data. The bot uses one-time sessions.</b>\n\n",
                          parse_mode=types.ParseMode.HTML, reply_markup=keyboard)
