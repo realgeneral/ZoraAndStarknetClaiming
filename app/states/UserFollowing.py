@@ -14,4 +14,5 @@ class UserFollowing(StatesGroup):
     choose_bridge = State()
     tap_to_earn_stark = State()
     check_ready = State()
+    choose_faq = State()
 

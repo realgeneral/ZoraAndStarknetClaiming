@@ -1,81 +1,103 @@
-import asyncio
-
-import httpx
-
 from aiogram import types
+from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
+from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardButton, InputFile, \
+    InlineKeyboardMarkup
 
 from app.create_bot import dp, bot
+from app.handlers.main_menu import send_menu
 from app.states import UserFollowing
 from app.keyboards import faq_buttons
 
 
 @dp.message_handler(Text(equals=["ℹ️ FAQ"]), state='*')
 async def faq_handler(message: types.Message):
-    reply_message = "ℹ️ FAQ \n\n" \
-                    "Choose your question and hit that button on the menu below!"
+    reply_message_1 = "ℹ️ <b>FAQ</b> "
+    reply_message_2 = "<i>Choose your question and hit that button on the menu below!</i>"
 
-    await UserFollowing.choose_point.set()
-    await message.answer(reply_message, parse_mode=types.ParseMode.MARKDOWN,
+    await UserFollowing.choose_faq.set()
+    await message.answer(reply_message_1, parse_mode=types.ParseMode.MARKDOWN,
+                         reply_markup=ReplyKeyboardRemove())
+
+    await message.answer(reply_message_2, parse_mode=types.ParseMode.MARKDOWN,
                          reply_markup=faq_buttons)
 
 
-@dp.message_handler(Text(equals=["🧐 What can bot do?"]), state=UserFollowing.choose_point)
-async def what_can_bot_do(message: types.Message):
-    reply_message = "*Bot's superpowers: * \n \n" \
-                    "• 📩 Bridge to Zora Mainnet from ETH Mainnet \n\n" \
-                    "• 🀄️ Create NFTs  \n\n" \
-                    "• 🖼 Mint important NFTs (updated list)  \n\n" \
-                    "• 🏋️‍♂️ Wallet warm-up (simulation of real human actions)  \n\n" \
-                    "• ⛽️ GWEI downgrade mode - literally lowers the fees to zero \n\n"
+@dp.callback_query_handler(lambda query: query.data.startswith('faq_'), state=UserFollowing.choose_faq)
+async def process_faq_callback(callback_query: types.CallbackQuery, state: FSMContext):
+    faq_amount = int(callback_query.data.split('_')[1])
 
-    await UserFollowing.choose_point.set()
-    await message.answer(reply_message, parse_mode=types.ParseMode.MARKDOWN,
-                         reply_markup=faq_buttons)
+    chat_id = callback_query.message.chat.id
+    message_id = callback_query.message.message_id
+    await bot.delete_message(chat_id, message_id)
+
+    if faq_amount == 0:
+        callback_query.message.from_user.id = callback_query.from_user.id
+        await UserFollowing.wallet_menu.set()
+        await send_menu(callback_query.message, state)
+        return
+
+    path_to_file = ""
+    reply_message = ""
+
+    if faq_amount == 1:
+        reply_message = "📍 <b>How much $ is expected from StarkNet/Zora? </b> \n\n" \
+                        "Historically, web3 users have earned $550/wallet from similar airdrops." \
+                        " Expect $350-$800 per project per wallet. For two projects: roughly $1000/wallet"
+    elif faq_amount == 2:
+        reply_message = "📍 <b>How to not become Sybil?</b> \n\n" \
+                        "🔒 Don't link your wallets\n" \
+                        "🚫 Don't bail on your wallets after you've been active in a project\n" \
+                        "🔥 Warm up your wallets\n "
+    elif faq_amount == 3:
+        reply_message = "📍 <b>What is the cost per wallet for StarkNet?</b> \n\n" \
+                        "💼 Deposit: <i>0.0215 eth ($35)</i>\n" \
+                        "💰 Post-activity balance: <i>0.02 eth ($32)</i>\n" \
+                        "🤖 Wallet run: <i>$5</i>\n" \
+                        "💵 Total: <i>$7</i>\n" \
+                        "💸 Potential Profit: <i>$550</i>\n"
+    elif faq_amount == 4:
+        reply_message = "📍 <b>What is the cost per wallet for Zora?</b>\n\n" \
+                        "💼 Deposit: <i>0.01 eth ($18)</i>\n" \
+                        "💰 Post-activity balance: <i>0.005 eth ($9)</i>\n" \
+                        "🤖 Wallet run: <i>$5</i>\n" \
+                        "💵 Total: <i>$14</i>\n" \
+                        "💸 Potential Profit: <i>$680</i>\n"
+    elif faq_amount == 5:
+        reply_message = "📍 <b>Concerned about your personal data?</b>\n\n" \
+                        '🔐 Using a wallet requires a private key. Your funds are protected. Our bot uses "disposable states," not storing data post-session.\n' \
+                        '💌 Reach out for more info: @ebsh_web3_support\n'
+    elif faq_amount == 6:
+        reply_message = "📍 <b>How to deploy StarkNet wallet?</b>"
+        path_to_file = "app/data/deploy_video.mp4"
+    elif faq_amount == 7:
+        reply_message = "📍 <b>How can I load my data for Zora?</b>"
+        path_to_file = "app/data/metamask.mp4"
+    elif faq_amount == 8:
+        reply_message = "📍 <b>How can I load my data for StarkNet?</b>"
+        path_to_file = "app/data/argentx.mp4"
+
+    go_back_keyboard = InlineKeyboardMarkup()
+    btn_go_back = InlineKeyboardButton("⬅ Go back", callback_data="go_back")
+    go_back_keyboard.add(btn_go_back)
+
+    if path_to_file:
+        await bot.send_animation(callback_query.from_user.id, InputFile(path_to_file),
+                                 caption=reply_message,
+                                 parse_mode=types.ParseMode.MARKDOWN,
+                                 reply_markup=go_back_keyboard)
+    else:
+        await bot.send_message(callback_query.from_user.id,
+                               reply_message,
+                               parse_mode=types.ParseMode.MARKDOWN,
+                               reply_markup=faq_buttons)
 
 
-@dp.message_handler(Text(equals=["⛽️ What is GWEI ?"]), state=UserFollowing.choose_point)
-async def what_can_bot_do(message: types.Message):
-    reply_message = "*What is GWEI?* \n\n" \
-                    '*GWEI* -  is a unit of payment for "*gas*", which is the fee required to make transactions or ' \
-                    " ⛽️ Gas in Ethereum can be like the fuel for a car. \n\n" \
-                    '🚘 Just as a *car* needs fuel to run, transactions and smart contracts in Ethereum require "*gas*" to operate.   \n\n' \
-                    '⛽️ *GWEI* is similar to the quantification of fuel in liters or gallons - it\'s a unit of measurement for "*gas*".   \n\n' \
-                    "💸 The higher the *GWEI*, the higher the *transaction fee*.  \n\n" \
-                    "🔎 *To check the current GWEI tap on «⛽️Check GWEI» button in the main menu.* \n\n"
-
-    await UserFollowing.choose_point.set()
-    await message.answer(reply_message, parse_mode=types.ParseMode.MARKDOWN,
-                         reply_markup=faq_buttons)
+@dp.callback_query_handler(lambda c: c.data == "go_back", state=UserFollowing.choose_faq)
+async def go_back_to_faq(callback_query: types.CallbackQuery, state: FSMContext):
+    chat_id = callback_query.message.chat.id
+    message_id = callback_query.message.message_id
+    await bot.delete_message(chat_id, message_id)
+    await process_faq_callback(callback_query, state)
 
 
-@dp.message_handler(Text(equals=["💎 Premium version"]), state=UserFollowing.choose_point)
-async def premium_version(message: types.Message):
-    reply_message = "<b>Premium version</b>\n\n" \
-                    "To set-up more wallets in the bot, you need to become a premium memeber.  \n\n" \
-                    "<i>- The ability to load up to 10 wallets into the bot </i>\n" \
-                    "<i>- Be among the first to get access to our latest developments</i>\n"\
-                    "<i>- Your tasks bot will perform in high priority </i>\n" \
-                    "<i>- You will give us the motivation to make the software even better for you</i>\n\n" \
-                    "<b> <a href='https://t.me/whatheshark'>DM</a> for price</b>\n"
-
-    await UserFollowing.choose_point.set()
-    await message.answer(reply_message, parse_mode=types.ParseMode.HTML,
-                         reply_markup=faq_buttons)
-
-
-@dp.message_handler(Text(equals=["🗺 How to start?"]), state=UserFollowing.choose_point)
-async def premium_version(message: types.Message):
-    reply_message = "<b> How to start? </b>\n\n" \
-                    '1. Load-up your private keys by pressing <b>«➕ Load new wallets»</b> button in the menu.\n' \
-                    '  [<a href="https://support.metamask.io/hc/en-us/articles/360015289632-How-to-export-an-account-s-private-key">guide</a>]\n\n' \
-                    '<b>Example:</b>\n' \
-                    '<i>a692b7245354c12ca7ef7138bfdc040abc7d07612c9f3770c9be81d9459911ca</i>\n' \
-                    '<i>8cd22cacf476cd9ffebbbe05877c9cab695c6abafcad010a0194dbb1cb6e66f1</i>\n' \
-                    '<i>0b77a1a6618f75360f318e859a89ba8008b8d0ceb10294418443dc8fd643e6bb</i>\n\n' \
-                    '2. Withdraw the required amount of ETH in <b>Ethereum Mainnet Chain</b> to your wallet using CEX (<b>Binance, OKX,</b> etc).\n\n' \
-                    '3. After that go to the main menu and press <b>«💸 Start script» </b> button.' \
-
-    await UserFollowing.choose_point.set()
-    await message.answer(reply_message, parse_mode=types.ParseMode.HTML,
-                         reply_markup=faq_buttons)
