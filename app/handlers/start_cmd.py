@@ -310,6 +310,7 @@ async def private_keys(message: types.Message, state: FSMContext):
         if is_free_run == 1:
             is_ready = 0
             await state.update_data(is_ready=is_ready)
+            await state.update_data(stop_flag=False)
 
             if current_network == 'zora':
                 from app.handlers.zora_autopilot import start_earn
