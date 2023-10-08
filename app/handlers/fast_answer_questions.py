@@ -16,10 +16,10 @@ async def faq_handler(message: types.Message):
     reply_message_2 = "<i>Choose your question and hit that button on the menu below!</i>"
 
     await UserFollowing.choose_faq.set()
-    await message.answer(reply_message_1, parse_mode=types.ParseMode.MARKDOWN,
+    await message.answer(reply_message_1, parse_mode=types.ParseMode.HTML,
                          reply_markup=ReplyKeyboardRemove())
 
-    await message.answer(reply_message_2, parse_mode=types.ParseMode.MARKDOWN,
+    await message.answer(reply_message_2, parse_mode=types.ParseMode.HTML,
                          reply_markup=faq_buttons)
 
 
@@ -100,7 +100,7 @@ async def go_back_to_faq(callback_query: types.CallbackQuery, state: FSMContext)
 
     await bot.delete_message(chat_id, message_id)
 
-    callback_query.message.from_user.id = callback_query.from_user.id
+    # callback_query.message.from_user.id = callback_query.from_user.id
     await faq_handler(callback_query.message)
 
 
