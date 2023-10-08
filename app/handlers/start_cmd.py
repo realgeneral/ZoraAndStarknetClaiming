@@ -40,7 +40,7 @@ async def start_cmd(message: types.Message):
 
     await UserFollowing.check_claim_net.set()
     await message.answer(f"Hi, <b> {message.from_user.first_name}</b>! \n\n"
-                         "<b>⬇️Pick the project you want to do:</b>",
+                         "<b>⬇️ Pick the project you want to do:</b>",
                          parse_mode=types.ParseMode.HTML, reply_markup=reply_markup)
 
 
