@@ -84,13 +84,13 @@ async def process_faq_callback(callback_query: types.CallbackQuery, state: FSMCo
     if path_to_file:
         await bot.send_animation(callback_query.from_user.id, InputFile(path_to_file),
                                  caption=reply_message,
-                                 parse_mode=types.ParseMode.MARKDOWN,
+                                 parse_mode=types.ParseMode.HTML,
                                  reply_markup=go_back_keyboard)
     else:
         await bot.send_message(callback_query.from_user.id,
                                reply_message,
-                               parse_mode=types.ParseMode.MARKDOWN,
-                               reply_markup=faq_buttons)
+                               parse_mode=types.ParseMode.HTML,
+                               reply_markup=go_back_keyboard)
 
 
 @dp.callback_query_handler(lambda c: c.data == "go_back", state=UserFollowing.choose_faq)
