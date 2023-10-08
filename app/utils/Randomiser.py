@@ -46,4 +46,4 @@ class Randomiser:
         return random.randint(60, 80)
     @staticmethod
     def random_mint_after():
-        return random.randint(300, 500)
+        return random.randint(400, 600)
