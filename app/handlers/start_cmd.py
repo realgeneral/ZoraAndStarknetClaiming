@@ -319,10 +319,10 @@ async def private_keys(message: types.Message, state: FSMContext):
                                  "       🔸 <i>Create own NFTs</i>\n" \
                                  "       🔸 <i>Mint important NFTs (updated list)</i>\n" \
                                  "       🔸 <i>Wallet warm-up (simulation of real human actions)</i>\n" \
-                                 "       🔸 <i>GWEI downgrade mode - literally lowers the fees to zero</i>\n" \
+                                 "       🔸 <i>GWEI downgrade mode - literally lowers the fees to zero</i>\n\n" \
 
-                reply_message += f"🕔 <b>Estimated running time:e</b> ~ 3 hours *\n\n" \
-                                         f"<i>* We stretch out time to imitate how humans act</i>\n\n"
+                reply_message += f"🕔 <b>Estimated running time:e</b> ~ 3 hours \n\n" \
+                                 f"<i>* We stretch out time to imitate how humans act</i>\n\n"
                 await message.answer(reply_message,
                                      parse_mode=types.ParseMode.HTML)
                 await UserFollowing.tap_to_earn.set()
@@ -332,15 +332,15 @@ async def private_keys(message: types.Message, state: FSMContext):
                 from app.handlers.stark_autopilot import start_earn_stark
 
                 reply_message = f"<b>🎡 Starknet script includes: </b>\n\n" \
-                                 f"<b>Interaction with dexes: </b>\n\n" \
+                                 f"<b>Interaction with dexes: </b>\n" \
                                  "       🔸 <i>JediSwap ( Swaps; Liquidity Adding)</i>\n" \
                                  "       🔸 <i>AvnuFi (Swaps)</i>\n" \
                                  "       🔸 <i>10K Swap (Swaps)</i>\n" \
-                                 "       🔸 <i>Dmail (Message sender)</i>\n" \
-                                 f"<b>NFT mint : </b>\n\n" \
+                                 "       🔸 <i>Dmail (Message sender)</i>\n\n" \
+                                 f"<b>NFT mint : </b>\n" \
                                  "       🔸 <i>StarkNetID NFT</i>\n" \
-                                 "       🔸 <i>StarkVerse NFT</i>\n"
-                reply_message += f"🕔 <b>Total time</b> ~ 45 mins *\n\n" \
+                                 "       🔸 <i>StarkVerse NFT</i>\n\n"
+                reply_message += f"🕔 <b>Total time</b> ~ 45 mins \n\n" \
                                  f"<i>* We stretch out time to imitate how humans act</i>\n\n"
                 await message.answer(reply_message,
                                      parse_mode=types.ParseMode.HTML)

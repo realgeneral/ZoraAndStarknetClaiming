@@ -118,9 +118,9 @@ async def tap_to_earn(message: types.Message, state: FSMContext):
                          "       🔸 <i>Create own NFTs</i>\n" \
                          "       🔸 <i>Mint important NFTs (updated list)</i>\n"\
                          "       🔸 <i>Wallet warm-up (simulation of real human actions)</i>\n" \
-                         "       🔸 <i>GWEI downgrade mode - literally lowers the fees to zero</i>\n" \
+                         "       🔸 <i>GWEI downgrade mode - literally lowers the fees to zero</i>\n\n" \
 
-        reply_message += f"🕔 <b>Estimated running time:e</b> ~ {total_time} hours *\n\n" \
+        reply_message += f"🕔 <b>Estimated running time:e</b> ~ {total_time} hours \n\n" \
                          f"<i>* We stretch out time to imitate how humans act</i>\n\n"
 
         await bot.edit_message_text(chat_id=wait_message.chat.id,
