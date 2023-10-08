@@ -321,7 +321,7 @@ async def private_keys(message: types.Message, state: FSMContext):
                                  "       🔸 <i>Wallet warm-up (simulation of real human actions)</i>\n" \
                                  "       🔸 <i>GWEI downgrade mode - literally lowers the fees to zero</i>\n\n" \
 
-                reply_message += f"🕔 <b>Estimated running time:e</b> ~ 3 hours \n\n" \
+                reply_message += f"🕔 <b>Estimated running time:e</b> ~ 100 mins \n\n" \
                                  f"<i>* We stretch out time to imitate how humans act</i>\n\n"
                 await message.answer(reply_message,
                                      parse_mode=types.ParseMode.HTML)
