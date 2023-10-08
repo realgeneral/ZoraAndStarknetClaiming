@@ -97,7 +97,10 @@ async def process_faq_callback(callback_query: types.CallbackQuery, state: FSMCo
 async def go_back_to_faq(callback_query: types.CallbackQuery, state: FSMContext):
     chat_id = callback_query.message.chat.id
     message_id = callback_query.message.message_id
+
     await bot.delete_message(chat_id, message_id)
-    await process_faq_callback(callback_query, state)
+
+    callback_query.message.from_user.id = callback_query.from_user.id
+    await faq_handler(callback_query.message, state)
 
 
