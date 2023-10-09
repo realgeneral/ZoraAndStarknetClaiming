@@ -53,7 +53,8 @@ async def process_faq_callback(callback_query: types.CallbackQuery, state: FSMCo
         reply_message = "📍 <b>How to not become Sybil?</b> \n\n" \
                         "🔒 Don't link your wallets\n" \
                         "🚫 Don't bail on your wallets after you've been active in a project\n" \
-                        "🔥 Warm up your wallets\n "
+                        "🔥 Warm up your wallets\n\n " \
+                        "<i>Our bot has integrated these precautions. Actions are delayed, randomized, and grouped, ensuring your safety against Sybil detection.</i>"
     elif faq_amount == 3:
         reply_message = "📍 <b>What is the cost per wallet for StarkNet?</b> \n\n" \
                         "💼 Deposit: <i>0.0215 eth ($35)</i>\n" \
