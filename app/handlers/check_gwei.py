@@ -21,7 +21,7 @@ async def check_gwei(message: types.Message):
     if current_gwei >= 20:
         reply_message = f"⛽️ GWEI now: *{current_gwei}* - Fuck it, waitin' for lower gas, go touch the grass 🏡"
     else:
-        reply_message = f"⛽️ GWEI now: *{current_gwei}* - perfect to make some Zora accs"
+        reply_message = f"⛽️ GWEI now: *{current_gwei}* - perfect to make some projects"
 
     buttons = [
         KeyboardButton(text="⬅ Go to menu"),
