@@ -215,17 +215,17 @@ async def get_today_logs(message: types.Message):
     reply_message = "\n".join(today_logs)
 
     mess_len = len(reply_message)
-    print(mess_len)
 
     if mess_len == 0:
         reply_message = f"*[INFO]:* _Today no new logs..._"
+        await message.answer(reply_message, parse_mode=types.ParseMode.MARKDOWN)
+        return
 
     if mess_len >= 4000:
-        print(3800)
-        reply_message = reply_message[-3800:]
+        reply_message = reply_message[-4000:]
     else:
-        print(mess_len-10)
-        reply_message = reply_message[-(mess_len-10):]
+        print(mess_len)
+        reply_message = reply_message[-(mess_len):]
 
     await message.answer(reply_message, parse_mode=types.ParseMode.MARKDOWN)
 
