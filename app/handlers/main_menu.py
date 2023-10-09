@@ -79,7 +79,7 @@ async def send_menu(message: types.Message, state: FSMContext):
     if b5:
         buttons.row(b1, b3).row(b5, b4).row(b2, b6)
     else:
-        buttons.row(b1, b3).row(b4).row(b2, b6)
+        buttons.row(b1, b3).row(b2, b6)
 
 
     await UserFollowing.choose_point.set()
