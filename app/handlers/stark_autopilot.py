@@ -30,17 +30,17 @@ class RunningParams:
     STARKNET_RPC: str = "https://starknet-mainnet.infura.io/v3/7eec932e2c324e20ac051e0aa3741d9f"
     SWAP_SLIPPAGE: int = 2
     RANDOM_DELAY: int = random.randint(30, 60)
-    JEDISWAP_SWAP_COUNT: int = None
-    JEDISWAP_LP_COUNT: int = None
-    AVNUFI_SWAP_COUNT: int = None
-    TENKSWAP_SWAP_COUNT: int = None
+    JEDISWAP_SWAP_COUNT: int = random.randint(3, 5)
+    JEDISWAP_LP_COUNT: int = 1
+    AVNUFI_SWAP_COUNT: int = random.randint(3, 5)
+    TENKSWAP_SWAP_COUNT: int = random.randint(3, 5)
     STARKVERSE_NFT_MINT_COUNT: int = random.randint(1, 3)
     STARKNETID_NFT_MINT_COUNT: int = random.randint(1, 3)
-    JEDISWAP_SWAP_PERCENTAGE: int = random.randint(50, 70)
-    JEDISWAP_LIQ_PERCENTAGE: int = random.randint(60, 80)
-    AVNUFI_SWAP_PERCENTAGE: int = random.randint(50, 70)
-    TENK_SWAP_PERCENTAGE: int = random.randint(50, 70)
-    DMAIL_MESSAGES_COUNT: int = random.randint(10, 20)
+    JEDISWAP_SWAP_PERCENTAGE: int = random.randint(55, 75)
+    JEDISWAP_LIQ_PERCENTAGE: int = random.randint(70, 80)
+    AVNUFI_SWAP_PERCENTAGE: int = random.randint(55, 75)
+    TENK_SWAP_PERCENTAGE: int = random.randint(55, 75)
+    DMAIL_MESSAGES_COUNT: int = random.randint(3, 8)
 
 
 @dp.message_handler(Text(equals="💸 Start Starknet script"), state=UserFollowing.choose_point)
@@ -170,16 +170,6 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
 
         for i in range(count_keys):
             try:
-                wallet_statistics = {
-                    "JediSwap Swap": "",
-                    "AvnuFi Swap": "",
-                    "10kSwap Swap": "",
-                    "Dmail message": "",
-                    "StarkVerseNFT Minting": "",
-                    "StarkNetIDNFT Minting": "",
-                    "JediSwap Liquidity Adding": ""
-                }
-
                 params = RunningParams()
 
                 client = Client(address=int(private_keys[i+1][0], 16),
@@ -210,20 +200,34 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
 
                 Dmail_client = Dmail(client=client)
 
-                TASKS.append(("JediSwap Swap", JediSwap_client.swap))
-                TASKS.append(("AvnuFi Swap", AvnuFi_client.swap))
-                TASKS.append(("10kSwap Swap", TenkSwap_client.swap))
-                TASKS.append(("StarkVerseNFT Minting", Minter_client.mintStarkVerse))
-                TASKS.append(("StarkNetIDNFT Minting", Minter_client.mintStarknetIdNFT))
-                TASKS.append(("Dmail message", Dmail_client.send_message))
+                for i in range(params.JEDISWAP_SWAP_COUNT):
+                    TASKS.append((f"JediSwap Swap {i + 1}", JediSwap_client.swap))
+
+                for i in range(params.AVNUFI_SWAP_COUNT):
+                    TASKS.append((f"AvnuFi Swap {i + 1}", AvnuFi_client.swap))
+
+                for i in range(params.TENKSWAP_SWAP_COUNT):
+                    TASKS.append((f"10kSwap Swap {i + 1}", TenkSwap_client.swap))
+
+                for i in range(params.STARKVERSE_NFT_MINT_COUNT):
+                    TASKS.append((f"StarkVerseNFT Minting {i + 1}", Minter_client.mintStarkVerse))
+
+                for i in range(params.STARKNETID_NFT_MINT_COUNT):
+                    TASKS.append((f"StarkNetIDNFT Minting {i + 1}", Minter_client.mintStarknetIdNFT))
+
+                for i in range(params.DMAIL_MESSAGES_COUNT):
+                    TASKS.append((f"Dmail message {i + 1}", Dmail_client.send_message))
 
                 random.shuffle(TASKS)
+
                 # Adding liq at the end
                 TASKS.append(("JediSwap Liquidity Adding", JediSwap_client.add_liquidity))
 
+                wallet_statistics = {task_name: "" for task_name, _ in TASKS}
+
                 ########################################### TASKS PERFORMING #################################
 
-                start_delay = params.RANDOM_DELAY
+                start_delay = random.randint(30, 60)
 
                 user_data = await state.get_data()
                 if user_data.get("stop_flag"):
@@ -258,8 +262,7 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
                     if user_data.get("stop_flag"):
                         return
 
-                    params = RunningParams()  # новый объект для генерации нового рандом делея
-                    delay = params.RANDOM_DELAY
+                    delay = random.randint(45, 90)
                     if log_counter != 0:
                         await bot.edit_message_text(chat_id=wait_message.chat.id,
                                                     message_id=wait_message.message_id,
