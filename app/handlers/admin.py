@@ -56,12 +56,17 @@ async def send_admin_menu(message: types.Message):
 @dp.message_handler(Text(equals="🔐 DATA DUMP"), state=AdminMode.admin_menu)
 async def send_data_dump(message: types.Message):
         csv_path = "/app/data/payment_sessions_dump.csv"
+
+        directory = os.path.dirname(csv_path)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
         data = payment_session.fetch_all_data()
         if not data:
             await message.answer("No data available to export")
             return
 
-        with open(csv_path, 'w', newline='', encoding='utf-8') as csv_file:
+        with open(csv_path, 'w', newline='', encoding='utf-8',) as csv_file:
             if data:  # Проверка, чтобы избежать ошибки, если data пустой
                 writer = csv.DictWriter(csv_file, fieldnames=data[0].keys(), delimiter=';')
                 writer.writeheader()
@@ -201,16 +206,11 @@ async def get_today_logs(message: types.Message):
     today = datetime.datetime.now().strftime('%Y-%m-%d')
     today_logs = []
 
-    edit_mess = message.answer("_Getting logs ..._", parse_mode=types.ParseMode.MARKDOWN)
-
     with open("logs/logs.log", 'r') as f:
         for line in f:
             if today in line:
                 today_logs.append(line.strip())
 
-    await bot.edit_message_text(chat_id=edit_mess.id,
-                                message_id=edit_mess.message_id,
-                                text=f"⏳ _Load logs..._", parse_mode=types.ParseMode.MARKDOWN)
 
     reply_message = "\n".join(today_logs)
 
@@ -225,8 +225,7 @@ async def get_today_logs(message: types.Message):
         reply_message = reply_message[-(mess_len-10):]
 
     await message.answer(reply_message, parse_mode=types.ParseMode.MARKDOWN)
-    await bot.delete_message(chat_id=edit_mess.chat.id,
-                             message_id=edit_mess.message_id)
+
 
 
 # ===============================================================================================================
