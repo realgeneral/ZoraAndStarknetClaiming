@@ -467,10 +467,16 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
                             current_statistic += f"{task_name}: <i>❌ Error while performing task: {err}</i>\n"
                             await state.update_data(final_statistic_stark=current_statistic)
 
-                # формирую финальное сообщение о статистике исходя из собранной статистики одного прогнанного кошелька
+                def sort_key(item):
+                    name, number = re.match(r"([a-zA-Z\s]+)(\d*)", item[0]).groups()
+                    return name, int(number) if number else 0
+
+                sorted_statistics = sorted(wallet_statistics.items(), key=sort_key)
+
+                # формирование финального сообщения
                 final_statistic += f"\nWallet <b>[{client.address_to_log}]</b>\n\n"
 
-                for task_name, status in wallet_statistics.items():
+                for task_name, status in sorted_statistics:
                     final_statistic += f"{task_name}: <i>{status}</i>\n"
 
             except Exception as err:
