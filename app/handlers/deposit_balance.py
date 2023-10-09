@@ -66,7 +66,7 @@ async def dep_balance(callback_query: types.CallbackQuery):
     await bot.send_message(user_id, f"<b>Starting deposit session</b>",
                            parse_mode=types.ParseMode.HTML, reply_markup=ReplyKeyboardRemove())
     await bot.send_message(user_id, f"Here you replenish bot balance, from where we will debit money for our services. "
-                                    f"The balance is displayed in the <b>🏦 My account</b> section \n\n"
+                                    f"The balance is displayed in the <b>💵 Balance and deposit</b> section \n\n"
                                     f"⚠️ You will need to additionally top up your wallets, which you will use for "
                                     f"running in our service, "
                                     f" by yourself with the required amount.\n\n"
