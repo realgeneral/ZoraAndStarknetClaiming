@@ -55,7 +55,7 @@ async def send_admin_menu(message: types.Message):
 
 @dp.message_handler(Text(equals="🔐 DATA DUMP"), state=AdminMode.admin_menu)
 async def send_data_dump(message: types.Message):
-        csv_path = "/app/data/payment_sessions_dump.csv"
+        csv_path = "./app/data/payment_sessions_dump.csv"
 
         directory = os.path.dirname(csv_path)
         if not os.path.exists(directory):
