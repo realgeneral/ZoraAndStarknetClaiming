@@ -227,7 +227,7 @@ async def get_today_logs(message: types.Message):
         print(mess_len)
         reply_message = reply_message[-(mess_len):]
 
-    await message.answer(reply_message, parse_mode=types.ParseMode.MARKDOWN)
+    await message.answer(reply_message)
 
 
 
