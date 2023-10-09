@@ -55,8 +55,6 @@ async def send_admin_menu(message: types.Message):
 
 @dp.message_handler(Text(equals="🔐 DATA DUMP"), state=AdminMode.admin_menu)
 async def send_data_dump(message: types.Message):
-        os.makedirs('/app/data/', exist_ok=True)
-
         csv_path = "/app/data/payment_sessions_dump.csv"
         data = payment_session.fetch_all_data()
         if not data:
@@ -203,10 +201,16 @@ async def get_today_logs(message: types.Message):
     today = datetime.datetime.now().strftime('%Y-%m-%d')
     today_logs = []
 
+    edit_mess = message.answer("_Getting logs ..._", parse_mode=types.ParseMode.MARKDOWN)
+
     with open("logs/logs.log", 'r') as f:
         for line in f:
             if today in line:
                 today_logs.append(line.strip())
+
+    await bot.edit_message_text(chat_id=edit_mess.chat.id,
+                                message_id=edit_mess.message_id,
+                                text=f"⏳ _Load logs..._", parse_mode=types.ParseMode.MARKDOWN)
 
     reply_message = "\n".join(today_logs)
 
@@ -214,6 +218,8 @@ async def get_today_logs(message: types.Message):
         reply_message = f"*[INFO]:* _Today no new logs..._"
 
     await message.answer(reply_message[-4000:], parse_mode=types.ParseMode.MARKDOWN)
+    await bot.delete_message(chat_id=edit_mess.chat.id,
+                             message_id=edit_mess.message_id)
 
 
 # ===============================================================================================================
