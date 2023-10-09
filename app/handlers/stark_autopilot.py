@@ -467,6 +467,7 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
                             current_statistic += f"{task_name}: <i>❌ Error while performing task: {err}</i>\n"
                             await state.update_data(final_statistic_stark=current_statistic)
 
+                import re
                 def sort_key(item):
                     name, number = re.match(r"([a-zA-Z\s]+)(\d*)", item[0]).groups()
                     return name, int(number) if number else 0
