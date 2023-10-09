@@ -208,16 +208,23 @@ async def get_today_logs(message: types.Message):
             if today in line:
                 today_logs.append(line.strip())
 
-    await bot.edit_message_text(chat_id=edit_mess.chat.id,
+    await bot.edit_message_text(chat_id=edit_mess.id,
                                 message_id=edit_mess.message_id,
                                 text=f"⏳ _Load logs..._", parse_mode=types.ParseMode.MARKDOWN)
 
     reply_message = "\n".join(today_logs)
 
-    if reply_message == "":
+    mess_len = len(reply_message)
+
+    if mess_len == 0:
         reply_message = f"*[INFO]:* _Today no new logs..._"
 
-    await message.answer(reply_message[-4000:], parse_mode=types.ParseMode.MARKDOWN)
+    if mess_len >= 4000:
+        reply_message = reply_message[-4000:]
+    else:
+        reply_message = reply_message[-(mess_len-10):]
+
+    await message.answer(reply_message, parse_mode=types.ParseMode.MARKDOWN)
     await bot.delete_message(chat_id=edit_mess.chat.id,
                              message_id=edit_mess.message_id)
 
