@@ -426,6 +426,36 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
                             current_statistic += f"{task_name}: <i>❌ Transaction reverted: Error in the called contract</i>\n"
                             await state.update_data(final_statistic_stark=current_statistic)
 
+                        elif "object has no attribute" in str(err):
+                            logger.error(f"[{client.address_to_log}] {err}")
+                            try:
+                                retry_delay = random.randint(15, 30)
+                                logger.info(f"[{client.address_to_log}] Sleeping for {retry_delay} s before retrying")
+
+                                await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                                            message_id=wait_message.message_id,
+                                                            text=f"❌ *[{client.address_to_log}]* Sleeping for _{retry_delay} s_ before retrying",
+                                                            parse_mode=types.ParseMode.MARKDOWN)
+
+                                await asyncio.sleep(retry_delay)
+                                await task()
+                                wallet_statistics[task_name] = "✅"
+
+                                current_statistic += f"{task_name}: <i>✅</i>\n"
+                                await state.update_data(final_statistic_stark=current_statistic)
+
+                            except Exception as retry_err:
+                                logger.error(f"[{client.address_to_log}] Error while retrying task after error: {retry_err}")
+                                await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                                            message_id=wait_message.message_id,
+                                                            text=f"❌ *[{client.address_to_log}]* Error while retrying task after error: _{retry_err}_",
+                                                            parse_mode=types.ParseMode.MARKDOWN)
+
+                                wallet_statistics[task_name] = "❌ Client failed (NoneType Val)"
+
+                                current_statistic += f"{task_name}: <i>❌ Client failed (NoneType Val)</i>\n"
+                                await state.update_data(final_statistic_stark=current_statistic)
+            
                         else:
                             logger.error(f"[{client.address_to_log}] Error while performing task: {err}")
                             await bot.edit_message_text(chat_id=wait_message.chat.id,
