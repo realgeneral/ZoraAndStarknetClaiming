@@ -75,11 +75,12 @@ async def GetDataForLP(client: Client, dex, JEDISWAP_LIQ_PERCENTAGE):
         USDC_ADDRESS = ContractInfo.USDC.get('address')
         tokens_list = [ETH_ADDRESS, USDC_ADDRESS, USDT_ADDRESS]
 
-        from_token = choice(tokens_list)
+        #from_token = choice(tokens_list)
         from_token = ETH_ADDRESS
         tokens_list.remove(from_token)
         to_token = choice(tokens_list)
-        #to_token = USDC_ADDRESS
+        tokens_list.remove(to_token)
+        #to_token = USDT_ADDRESS
 
         token_one_data = ContractInfo.GetData(from_token)
         token_two_data = ContractInfo.GetData(to_token)
@@ -131,8 +132,36 @@ async def GetDataForLP(client: Client, dex, JEDISWAP_LIQ_PERCENTAGE):
         balanceOf_first = await client.get_balance(token_address=token_one_address, decimals=token_one_decimals)
         balanceOf_second = await client.get_balance(token_address=token_two_address, decimals=token_two_decimals)
 
-        if balanceOf_second.Wei <= 0 or balanceOf_first.Wei <= 0:
-            raise ValueError("Insufficient tokens on balance to add a liquidity pair. Only ETH is available")
+        if balanceOf_second.Wei <= 0:
+            logger.error(f"{token_two_name} {balanceOf_second.Ether} | {token_one_name} {balanceOf_first.Ether}")
+
+            ##################### Getting data about another token #####################################
+            if token_two_name == "USDT":
+                logger.info(f"Ok. I will chose USDC.")
+                token_two_name = 'USDC'
+                token_two_address = USDC_ADDRESS
+                token_two_decimals = 6
+                pooled_token_data = ContractInfo.GetData(0x04d0390b777b424e43839cd1e744799f3de6c176c7e32c1812a41dbd9c19db6a)
+                pooled_token_address = pooled_token_data.get('address')
+                pooled_token_name = pooled_token_data.get('name')
+            else:
+                logger.info(f"Ok. I will chose USDT.")
+                token_two_name = 'USDT'
+                token_two_address = USDT_ADDRESS
+                token_two_decimals = 6
+                pooled_token_data = ContractInfo.GetData(0x045e7131d776dddc137e30bdd490b431c7144677e97bf9369f629ed8d3fb7dd6)
+                pooled_token_address = pooled_token_data.get('address')
+                pooled_token_name = pooled_token_data.get('name')
+
+            balanceOf_second = await client.get_balance(token_address=token_two_address, decimals=token_two_decimals)
+
+            ##### check another token balance #####
+            if balanceOf_second.Wei <= 0:
+                raise ValueError(f"Insufficient tokens on balance to add a liquidity pair.")
+
+        elif balanceOf_first.Wei <= 0:
+            logger.error(f"balanceOf_second {token_two_name} {balanceOf_second.Wei}. balanceOf_first {token_one_name} {balanceOf_first.Wei}")
+            raise ValueError("Insufficient ETH on balance to add a liquidity pair.")
 
         if token_one_name == 'ETH':
             eth_price = client.get_eth_price()

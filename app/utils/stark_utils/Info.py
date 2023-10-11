@@ -7,7 +7,8 @@ from app.utils.stark_utils.GetAbis import (BRIDGE_ABI_PATH, ERC20_ABI_PATH, DAI_
                                            JEDISWAP_ETHUSDC_ABI_PATH, JEDISWAP_ETHUSDT_ABI_PATH,
                                            JEDISWAP_USDCUSDT_ABI_PATH, DMAIL_ABI_PATH, AVNUFI_ABI_PATH,
                                            STARKNETID_ABI_PATH, TENKSWAP_ABI_PATH, STARKVERSE_ABI_PATH,
-                                           STARKNETIDNFT_ABI_PATH)
+                                           STARKNETIDNFT_ABI_PATH,
+                                           ACCOUNT_ABI_PATH)
 
 
 class TokenAmount:
@@ -61,6 +62,9 @@ class ContractInfo:
     STARKNETIDNFT = {'address': 0x05dbdedc203e92749e2e746e2d40a768d966bd243df04a6b712e222bc040a9af,
                      'abi': json.load(open(STARKNETIDNFT_ABI_PATH))}
     BRIDGE = {'address': 0xae0Ee0A63A2cE6BaeEFFE56e7714FB4EFE48D419, 'abi': json.load(open(BRIDGE_ABI_PATH))}
+
+    ACCOUNT = {'abi': json.load(open(ACCOUNT_ABI_PATH))}
+
 
     @staticmethod
     def GetData(contract_address):
