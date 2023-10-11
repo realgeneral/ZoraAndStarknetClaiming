@@ -16,16 +16,14 @@ class AvnuFi:
         self.percentage = AVNUFI_SWAP_PERCENTAGE
         self.slippage = SLIPPAGE
 
-    async def swap(self, swap_to_eth=False, data_for_swap=None):
+    async def swap(self, swap_to_eth=False):
         try:
             router = ContractInfo.JEDISWAP.get('address')
 
             global min_amount
             #min_amount = 0
 
-            if not data_for_swap:
-                data_for_swap = await GetDataForSwap(client=self.client, SWAP_PERCENTAGE=self.percentage, swap_to_eth=swap_to_eth)
-
+            data_for_swap = await GetDataForSwap(client=self.client, SWAP_PERCENTAGE=self.percentage, swap_to_eth=swap_to_eth)
             if data_for_swap == {}:
                 return False
 
