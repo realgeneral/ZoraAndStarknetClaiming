@@ -106,8 +106,18 @@ class Client:
 
                 call = Call(to_addr=interacted_contract_address, selector=get_selector_from_name(selector_name),
                             calldata=calldata)
-                max_fee = TokenAmount(amount=float(uniform(0.0007534534534, 0.001)))
-                response = await self.account.execute(calls=[call],
+
+                #max_fee = TokenAmount(amount=float(uniform(0.0007534534534, 0.001)))
+
+                ################################ fee estimating #########################
+                info = ContractInfo.GetData(interacted_contract_address)
+                abi = info.get('abi')
+
+                contract = Contract(address=interacted_contract_address, abi=abi, provider=self.account)
+                prepared_tx = contract.functions[selector_name].prepare(spender=self.address)
+                fee = await self.estimate_fee(prepared_tx)
+
+                response = await self.account.execute(calls=[call], max_fee=int(fee * (1 + randint(15, 25) / 100)),
                                                       cairo_version=cairo_version)
 
                 for _ in range(100):
