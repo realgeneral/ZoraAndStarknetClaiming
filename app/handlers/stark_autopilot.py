@@ -27,7 +27,7 @@ from app.handlers.admin import get_one_wallet_run_price
 
 @dataclass
 class RunningParams:
-    STARKNET_RPC: str = "https://starknet-mainnet.infura.io/v3/7eec932e2c324e20ac051e0aa3741d9f"
+    STARKNET_RPC: str = random.choice(["https://starknet-mainnet.infura.io/v3/7eec932e2c324e20ac051e0aa3741d9f", "https://starknet-mainnet.infura.io/v3/283bed0b326d44c795ab05a8cb9811e4"])
     SWAP_SLIPPAGE: int = 2
     RANDOM_DELAY: int = random.randint(30, 60)
     JEDISWAP_SWAP_COUNT: int = random.randint(3, 5)
