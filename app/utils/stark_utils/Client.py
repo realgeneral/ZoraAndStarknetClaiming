@@ -417,8 +417,7 @@ class Client:
                     tx_status = tx_receipt.execution_status.value if tx_receipt.execution_status is not None else None
 
                     logger.info(f"[{self.address_to_log}] Successfully deployed! Tx status: {tx_status}, Tx hash: {hex(tx_hash)}")
-
-
+                    return True
             except Exception as err:
                 raise ValueError(err)
 
