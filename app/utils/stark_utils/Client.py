@@ -109,7 +109,7 @@ class Client:
 
                 max_fee = TokenAmount(amount=float(uniform(0.0005, 0.0007)))
 
-                response = await self.account.execute(calls=[call], max_fee=max_fee,
+                response = await self.account.execute(calls=[call], max_fee=int(max_fee.Wei),
                                                       cairo_version=cairo_version)
 
                 for _ in range(100):
