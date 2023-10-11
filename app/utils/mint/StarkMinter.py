@@ -19,11 +19,6 @@ class Minter:
 
             logger.info(f"[{self.client.address_to_log}] Minting nft [StarkVerse NFT]")
 
-            # tx_hash = await self.client.send_transaction(interacted_contract=contract,
-            #                                              function_name='publicMint',
-            #                                              to=self.client.address
-            #                                              )
-
             tx_hash = await self.client.call(interacted_contract_address=contract_address,
                                              calldata=[self.client.address],
                                              selector_name='publicMint')
