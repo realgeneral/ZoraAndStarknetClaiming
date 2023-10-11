@@ -103,13 +103,12 @@ class Client:
                 logger.info(f"[{self.address_to_log}] Sending tx")
 
                 cairo_version = await self.get_cairo_version_for_txn_execution(self.account)
-                print(self.address_to_log, cairo_version)
 
                 call = Call(to_addr=interacted_contract_address, selector=get_selector_from_name(selector_name),
                             calldata=calldata)
                 max_fee = TokenAmount(amount=float(uniform(0.0007534534534, 0.001)))
                 response = await self.account.execute(calls=[call],
-                                                      max_fee=int(max_fee.Wei * (1 + randint(15, 25) / 100)), cairo_version=cairo_version)
+                                                      cairo_version=cairo_version)
 
                 for _ in range(100):
                     try:
