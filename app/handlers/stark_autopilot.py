@@ -482,6 +482,7 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
             
                         else:
                             logger.error(f"[{client.address_to_log}] Error while performing task: {err}")
+                            err_escaped = str(err)
                             if "_" in str(err):
                                 error = str(err)
                                 err_escaped = error.replace("_", "\_")
