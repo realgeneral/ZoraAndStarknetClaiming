@@ -482,10 +482,17 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
             
                         else:
                             logger.error(f"[{client.address_to_log}] Error while performing task: {err}")
-                            await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                                        message_id=wait_message.message_id,
-                                                        text=f"*[{client.address_to_log}]* Error while performing task: _{err}_",
-                                                        parse_mode=types.ParseMode.MARKDOWN)
+                            if "_" in err:
+                                await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                                            message_id=wait_message.message_id,
+                                                            text=f"*[{client.address_to_log}]* Error while performing task: {err}",
+                                                            parse_mode=types.ParseMode.MARKDOWN)
+                            else:
+                                await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                                            message_id=wait_message.message_id,
+                                                            text=f"*[{client.address_to_log}]* Error while performing task: _{err}_",
+                                                            parse_mode=types.ParseMode.MARKDOWN)
+
                             wallet_statistics[task_name] = f"❌ Error while performing task: {err}"
 
                             current_statistic += f"{task_name}: <i>❌ Error while performing task: {err}</i>\n"
