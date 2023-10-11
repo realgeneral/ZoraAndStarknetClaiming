@@ -65,4 +65,4 @@ class Minter:
             elif "Invalid transaction nonce" in str(err):
                 raise ValueError("Invalid transaction nonce")
             else:
-                logger.error(f"[{self.client.address_to_log}] Error while swapping: {err} [Starknet.id Identity NFT]")
+                logger.error(f"[{self.client.address_to_log}] Error while minting: {err} [Starknet.id Identity NFT]")
