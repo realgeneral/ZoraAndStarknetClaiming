@@ -485,16 +485,16 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
                             err_escaped = str(err)
                             if "max_fee" in str(err):
                                 error = str(err)
-                                err_escaped = error.replace("_", "\_")
+                                err_escaped = error.replace("max_fee", "maxfee")
                             print(err_escaped)
                             await bot.edit_message_text(chat_id=wait_message.chat.id,
                                                         message_id=wait_message.message_id,
                                                         text=f"*[{client.address_to_log}]* Error while performing task: _{err_escaped}_",
                                                         parse_mode=types.ParseMode.MARKDOWN)
 
-                            wallet_statistics[task_name] = f"❌ Error while performing task: {err_escaped}"
+                            wallet_statistics[task_name] = f"❌ {err_escaped}"
 
-                            current_statistic += f"{task_name}: <i>❌ Error while performing task: {err_escaped}</i>\n"
+                            current_statistic += f"{task_name}: <i>❌ {err_escaped}</i>\n"
                             await state.update_data(final_statistic_stark=current_statistic)
 
                 import re
