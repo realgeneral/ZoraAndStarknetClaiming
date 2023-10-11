@@ -54,6 +54,7 @@ class RunningParams:
     TENK_SWAP_PERCENTAGE: int = random.randint(55, 75)
     DMAIL_MESSAGES_COUNT: int = 1
 
+
 @dp.message_handler(Text(equals="💸 Start Starknet script"), state=UserFollowing.choose_point)
 async def tap_to_earn_stark(message: types.Message, state: FSMContext):
     reply_message = ""
