@@ -97,10 +97,10 @@ async def tap_to_earn_stark(message: types.Message, state: FSMContext):
                      "       🔸 <i>JediSwap ( Swaps; Liquidity Adding)</i>\n" \
                      "       🔸 <i>AvnuFi (Swaps)</i>\n" \
                      "       🔸 <i>10K Swap (Swaps)</i>\n" \
-                     "       🔸 <i>Dmail (Message sender)</i>\n" \
+                     "       🔸 <i>Dmail (Message sender)</i>\n\n" \
                      f"<b>NFT mint : </b>\n\n" \
                      "       🔸 <i>StarkNetID NFT</i>\n" \
-                     "       🔸 <i>StarkVerse NFT</i>\n" \
+                     "       🔸 <i>StarkVerse NFT</i>\n\n" \
 
     total_time = "45"
     reply_message += f"🕔 <b>Total time</b> ~ {total_time} mins *\n\n" \
