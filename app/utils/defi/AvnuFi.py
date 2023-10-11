@@ -1,10 +1,9 @@
 from starknet_py.contract import Contract
 
-from src.utils.GetData import GetDataForSwap
-from src.utils.Client import Client
-from src.utils.Info import ContractInfo, TokenAmount
-
-from src.config.logger import logger
+from app.utils.stark_utils.GetData import GetDataForSwap
+from app.utils.stark_utils.Client import Client
+from app.utils.stark_utils.Info import ContractInfo, TokenAmount
+from app.logs import logging as logger
 
 
 class AvnuFi:

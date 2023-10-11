@@ -2,10 +2,11 @@ import random
 import string
 from dataclasses import dataclass
 
-from src.utils.Info import ContractInfo
-from src.utils.Client import Client
-from src.config.logger import logger
 from starknet_py.contract import Contract
+
+from app.utils.stark_utils.Info import ContractInfo
+from app.utils.stark_utils.Client import Client
+from app.logs import logging as logger
 
 
 @dataclass
