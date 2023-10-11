@@ -482,7 +482,7 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
             
                         else:
                             logger.error(f"[{client.address_to_log}] Error while performing task: {err}")
-                            if "_" in err:
+                            if "_" in str(err):
                                 await bot.edit_message_text(chat_id=wait_message.chat.id,
                                                             message_id=wait_message.message_id,
                                                             text=f"*[{client.address_to_log}]* Error while performing task: {err}",
