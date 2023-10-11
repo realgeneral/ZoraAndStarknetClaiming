@@ -178,6 +178,19 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
                                 starknet_rpc=params.STARKNET_RPC,
                                 MAX_GWEI=3000)
 
+                ########################################### DEPLOYING IF NEEDED #################################
+                await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                            message_id=wait_message.message_id,
+                                            text=f"⏳ _Deploying wallet if needed..._", parse_mode=types.ParseMode.MARKDOWN)
+
+                deploy_result = await client.deploy()
+                if deploy_result:
+                    await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                                message_id=wait_message.message_id,
+                                                text=f"⏳ _Wallet was successfully deployed_",
+                                                parse_mode=types.ParseMode.MARKDOWN)
+                    await asyncio.sleep(2)
+
                 ########################################### TASKS PREPARING #################################
                 await bot.edit_message_text(chat_id=wait_message.chat.id,
                                             message_id=wait_message.message_id,
@@ -333,37 +346,36 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
                             current_statistic += f"{task_name}: <i>❌ Invalid transaction nonce</i>\n"
                             await state.update_data(final_statistic_stark=current_statistic)
 
-                        elif "Client failed with code 63" in str(err):
-                            logger.error(f"[{client.address_to_log}] {err}")
-                            try:
-                                retry_delay = random.randint(15, 30)
-                                logger.info(f"[{client.address_to_log}] Sleeping for {retry_delay} s before retrying")
+                        # elif "Client failed with code 63" in str(err):
+                        #     logger.error(f"[{client.address_to_log}] {err}")
+                        #     try:
+                        #         retry_delay = random.randint(15, 30)
+                        #         logger.info(f"[{client.address_to_log}] Sleeping for {retry_delay} s before retrying")
+                        #
+                        #         await bot.edit_message_text(chat_id=wait_message.chat.id,
+                        #                                     message_id=wait_message.message_id,
+                        #                                     text=f"❌ *[{client.address_to_log}]* Sleeping for _{retry_delay} s_ before retrying",
+                        #                                     parse_mode=types.ParseMode.MARKDOWN)
+                        #
+                        #         await asyncio.sleep(retry_delay)
+                        #         await task()
+                        #         wallet_statistics[task_name] = "✅"
+                        #
+                        #         current_statistic += f"{task_name}: <i>✅</i>\n"
+                        #         await state.update_data(final_statistic_stark=current_statistic)
 
-                                await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                                            message_id=wait_message.message_id,
-                                                            text=f"❌ *[{client.address_to_log}]* Sleeping for _{retry_delay} s_ before retrying",
-                                                            parse_mode=types.ParseMode.MARKDOWN)
-
-                                await asyncio.sleep(retry_delay)
-                                await task()
-                                wallet_statistics[task_name] = "✅"
-
-                                current_statistic += f"{task_name}: <i>✅</i>\n"
-                                await state.update_data(final_statistic_stark=current_statistic)
-
-                            except Exception as retry_err:
-                                logger.error(f"[{client.address_to_log}] Error while retrying task after 63 error: {retry_err}")
-                                await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                                            message_id=wait_message.message_id,
-                                                            text=f"❌ *[{client.address_to_log}]* Error while retrying task after 63 error: _{retry_err}_",
-                                                            parse_mode=types.ParseMode.MARKDOWN)
-
-                                wallet_statistics[task_name] = "❌ Client failed"
-
-                                current_statistic += f"{task_name}: <i>❌ Client failed</i>\n"
-                                await state.update_data(final_statistic_stark=current_statistic)
-                        elif "Insufficient tokens on balance to add a liquidity pair. Only ETH is available" in str(
-                                err):
+                            # except Exception as retry_err:
+                            #     logger.error(f"[{client.address_to_log}] Error while retrying task after 63 error: {retry_err}")
+                            #     await bot.edit_message_text(chat_id=wait_message.chat.id,
+                            #                                 message_id=wait_message.message_id,
+                            #                                 text=f"❌ *[{client.address_to_log}]* Error while retrying task after 63 error: _{retry_err}_",
+                            #                                 parse_mode=types.ParseMode.MARKDOWN)
+                            #
+                            #     wallet_statistics[task_name] = "❌ Client failed"
+                            #
+                            #     current_statistic += f"{task_name}: <i>❌ Client failed</i>\n"
+                            #     await state.update_data(final_statistic_stark=current_statistic)
+                        elif "Insufficient tokens on balance to add a liquidity pair. Only ETH is available" in str(err):
                             logger.error(f"[{client.address_to_log}] {err}")
                             await bot.edit_message_text(chat_id=wait_message.chat.id,
                                                         message_id=wait_message.message_id,
@@ -374,45 +386,45 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
 
                             current_statistic += f"{task_name}: <i>❌ Insufficient tokens on balance to add a liquidity pair</i>\n"
                             await state.update_data(final_statistic_stark=current_statistic)
-                        elif "host starknet-mainnet.infura.io" in str(err):
-                            logger.error(f"[{client.address_to_log}] {err}")
-                            await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                                        message_id=wait_message.message_id,
-                                                        text=f"❌ *[{client.address_to_log}]* _{err}_",
-                                                        parse_mode=types.ParseMode.MARKDOWN)
-                            try:
-                                user_data = await state.get_data()
-                                if user_data.get("stop_flag"):
-                                    return
-
-                                retry_delay = random.randint(15, 30)
-
-                                await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                                            message_id=wait_message.message_id,
-                                                            text=f"*[{client.address_to_log}]* Sleeping for _{retry_delay} s_ before retrying",
-                                                            parse_mode=types.ParseMode.MARKDOWN)
-
-                                await asyncio.sleep(retry_delay)
-
-                                user_data = await state.get_data()
-                                if user_data.get("stop_flag"):
-                                    return
-
-                                TOTAL_SLEEP_TIME += retry_delay
-                                await task()
-                                wallet_statistics[task_name] = "✅"
-                                current_statistic += f"{task_name}: <i>✅</i>\n"
-                            except Exception as retry_err:
-                                logger.error(
-                                    f"[{client.address_to_log}] Error while retrying task after connection issue: {retry_err}")
-                                await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                                            message_id=wait_message.message_id,
-                                                            text=f"*[{client.address_to_log}]* Error while retrying task after connection issue: _{retry_err}_",
-                                                           parse_mode=types.ParseMode.MARKDOWN)
-                                wallet_statistics[task_name] = "❌ Lost connection with starknet-mainnet.infura.io"
-
-                                current_statistic += f"{task_name}: <i>❌ Lost connection with starknet-mainnet.infura.io</i>\n"
-                                await state.update_data(final_statistic_stark=current_statistic)
+                        # elif "host starknet-mainnet.infura.io" in str(err):
+                        #     logger.error(f"[{client.address_to_log}] {err}")
+                        #     await bot.edit_message_text(chat_id=wait_message.chat.id,
+                        #                                 message_id=wait_message.message_id,
+                        #                                 text=f"❌ *[{client.address_to_log}]* _{err}_",
+                        #                                 parse_mode=types.ParseMode.MARKDOWN)
+                        #     try:
+                        #         user_data = await state.get_data()
+                        #         if user_data.get("stop_flag"):
+                        #             return
+                        #
+                        #         retry_delay = random.randint(15, 30)
+                        #
+                        #         await bot.edit_message_text(chat_id=wait_message.chat.id,
+                        #                                     message_id=wait_message.message_id,
+                        #                                     text=f"*[{client.address_to_log}]* Sleeping for _{retry_delay} s_ before retrying",
+                        #                                     parse_mode=types.ParseMode.MARKDOWN)
+                        #
+                        #         await asyncio.sleep(retry_delay)
+                        #
+                        #         user_data = await state.get_data()
+                        #         if user_data.get("stop_flag"):
+                        #             return
+                        #
+                        #         TOTAL_SLEEP_TIME += retry_delay
+                        #         await task()
+                        #         wallet_statistics[task_name] = "✅"
+                        #         current_statistic += f"{task_name}: <i>✅</i>\n"
+                        #     except Exception as retry_err:
+                        #         logger.error(
+                        #             f"[{client.address_to_log}] Error while retrying task after connection issue: {retry_err}")
+                        #         await bot.edit_message_text(chat_id=wait_message.chat.id,
+                        #                                     message_id=wait_message.message_id,
+                        #                                     text=f"*[{client.address_to_log}]* Error while retrying task after connection issue: _{retry_err}_",
+                        #                                    parse_mode=types.ParseMode.MARKDOWN)
+                        #         wallet_statistics[task_name] = "❌ Lost connection with starknet-mainnet.infura.io"
+                        #
+                        #         current_statistic += f"{task_name}: <i>❌ Lost connection with starknet-mainnet.infura.io</i>\n"
+                        #         await state.update_data(final_statistic_stark=current_statistic)
 
                         elif "Transaction reverted: Error in the called contract." in str(err):
                             logger.error(f"[{client.address_to_log}] {err}")
