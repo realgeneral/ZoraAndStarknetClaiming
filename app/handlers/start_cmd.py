@@ -60,25 +60,15 @@ async def check_claim_net(message: types.Message, state: FSMContext):
         await state.update_data(current_network=current_network)
     elif message.text == "🎡 Starknet":
         current_network = "stark"
+        pk_example = "<i>address_of_your wallet_1:private_key_of_your wallet_1</i>\n" \
+                     "<i>address_of_your wallet_2:private_key_of_your wallet_2</i>\n\n"
+
         await state.update_data(current_network=current_network)
-
-        deploy_video_file_path = "app/data/deploy_video.mp4"
-        keyboard_stark = InlineKeyboardMarkup()
-        btn_ready = InlineKeyboardButton("✅ Ready", callback_data="send_ready")
-        btn_help_me = InlineKeyboardButton("🆘 Help me", url='https://t.me/ebsh_web3_support')
-        keyboard_stark.add(btn_ready).add(btn_help_me)
-
-        await UserFollowing.check_ready.set()
-        await bot.send_animation(message.from_user.id,
-                                 InputFile(deploy_video_file_path),
-                                 caption="📍 DEPLOY YOUR WALLET 📍",
-                                 reply_markup=keyboard_stark)
-        return
 
     max_count = user_db.get_max_wallets(user_id=message.from_user.id)
 
     await UserFollowing.check_subscribe.set()
-    await message.answer(f"🔮 The total amount of wallets you can run: <b>{max_count}</b>\n\n",
+    await message.answer(f" The total amount of wallets you can run: <b>{max_count}</b>\n\n",
                          parse_mode=types.ParseMode.HTML, reply_markup=ReplyKeyboardRemove())
 
     keyboard = InlineKeyboardMarkup()
@@ -86,39 +76,11 @@ async def check_claim_net(message: types.Message, state: FSMContext):
     btn_pk_info = InlineKeyboardButton("👀 Why do you need my private key?", callback_data="send_pk_info")
     keyboard.add(btn_how_to).add(btn_pk_info)
 
-    await message.answer(f"<b>⬇️ Load-up your private keys below </b>\n\n"
+    await message.answer(f"<b>{message.text[0]}️ Load-up your private keys below </b>\n\n"
                          "<b>Example:</b>\n"
                          f"{pk_example}"
                          "<b> ⚠️ Please note: We do not store your data. The bot uses one-time sessions.</b>\n\n",
                          parse_mode=types.ParseMode.HTML, reply_markup=keyboard)
-
-
-@dp.callback_query_handler(lambda c: c.data == 'send_ready', state=UserFollowing.check_ready)
-async def send_ready_stark(callback_query: CallbackQuery, state: FSMContext):
-
-    pk_example = "<i>address_of_your wallet_1:private_key_of_your wallet_1</i>\n" \
-                 "<i>address_of_your wallet_2:private_key_of_your wallet_2</i>\n\n"
-
-    max_count = user_db.get_max_wallets(user_id=callback_query.from_user.id)
-
-    await UserFollowing.check_subscribe.set()
-    await bot.send_message(callback_query.from_user.id,
-                           f"🎡 The total amount of wallets you can run: <b>{max_count}</b>\n\n",
-                           parse_mode=types.ParseMode.HTML, reply_markup=ReplyKeyboardRemove())
-
-    keyboard = InlineKeyboardMarkup()
-    btn_how_to = InlineKeyboardButton("🤔 How to do that?", callback_data="send_gif")
-    btn_pk_info = InlineKeyboardButton("👀 Why do you need my private key?", callback_data="send_pk_info")
-    keyboard.add(btn_how_to).add(btn_pk_info)
-
-    await bot.send_message(callback_query.from_user.id,
-                           f"<b>⬇️ Load-up your private keys below </b>\n\n"
-                           "<b>Example:</b>\n"
-                           f"{pk_example}"
-                           "<b> ⚠️ Please note: We do not store your data. The bot uses one-time sessions.</b>\n\n",
-                           parse_mode=types.ParseMode.HTML, reply_markup=keyboard)
-
-    await bot.answer_callback_query(callback_query.id)
 
 
 @dp.callback_query_handler(lambda c: c.data == 'send_gif', state=UserFollowing.check_subscribe)
@@ -132,7 +94,6 @@ async def send_gif(callback_query: CallbackQuery, state: FSMContext):
     if current_network == 'stark':
         gif_path = "app/data/argentx.mp4"
         await bot.send_animation(callback_query.from_user.id, InputFile(gif_path), caption="🅰️rgentX")
-
 
     await bot.answer_callback_query(callback_query.id)
     await UserFollowing.check_subscribe.set()
