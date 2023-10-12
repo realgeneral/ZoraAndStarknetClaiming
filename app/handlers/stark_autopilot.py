@@ -505,9 +505,9 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
                     else:
                         # Возвращаем какое-то дефолтное значение или обрабатываем исключение
                         return item[0], 0
-
+                print(wallet_statistics)
                 sorted_statistics = sorted(wallet_statistics.items(), key=sort_key)
-
+                print(sorted_statistics)
                 # формирование финального сообщения
                 final_statistic += f"\nWallet <b>[{client.address_to_log}]</b>\n\n"
 
