@@ -45,9 +45,9 @@ class RunningParams:
     JEDISWAP_SWAP_COUNT: int = 2
     JEDISWAP_LP_COUNT: int = 0
     AVNUFI_SWAP_COUNT: int = 1
-    TENKSWAP_SWAP_COUNT: int = 3
+    TENKSWAP_SWAP_COUNT: int = 1
     STARKVERSE_NFT_MINT_COUNT: int = 0
-    STARKNETID_NFT_MINT_COUNT: int = 0
+    STARKNETID_NFT_MINT_COUNT: int = 1
     JEDISWAP_SWAP_PERCENTAGE: int = random.randint(55, 75)
     JEDISWAP_LIQ_PERCENTAGE: int = random.randint(70, 80)
     AVNUFI_SWAP_PERCENTAGE: int = random.randint(55, 75)
