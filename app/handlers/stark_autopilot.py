@@ -27,32 +27,32 @@ from app.handlers.admin import get_one_wallet_run_price
 
 @dataclass
 class RunningParams:
-    STARKNET_RPC: str = random.choice(["https://starknet-mainnet.infura.io/v3/7eec932e2c324e20ac051e0aa3741d9f", "https://starknet-mainnet.infura.io/v3/283bed0b326d44c795ab05a8cb9811e4"])
+    STARKNET_RPC: str = random.choice(["https://starknet-mainnet.infura.io/v3/7eec932e2c324e20ac051e0aa3741d9f", "https://starknet-mainnet.infura.io/v3/283bed0b326d44c795ab05a8cb9811e4", "https://starknet-mainnet.infura.io/v3/d0f5cc7661554f7a92e0a781c4d8df09"])
     SWAP_SLIPPAGE: int = 2
-    # RANDOM_DELAY: int = random.randint(30, 60)
-    # JEDISWAP_SWAP_COUNT: int = random.randint(3, 5)
-    # JEDISWAP_LP_COUNT: int = 1
-    # AVNUFI_SWAP_COUNT: int = random.randint(3, 5)
-    # TENKSWAP_SWAP_COUNT: int = random.randint(3, 5)
-    # STARKVERSE_NFT_MINT_COUNT: int = random.randint(1, 3)
-    # STARKNETID_NFT_MINT_COUNT: int = random.randint(1, 3)
+    RANDOM_DELAY: int = random.randint(30, 60)
+    JEDISWAP_SWAP_COUNT: int = random.randint(2, 5)
+    JEDISWAP_LP_COUNT: int = 1
+    AVNUFI_SWAP_COUNT: int = random.randint(3, 5)
+    TENKSWAP_SWAP_COUNT: int = random.randint(3, 5)
+    STARKVERSE_NFT_MINT_COUNT: int = random.randint(1, 3)
+    STARKNETID_NFT_MINT_COUNT: int = random.randint(1, 3)
+    JEDISWAP_SWAP_PERCENTAGE: int = random.randint(55, 75)
+    JEDISWAP_LIQ_PERCENTAGE: int = random.randint(65, 75)
+    AVNUFI_SWAP_PERCENTAGE: int = random.randint(55, 75)
+    TENK_SWAP_PERCENTAGE: int = random.randint(55, 75)
+    DMAIL_MESSAGES_COUNT: int = random.randint(3, 8)
+
+    # JEDISWAP_SWAP_COUNT: int = 3
+    # JEDISWAP_LP_COUNT: int = 0
+    # AVNUFI_SWAP_COUNT: int = 2
+    # TENKSWAP_SWAP_COUNT: int = 1
+    # STARKVERSE_NFT_MINT_COUNT: int = 1
+    # STARKNETID_NFT_MINT_COUNT: int = 1
     # JEDISWAP_SWAP_PERCENTAGE: int = random.randint(55, 75)
     # JEDISWAP_LIQ_PERCENTAGE: int = random.randint(70, 80)
     # AVNUFI_SWAP_PERCENTAGE: int = random.randint(55, 75)
     # TENK_SWAP_PERCENTAGE: int = random.randint(55, 75)
-    # DMAIL_MESSAGES_COUNT: int = random.randint(3, 8)
-
-    JEDISWAP_SWAP_COUNT: int = 3
-    JEDISWAP_LP_COUNT: int = 0
-    AVNUFI_SWAP_COUNT: int = 2
-    TENKSWAP_SWAP_COUNT: int = 1
-    STARKVERSE_NFT_MINT_COUNT: int = 1
-    STARKNETID_NFT_MINT_COUNT: int = 1
-    JEDISWAP_SWAP_PERCENTAGE: int = random.randint(55, 75)
-    JEDISWAP_LIQ_PERCENTAGE: int = random.randint(70, 80)
-    AVNUFI_SWAP_PERCENTAGE: int = random.randint(55, 75)
-    TENK_SWAP_PERCENTAGE: int = random.randint(55, 75)
-    DMAIL_MESSAGES_COUNT: int = 2
+    # DMAIL_MESSAGES_COUNT: int = 2
 
 
 @dp.message_handler(Text(equals="💸 Start Starknet script"), state=UserFollowing.choose_point)
@@ -287,7 +287,7 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
                     if user_data.get("stop_flag"):
                         return
 
-                    delay = random.randint(1, 3)
+                    delay = random.randint(45, 90)
                     if log_counter != 0:
                         await bot.edit_message_text(chat_id=wait_message.chat.id,
                                                     message_id=wait_message.message_id,
