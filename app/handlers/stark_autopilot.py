@@ -42,10 +42,10 @@ class RunningParams:
     # TENK_SWAP_PERCENTAGE: int = random.randint(55, 75)
     # DMAIL_MESSAGES_COUNT: int = random.randint(3, 8)
 
-    JEDISWAP_SWAP_COUNT: int = 1
-    JEDISWAP_LP_COUNT: int = 1
-    AVNUFI_SWAP_COUNT: int = 0
-    TENKSWAP_SWAP_COUNT: int = 0
+    JEDISWAP_SWAP_COUNT: int = 2
+    JEDISWAP_LP_COUNT: int = 0
+    AVNUFI_SWAP_COUNT: int = 1
+    TENKSWAP_SWAP_COUNT: int = 3
     STARKVERSE_NFT_MINT_COUNT: int = 0
     STARKNETID_NFT_MINT_COUNT: int = 0
     JEDISWAP_SWAP_PERCENTAGE: int = random.randint(55, 75)
