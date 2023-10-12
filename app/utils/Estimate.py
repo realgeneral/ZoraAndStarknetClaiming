@@ -37,6 +37,7 @@ class Estimate:
 
     def eth_required(self, bridge_amount):
         bridge_fee = self.estimate_bridge(bridge_amount=bridge_amount)
+        print(f"bridge_fee - {bridge_fee}")
         if bridge_fee:
             return round(float(bridge_fee) + bridge_amount, 6)
         else:

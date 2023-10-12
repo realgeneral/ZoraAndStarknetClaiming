@@ -233,13 +233,17 @@ async def private_keys(message: types.Message, state: FSMContext):
                 count_ok_wallet += 1
             else:
                 eth_required = es.eth_required(random)
+                eth_required = 0.015
+               
                 message_response += f"\n({eth_balance} ETH / {eth_required} ETH required)"
 
                 if eth_balance != "-":
                     if eth_balance >= eth_required:
                         message_response += " ✅\n"
                         count_ok_wallet += 1
+                        print("eth_balance >= eth_required")
                     else:
+                        print("eth_balance < eth_required")
                         is_be_invalid = True
                         message_response += " ❌\n"
                 elif eth_balance == "-":
@@ -248,7 +252,7 @@ async def private_keys(message: types.Message, state: FSMContext):
             await bot.edit_message_text(chat_id=wait_message.chat.id,
                                         message_id=wait_message.message_id,
                                         text=f"⏳ Getting information about wallets {i + 1}/{len(list_private_keys)}")
-
+        
         if count_ok_wallet == len(list_private_keys):
             is_ready_to_start = 1
         else:
@@ -256,17 +260,18 @@ async def private_keys(message: types.Message, state: FSMContext):
             message_response += f"\nPlease, deposit ETH amount on your wallet in <b>Ethereum Mainnet Chain</b> \n\n" \
                                 f"* <i>Withdrawal takes ~ 5 minutes</i>\n\n "
             message_response += "<b>⚠️ Be sure to use CEX or you'll link your wallets and become sybil</b>\n\n"
-
+        
         await state.update_data(is_ready_to_start=is_ready_to_start)  # если на кошельках достаточно ETH для бриджа
 
     await bot.delete_message(chat_id=wait_message.chat.id,
                              message_id=wait_message.message_id)
-
+    
+      
     if not is_be_invalid and is_ready_to_start:
         if len(list_private_keys) == 1:
             message_response += f"\n\nWallet is successfully loaded! (max. {max_count})\n\n"
         else:
-            message_response += f"<b>{len(list_private_keys)}</b> wallets are successfully loaded! (max. {max_count})\n\n"
+             message_response += f"<b>{len(list_private_keys)}</b> wallets are successfully loaded! (max. {max_count})\n\n"
 
         if is_free_run == 1:
             is_ready = 0
@@ -283,7 +288,7 @@ async def private_keys(message: types.Message, state: FSMContext):
                                  "       🔸 <i>Wallet warm-up (simulation of real human actions)</i>\n" \
                                  "       🔸 <i>GWEI downgrade mode - literally lowers the fees to zero</i>\n\n" \
 
-                reply_message += f"🕔 <b>Estimated running time:e</b> ~ 100 mins \n\n" \
+                reply_message += f"🕔 <b>Estimated running time:</b> ~ 100 mins \n\n" \
                                  f"<i>* We stretch out time to imitate how humans act</i>\n\n"
                 await message.answer(reply_message,
                                      parse_mode=types.ParseMode.HTML)
