@@ -42,7 +42,7 @@ class RunningParams:
     # TENK_SWAP_PERCENTAGE: int = random.randint(55, 75)
     # DMAIL_MESSAGES_COUNT: int = random.randint(3, 8)
 
-    JEDISWAP_SWAP_COUNT: int = 0
+    JEDISWAP_SWAP_COUNT: int = 1
     JEDISWAP_LP_COUNT: int = 1
     AVNUFI_SWAP_COUNT: int = 0
     TENKSWAP_SWAP_COUNT: int = 0
@@ -52,7 +52,7 @@ class RunningParams:
     JEDISWAP_LIQ_PERCENTAGE: int = random.randint(70, 80)
     AVNUFI_SWAP_PERCENTAGE: int = random.randint(55, 75)
     TENK_SWAP_PERCENTAGE: int = random.randint(55, 75)
-    DMAIL_MESSAGES_COUNT: int = 0
+    DMAIL_MESSAGES_COUNT: int = 1
 
 
 @dp.message_handler(Text(equals="💸 Start Starknet script"), state=UserFollowing.choose_point)
