@@ -498,8 +498,13 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
 
                 import re
                 def sort_key(item):
-                    name, number = re.match(r"([a-zA-Z\s]+)(\d*)", item[0]).groups()
-                    return name, int(number) if number else 0
+                    match = re.match(r"([a-zA-Z\s]+)(\d*)", item[0])
+                    if match:
+                        name, number = match.groups()
+                        return name, int(number) if number else 0
+                    else:
+                        # Возвращаем какое-то дефолтное значение или обрабатываем исключение
+                        return item[0], 0
 
                 sorted_statistics = sorted(wallet_statistics.items(), key=sort_key)
 
