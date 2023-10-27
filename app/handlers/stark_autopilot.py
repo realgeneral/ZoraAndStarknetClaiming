@@ -295,41 +295,11 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
                 if user_data.get("stop_flag"):
                     return
 
-                TASKS = []
+                #TODO ПОЛУЧАТЬ НОМЕР РОУТА 0,1,2 - ТЕСТОВЫЙ, СРЕДНИЙ, ЖИРНЫЙ
 
-                JediSwap_client = JediSwap(client=client, JEDISWAP_SWAP_PERCENTAGE=params.JEDISWAP_SWAP_PERCENTAGE,
-                                           JEDISWAP_LIQ_PERCENTAGE=params.JEDISWAP_LIQ_PERCENTAGE,
-                                           SLIPPAGE=params.SWAP_SLIPPAGE)
-                AvnuFi_client = AvnuFi(client=client, AVNUFI_SWAP_PERCENTAGE=params.AVNUFI_SWAP_PERCENTAGE,
-                                       SLIPPAGE=params.SWAP_SLIPPAGE)
-                TenkSwap_client = TenkSwap(client=client, TENK_SWAP_PERCENTAGE=params.TENK_SWAP_PERCENTAGE,
-                                           SLIPPAGE=params.SWAP_SLIPPAGE)
-                Minter_client = Stark_Minter(client=client)
+                TP = TaskPrep(client=client, params=params, route=route)
+                TASKS = TP.get_tasks()
 
-                Dmail_client = Dmail(client=client)
-
-                for i in range(params.JEDISWAP_SWAP_COUNT):
-                    TASKS.append((f"JediSwap Swap {i + 1}", JediSwap_client.swap))
-
-                for i in range(params.AVNUFI_SWAP_COUNT):
-                    TASKS.append((f"AvnuFi Swap {i + 1}", AvnuFi_client.swap))
-
-                for i in range(params.TENKSWAP_SWAP_COUNT):
-                    TASKS.append((f"10kSwap Swap {i + 1}", TenkSwap_client.swap))
-
-                for i in range(params.STARKVERSE_NFT_MINT_COUNT):
-                    TASKS.append((f"StarkVerseNFT Minting {i + 1}", Minter_client.mintStarkVerse))
-
-                for i in range(params.STARKNETID_NFT_MINT_COUNT):
-                    TASKS.append((f"StarkNetIDNFT Minting {i + 1}", Minter_client.mintStarknetIdNFT))
-
-                for i in range(params.DMAIL_MESSAGES_COUNT):
-                    TASKS.append((f"Dmail message {i + 1}", Dmail_client.send_message))
-
-                random.shuffle(TASKS)
-
-                # Adding liq at the end
-                TASKS.append(("JediSwap Liquidity Adding", JediSwap_client.add_liquidity))
 
                 wallet_statistics = {task_name: "" for task_name, _ in TASKS}
 
