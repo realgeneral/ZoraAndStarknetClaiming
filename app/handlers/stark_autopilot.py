@@ -55,6 +55,89 @@ class RunningParams:
     # DMAIL_MESSAGES_COUNT: int = 2
 
 
+class TaskPrep:
+    def __init__(self, client, route: int, params):
+        self.JediSwap_client = JediSwap(client=client, JEDISWAP_SWAP_PERCENTAGE=params.JEDISWAP_SWAP_PERCENTAGE,
+                                   JEDISWAP_LIQ_PERCENTAGE=params.JEDISWAP_LIQ_PERCENTAGE,
+                                   SLIPPAGE=params.SWAP_SLIPPAGE)
+        self.AvnuFi_client = AvnuFi(client=client, AVNUFI_SWAP_PERCENTAGE=params.AVNUFI_SWAP_PERCENTAGE,
+                               SLIPPAGE=params.SWAP_SLIPPAGE)
+        self.TenkSwap_client = TenkSwap(client=client, TENK_SWAP_PERCENTAGE=params.TENK_SWAP_PERCENTAGE,
+                                   SLIPPAGE=params.SWAP_SLIPPAGE)
+        self.Minter_client = Stark_Minter(client=client)
+        self.Dmail_client = Dmail(client=client)
+        self.route = route
+
+    def get_tasks(self):
+        TASKS = []
+        if self.route == 0:
+                TASKS.append((f"JediSwap Swap", self.JediSwap_client.swap))
+
+                TASKS.append((f"AvnuFi Swap", self.AvnuFi_client.swap))
+
+                TASKS.append((f"10kSwap Swap", self.TenkSwap_client.swap))
+
+                TASKS.append((f"StarkVerseNFT Minting", self.Minter_client.mintStarkVerse))
+
+                TASKS.append((f"StarkNetIDNFT Minting", self.Minter_client.mintStarknetIdNFT))
+
+                TASKS.append((f"Dmail message", self.Dmail_client.send_message))
+
+                random.shuffle(TASKS)
+
+                TASKS.append(("JediSwap Liquidity Adding", JediSwap_client.add_liquidity))
+
+        elif self.route == 1:
+
+            for i in range():
+                TASKS.append((f"JediSwap Swap {i + 1}", JediSwap_client.swap))
+
+            for i in range():
+                TASKS.append((f"AvnuFi Swap {i + 1}", AvnuFi_client.swap))
+
+            for i in range():
+                TASKS.append((f"10kSwap Swap {i + 1}", TenkSwap_client.swap))
+
+            for i in range():
+                TASKS.append((f"StarkVerseNFT Minting {i + 1}", Minter_client.mintStarkVerse))
+
+            for i in range():
+                TASKS.append((f"StarkNetIDNFT Minting {i + 1}", Minter_client.mintStarknetIdNFT))
+
+            for i in range():
+                TASKS.append((f"Dmail message {i + 1}", Dmail_client.send_message))
+
+            random.shuffle(TASKS)
+
+            TASKS.append(("JediSwap Liquidity Adding", JediSwap_client.add_liquidity))
+
+        elif self.route == 2:
+
+            for i in range():
+                TASKS.append((f"JediSwap Swap {i + 1}", JediSwap_client.swap))
+
+            for i in range():
+                TASKS.append((f"AvnuFi Swap {i + 1}", AvnuFi_client.swap))
+
+            for i in range():
+                TASKS.append((f"10kSwap Swap {i + 1}", TenkSwap_client.swap))
+
+            for i in range():
+                TASKS.append((f"StarkVerseNFT Minting {i + 1}", Minter_client.mintStarkVerse))
+
+            for i in range():
+                TASKS.append((f"StarkNetIDNFT Minting {i + 1}", Minter_client.mintStarknetIdNFT))
+
+            for i in range():
+                TASKS.append((f"Dmail message {i + 1}", Dmail_client.send_message))
+
+            random.shuffle(TASKS)
+
+            TASKS.append(("JediSwap Liquidity Adding", JediSwap_client.add_liquidity))
+
+        return TASKS
+
+
 @dp.message_handler(Text(equals="💸 Start Starknet script"), state=UserFollowing.choose_point)
 async def tap_to_earn_stark(message: types.Message, state: FSMContext):
     reply_message = ""
