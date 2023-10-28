@@ -415,7 +415,7 @@ async def start_earn(message: types.Message, state: FSMContext):
         for minter in minters_obj:
             await bot.edit_message_text(chat_id=wait_message.chat.id,
                                         message_id=wait_message.message_id,
-                                        text=f"⏳ Startnig *Warm up #3*  [{warm_up_counter_1}/{count_private_keys}]",
+                                        text=f"⏳ Starting *Warm up #3*  [{warm_up_counter_1}/{count_private_keys}]",
                                         parse_mode=types.ParseMode.MARKDOWN)
 
             result1 = await minter.walletWarmUp1(minter.collectionAddress, Minter.generateUri())
