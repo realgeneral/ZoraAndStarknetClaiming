@@ -216,21 +216,28 @@ async def mint_9(minter):
     return await minter.purchase("0x706bafabdd00ceac5b66600901a2b1d1f4992b9d", value_to_send=0.000777)
 
 
-#TODO СЮДА ДОБАВЛЮ НОВЫЕ ФРИ МИНТЫ
+# New mints
+
+
+async def mint_10(minter):
+    return await minter.mint("0x8b80a069b051e9605b1b4541d3ca2c327ec3d85c", 8)
+
+
 async def warm_up_mint1(minter):
-    pass
+    # TODO ДОБАВИТЬ ФУНКЦИЮ mintfun
+    return await minter.mintfun("0x1F781d47cD59257D7AA1Bd7b2fbaB50D57AF8587", nft_name="Blocks")
 
 
 async def warm_up_mint2(minter):
-    pass
+    return await minter.mintfun("0x3a577c80f5834B0150DEFEa2AB71Ae7AEF5f463d", nft_name="The Mancer")
 
 
 async def warm_up_mint3(minter):
-    pass
+    return await minter.mintfun("0xbC2cA61440fAF65a9868295Efa5d5D87c55B9529", nft_name="sqr(16)")
 
 
 async def warm_up_mint4(minter):
-    pass
+    return await minter.mintfun("0xDC4D755DD6b31b20977a56dBFBDD5ABB2d5E734A", nft_name="SpiderMan in Vintage Vibe")
 
 
 @dp.message_handler(Text(equals="🐳 LFG!"), state=UserFollowing.tap_to_earn)
