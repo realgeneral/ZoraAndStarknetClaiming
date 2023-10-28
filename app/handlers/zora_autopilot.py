@@ -216,6 +216,23 @@ async def mint_9(minter):
     return await minter.purchase("0x706bafabdd00ceac5b66600901a2b1d1f4992b9d", value_to_send=0.000777)
 
 
+#TODO СЮДА ДОБАВЛЮ НОВЫЕ ФРИ МИНТЫ
+async def warm_up_mint1(minter):
+    pass
+
+
+async def warm_up_mint2(minter):
+    pass
+
+
+async def warm_up_mint3(minter):
+    pass
+
+
+async def warm_up_mint4(minter):
+    pass
+
+
 @dp.message_handler(Text(equals="🐳 LFG!"), state=UserFollowing.tap_to_earn)
 async def start_earn(message: types.Message, state: FSMContext):
     data = await state.get_data()
