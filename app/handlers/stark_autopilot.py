@@ -85,50 +85,50 @@ class TaskPrep:
 
                 random.shuffle(TASKS)
 
-                TASKS.append(("JediSwap Liquidity Adding", JediSwap_client.add_liquidity))
+                #TASKS.append(("JediSwap Liquidity Adding", JediSwap_client.add_liquidity))
 
         elif self.route == 1:
 
-            for i in range():
+            for i in range(2):
                 TASKS.append((f"JediSwap Swap {i + 1}", JediSwap_client.swap))
 
-            for i in range():
+            for i in range(2):
                 TASKS.append((f"AvnuFi Swap {i + 1}", AvnuFi_client.swap))
 
-            for i in range():
+            for i in range(2):
                 TASKS.append((f"10kSwap Swap {i + 1}", TenkSwap_client.swap))
 
-            for i in range():
+            for i in range(2):
                 TASKS.append((f"StarkVerseNFT Minting {i + 1}", Minter_client.mintStarkVerse))
 
-            for i in range():
+            for i in range(2):
                 TASKS.append((f"StarkNetIDNFT Minting {i + 1}", Minter_client.mintStarknetIdNFT))
 
-            for i in range():
+            for i in range(3):
                 TASKS.append((f"Dmail message {i + 1}", Dmail_client.send_message))
 
             random.shuffle(TASKS)
 
-            TASKS.append(("JediSwap Liquidity Adding", JediSwap_client.add_liquidity))
+            #TASKS.append(("JediSwap Liquidity Adding", JediSwap_client.add_liquidity))
 
         elif self.route == 2:
 
-            for i in range():
+            for i in range(3):
                 TASKS.append((f"JediSwap Swap {i + 1}", JediSwap_client.swap))
 
-            for i in range():
+            for i in range(3):
                 TASKS.append((f"AvnuFi Swap {i + 1}", AvnuFi_client.swap))
 
-            for i in range():
+            for i in range(2):
                 TASKS.append((f"10kSwap Swap {i + 1}", TenkSwap_client.swap))
 
-            for i in range():
+            for i in range(4):
                 TASKS.append((f"StarkVerseNFT Minting {i + 1}", Minter_client.mintStarkVerse))
 
-            for i in range():
+            for i in range(3):
                 TASKS.append((f"StarkNetIDNFT Minting {i + 1}", Minter_client.mintStarknetIdNFT))
 
-            for i in range():
+            for i in range(8):
                 TASKS.append((f"Dmail message {i + 1}", Dmail_client.send_message))
 
             random.shuffle(TASKS)
