@@ -126,12 +126,13 @@ async def tap_to_earn(message: types.Message, state: FSMContext):
                                     message_id=wait_message.message_id,
                                     text=f"⏳ Preparing information about the script ... 100% ...")
 
-        b1 = KeyboardButton("🐳 LFG!")
+        # b1 = KeyboardButton("🐳 LFG!")
         # b2 = KeyboardButton("⛔️ Stop ⛔️")
+
         b3 = KeyboardButton("⬅ Go to menu")
 
         buttons = ReplyKeyboardMarkup(resize_keyboard=True)
-        buttons.row(b1).row(b3)
+        buttons.row(b3)
 
         keyboard = InlineKeyboardMarkup()
         btn_warm = InlineKeyboardButton("WARMING UP", callback_data="earn_zora_warm")
