@@ -297,6 +297,21 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
 
                 #TODO ПОЛУЧАТЬ НОМЕР РОУТА 0,1,2 - ТЕСТОВЫЙ, СРЕДНИЙ, ЖИРНЫЙ
 
+                data = await state.get_data()
+                is_test_stark = data.get("is_test_stark")
+                is_medium_stark = data.get("is_medium_stark")
+                is_hard_stark = data.get("is_hard_stark")
+
+                if is_test_stark == 1:
+                    pass
+
+                if is_medium_stark == 1:
+                    pass
+
+                if is_hard_stark == 1:
+                    pass
+
+
                 TP = TaskPrep(client=client, params=params, route=route)
                 TASKS = TP.get_tasks()
 

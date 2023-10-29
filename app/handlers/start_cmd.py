@@ -304,9 +304,11 @@ async def private_keys(message: types.Message, state: FSMContext):
                                  reply_markup=keyboard)
 
         if current_network == 'stark':
-            btn_warm = InlineKeyboardButton("Warming Up", callback_data="earn_stark_warm")
-            btn_main = InlineKeyboardButton("Main route", callback_data="earn_stark_main")
-            keyboard.add(btn_warm).add(btn_main)
+            btn_test = InlineKeyboardButton("TEST", callback_data="earn_stark_test", )
+            btn_medium = InlineKeyboardButton("MEDIUM", callback_data="earn_stark_medium")
+            btn_hard = InlineKeyboardButton("HARD", callback_data="earn_stark_hard")
+
+            keyboard.add(btn_test).add(btn_medium).add(btn_hard)
 
             await message.answer("<b>🎡 Change the route to run: </b>",
                                  parse_mode=types.ParseMode.HTML,
@@ -365,32 +367,45 @@ async def choose_route(callback_query: types.CallbackQuery, state: FSMContext):
             else:
                 await state.update_data(is_warm_zora=1)
     elif current_network == "stark":
-        if run_type == "main":
+        if run_type == "test":
             if is_free_run == 1:
                 await state.update_data(is_ready=0)
                 await state.update_data(stop_flag=False)
 
                 from app.handlers.stark_autopilot import start_earn_stark
 
-                await state.update_data(is_main_stark=1)
+                await state.update_data(is_test_stark=1)
                 await UserFollowing.tap_to_earn_stark.set()
-                await start_earn_stark(message, state)
+                await start_earn_stark(callback_query.message, state)
                 return
             else:
-                await state.update_data(is_main_stark=1)
-        elif run_type == "warm":
+                await state.update_data(is_test_stark=1)
+        elif run_type == "medium":
             if is_free_run == 1:
                 await state.update_data(is_ready=0)
                 await state.update_data(stop_flag=False)
 
                 from app.handlers.stark_autopilot import start_earn_stark
 
-                await state.update_data(is_warm_stark=1)
+                await state.update_data(is_medium_stark=1)
                 await UserFollowing.tap_to_earn_stark.set()
-                await start_earn_stark(message, state)
+                await start_earn_stark(callback_query.message, state)
                 return
             else:
-                await state.update_data(is_warm_stark=1)
+                await state.update_data(is_medium_stark=1)
+        elif run_type == "hard":
+            if is_free_run == 1:
+                await state.update_data(is_ready=0)
+                await state.update_data(stop_flag=False)
+
+                from app.handlers.stark_autopilot import start_earn_stark
+
+                await state.update_data(is_hard_stark=1)
+                await UserFollowing.tap_to_earn_stark.set()
+                await start_earn_stark(callback_query.message, state)
+                return
+            else:
+                await state.update_data(is_hard_stark=1)
 
     buttons = [
         KeyboardButton(text="⬅ Go to menu"),
