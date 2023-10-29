@@ -7,7 +7,7 @@ import web3.exceptions as ex3
 
 from web3 import Web3
 from app.logs import logging as logger
-from app.utils.configs.config import rpcs, nft_contract_abi, nft_ZoraCreator_contract_abi, ZoraNFTCreator_contract_abi, JSONExtensionRegistry_contract_abi, blocks_contract_abi
+from app.utils.configs.config import rpcs, nft_contract_abi, nft_ZoraCreator_contract_abi, ZoraNFTCreator_contract_abi, JSONExtensionRegistry_contract_abi, blocks_contract_abi, mint_contract_abi
 
 
 class Minter:
@@ -378,55 +378,120 @@ class Minter:
             logger.info(f"Balance in ZORA network: {web3.from_wei(wallet_balance, 'ether')}")
 
 
-            contract = ""
             if nft_name == "Blocks":
                 contract = web3.eth.contract(address=Web3.to_checksum_address(nft_address), abi=blocks_contract_abi)
-            # TODO Сделать простую абишку для минта
+                mint_tx = contract.functions.mint(
+
+                ).build_transaction({
+                    'from': web3.to_checksum_address(wallet_address),
+                    'gas': 150000,
+                    'nonce': web3.eth.get_transaction_count(wallet_address),
+                    'maxPriorityFeePerGas': web3.to_wei(0.005, 'gwei'),
+                    'maxFeePerGas': web3.to_wei(0.005, 'gwei')
+                })
+
+                signed_mint_tx = web3.eth.account.sign_transaction(mint_tx, self.pk)
+                raw_mint_tx_hash = web3.eth.send_raw_transaction(signed_mint_tx.rawTransaction)
+                mint_tx_hash = web3.to_hex(raw_mint_tx_hash)
+
+                logger.info(f"Mint tx hash: {mint_tx_hash}")
+
+                for _ in range(5):
+                    await asyncio.sleep(5)
+                    try:
+                        mint_tx_receipt = web3.eth.wait_for_transaction_receipt(raw_mint_tx_hash, timeout=300)
+
+                        if mint_tx_receipt.status == 1:
+                            logger.info(f"✅ Transaction: https://explorer.zora.energy/tx/{mint_tx_hash}, {nft_address}")
+                            return "✅"
+                        else:
+                            logger.error(f"⛔ Something went wrong while minting, {nft_address}")
+                            return "❌ Something went wrong"
+                    except ex3.TransactionNotFound as err:
+                        logger.error(f"⛔ Something went wrong while minting: {err}, {nft_address}")
+                        continue
+                    except Exception as err:
+                        logger.error(f"⛔ Something went wrong while minting: {err}, {nft_address}")
+                        return "❌ Something went wrong"
+
             elif nft_name == "The Mancer":
-                contract = web3.eth.contract(address=Web3.to_checksum_address(nft_address), abi=simple_contract_abi)
+                contract = web3.eth.contract(address=Web3.to_checksum_address(nft_address), abi=mint_contract_abi)
+
+                mint_tx = contract.functions.mint(
+                    10 # 50 and 100 available
+                ).build_transaction({
+                    'from': web3.to_checksum_address(wallet_address),
+                    'value': web3.to_wei(0.00009965, 'ether'),
+                    'gas': 150000,
+                    'nonce': web3.eth.get_transaction_count(wallet_address),
+                    'maxPriorityFeePerGas': web3.to_wei(0.005, 'gwei'),
+                    'maxFeePerGas': web3.to_wei(0.005, 'gwei')
+                })
+
+                signed_mint_tx = web3.eth.account.sign_transaction(mint_tx, self.pk)
+                raw_mint_tx_hash = web3.eth.send_raw_transaction(signed_mint_tx.rawTransaction)
+                mint_tx_hash = web3.to_hex(raw_mint_tx_hash)
+
+                logger.info(f"Mint tx hash: {mint_tx_hash}")
+
+                for _ in range(5):
+                    await asyncio.sleep(5)
+                    try:
+                        mint_tx_receipt = web3.eth.wait_for_transaction_receipt(raw_mint_tx_hash, timeout=300)
+
+                        if mint_tx_receipt.status == 1:
+                            logger.info(f"✅ Transaction: https://explorer.zora.energy/tx/{mint_tx_hash}, {nft_address}")
+                            return "✅"
+                        else:
+                            logger.error(f"⛔ Something went wrong while minting, {nft_address}")
+                            return "❌ Something went wrong"
+                    except ex3.TransactionNotFound as err:
+                        logger.error(f"⛔ Something went wrong while minting: {err}, {nft_address}")
+                        continue
+                    except Exception as err:
+                        logger.error(f"⛔ Something went wrong while minting: {err}, {nft_address}")
+                        return "❌ Something went wrong"
 
             elif nft_name == "sqr(16)":
-                contract = web3.eth.contract(address=Web3.to_checksum_address(nft_address), abi=simple_contract_abi)
+                contract = web3.eth.contract(address=Web3.to_checksum_address(nft_address), abi=mint_contract_abi)
+
+                mint_tx = contract.functions.mint(
+                    4 # 16 or 64 not for free
+                ).build_transaction({
+                    'from': web3.to_checksum_address(wallet_address),
+                    'gas': 150000,
+                    'nonce': web3.eth.get_transaction_count(wallet_address),
+                    'maxPriorityFeePerGas': web3.to_wei(0.005, 'gwei'),
+                    'maxFeePerGas': web3.to_wei(0.005, 'gwei')
+                })
+
+                signed_mint_tx = web3.eth.account.sign_transaction(mint_tx, self.pk)
+                raw_mint_tx_hash = web3.eth.send_raw_transaction(signed_mint_tx.rawTransaction)
+                mint_tx_hash = web3.to_hex(raw_mint_tx_hash)
+
+                logger.info(f"Mint tx hash: {mint_tx_hash}")
+
+                for _ in range(5):
+                    await asyncio.sleep(5)
+                    try:
+                        mint_tx_receipt = web3.eth.wait_for_transaction_receipt(raw_mint_tx_hash, timeout=300)
+
+                        if mint_tx_receipt.status == 1:
+                            logger.info(f"✅ Transaction: https://explorer.zora.energy/tx/{mint_tx_hash}, {nft_address}")
+                            return "✅"
+                        else:
+                            logger.error(f"⛔ Something went wrong while minting, {nft_address}")
+                            return "❌ Something went wrong"
+                    except ex3.TransactionNotFound as err:
+                        logger.error(f"⛔ Something went wrong while minting: {err}, {nft_address}")
+                        continue
+                    except Exception as err:
+                        logger.error(f"⛔ Something went wrong while minting: {err}, {nft_address}")
+                        return "❌ Something went wrong"
 
             elif nft_name == "SpiderMan in Vintage Vibe":
-                contract = web3.eth.contract(address=Web3.to_checksum_address(nft_address), abi=simple_contract_abi)
-
-
-            mint_tx = contract.functions.mint(
-
-            ).build_transaction({
-                'from': web3.to_checksum_address(wallet_address),
-                'value': web3.to_wei(0.000777, 'ether'),
-                'gas': 150000,
-                #'gasPrice': web3.to_wei(0.005, 'gwei'),
-                'nonce': web3.eth.get_transaction_count(wallet_address),
-                'maxPriorityFeePerGas': web3.to_wei(0.005, 'gwei'),
-                'maxFeePerGas': web3.to_wei(0.005, 'gwei')
-            })
-
-            signed_mint_tx = web3.eth.account.sign_transaction(mint_tx, self.pk)
-            raw_mint_tx_hash = web3.eth.send_raw_transaction(signed_mint_tx.rawTransaction)
-            mint_tx_hash = web3.to_hex(raw_mint_tx_hash)
-
-            logger.info(f"Mint tx hash: {mint_tx_hash}")
-
-            for i in range(5):
-                await asyncio.sleep(5)
-                try:
-                    mint_tx_receipt = web3.eth.wait_for_transaction_receipt(raw_mint_tx_hash, timeout=300)
-
-                    if mint_tx_receipt.status == 1:
-                        logger.info(f"✅ Transaction: https://explorer.zora.energy/tx/{mint_tx_hash}, {nft_address}")
-                        return "✅"
-                    else:
-                        logger.error(f"⛔ Something went wrong while minting, {nft_address}")
-                        return "❌ Something went wrong"
-                except ex3.TransactionNotFound as err:
-                    logger.error(f"⛔ Something went wrong while minting: {err}, {nft_address}")
-                    continue
-                except Exception as err:
-                    logger.error(f"⛔ Something went wrong while minting: {err}, {nft_address}")
-                    return "❌ Something went wrong"
+                contract = web3.eth.contract(address=Web3.to_checksum_address(nft_address), abi=mint_contract_abi)
+                pass
 
         except Exception as err:
             if "insufficient funds" and "have" in str(err):
