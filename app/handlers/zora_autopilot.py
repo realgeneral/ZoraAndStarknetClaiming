@@ -131,9 +131,18 @@ async def tap_to_earn(message: types.Message, state: FSMContext):
         buttons = ReplyKeyboardMarkup(resize_keyboard=True)
         buttons.row(b1).row(b3)
 
-        is_ready = 0
-        await state.update_data(is_ready=is_ready)
-        await UserFollowing.tap_to_earn.set()
+        keyboard = InlineKeyboardMarkup()
+        btn_warm = InlineKeyboardButton("WARMING UP", callback_data="earn_zora_warm")
+        btn_main = InlineKeyboardButton("MAIN", callback_data="earn_zora_main")
+        keyboard.add(btn_warm).add(btn_main)
+
+        await UserFollowing.choose_route.set()
+        await message.answer(reply_message, parse_mode=types.ParseMode.HTML,
+                             reply_markup=buttons)
+
+        await message.answer("<b>🔮 Change the route to run: </b>",
+                             parse_mode=types.ParseMode.HTML,
+                             reply_markup=keyboard)
     else:
         reply_message += "\n 💳 Refill your wallet balance and try again \n\n" \
                          f"\nPlease, deposit ETH amount on your wallet in <b>Ethereum Mainnet Chain</b> \n\n" \
@@ -145,10 +154,11 @@ async def tap_to_earn(message: types.Message, state: FSMContext):
         buttons = ReplyKeyboardMarkup(resize_keyboard=True)
         buttons.row(b3)
 
+        await message.answer(reply_message, parse_mode=types.ParseMode.HTML,
+                             reply_markup=buttons)
+
     await bot.delete_message(chat_id=wait_message.chat.id,
                              message_id=wait_message.message_id)
-    await message.answer(reply_message, parse_mode=types.ParseMode.HTML,
-                         reply_markup=buttons)
 
 
 @dp.message_handler(Text(equals="⛔️ Stop ⛔️"), state=UserFollowing.tap_to_earn)

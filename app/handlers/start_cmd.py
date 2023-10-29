@@ -342,72 +342,32 @@ async def choose_route(callback_query: types.CallbackQuery, state: FSMContext):
 
     if current_network == "zora":
         if run_type == "main":
-            if is_free_run == 1:
-                await state.update_data(is_ready=0)
-                await state.update_data(stop_flag=False)
-
-                from app.handlers.zora_autopilot import start_earn
-
-                await state.update_data(is_main_zora=1)
-                await UserFollowing.tap_to_earn.set()
-                await start_earn(callback_query.message, state)
-                return
-            else:
-                await state.update_data(is_main_zora=1)
+            await state.update_data(is_main_zora=1)
         elif run_type == "warm":
-            if is_free_run == 1:
-                await state.update_data(is_ready=0)
-                await state.update_data(stop_flag=False)
+            await state.update_data(is_warm_zora=1)
 
-                from app.handlers.zora_autopilot import start_earn
+        await state.update_data(is_ready=0)
+        await state.update_data(stop_flag=False)
 
-                await state.update_data(is_warm_zora=1)
-                await UserFollowing.tap_to_earn.set()
-                await start_earn(callback_query.message, state)
-                return
-            else:
-                await state.update_data(is_warm_zora=1)
+        from app.handlers.zora_autopilot import start_earn
+
+        await UserFollowing.tap_to_earn.set()
+        await start_earn(callback_query.message, state)
+        return
+
     elif current_network == "stark":
         if run_type == "test":
-            await state.update_data(is_ready=0)
-            await state.update_data(stop_flag=False)
-
-            from app.handlers.stark_autopilot import start_earn_stark
-
             await state.update_data(is_test_stark=1)
-            await UserFollowing.tap_to_earn_stark.set()
-            await start_earn_stark(callback_query.message, state)
-            return
         elif run_type == "medium":
-            await state.update_data(is_ready=0)
-            await state.update_data(stop_flag=False)
-
-            from app.handlers.stark_autopilot import start_earn_stark
-
             await state.update_data(is_medium_stark=1)
-            await UserFollowing.tap_to_earn_stark.set()
-            await start_earn_stark(callback_query.message, state)
-            return
         elif run_type == "hard":
-            await state.update_data(is_ready=0)
-            await state.update_data(stop_flag=False)
-
-            from app.handlers.stark_autopilot import start_earn_stark
-
             await state.update_data(is_hard_stark=1)
-            await UserFollowing.tap_to_earn_stark.set()
-            await start_earn_stark(callback_query.message, state)
-            return
 
-    # buttons = [
-    #     KeyboardButton(text="⬅ Go to menu"),
-    #     KeyboardButton(text="ℹ️ FAQ"),
-    # ]
-    #
-    # reply_markup = ReplyKeyboardMarkup(keyboard=[buttons],
-    #                                    resize_keyboard=True)
-    #
-    # await UserFollowing.wallet_menu.set(),
-    # await message.answer(message_response,
-    #                      parse_mode=types.ParseMode.HTML,
-    #                      reply_markup=reply_markup)
+        await state.update_data(is_ready=0)
+        await state.update_data(stop_flag=False)
+
+        from app.handlers.stark_autopilot import start_earn_stark
+
+        await UserFollowing.tap_to_earn_stark.set()
+        await start_earn_stark(callback_query.message, state)
+        return
