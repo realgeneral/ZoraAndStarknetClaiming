@@ -159,10 +159,9 @@ class Minter:
 
     async def createERC721(self, name, symbol, mintPrice, mintLimitPerAddress, editionSize, royaltyBPS, description, imageURI): # ZoraNFTCreator
 
-        web3 = Web3(Web3.HTTPProvider(rpcs["zora"]
-            #                           , request_kwargs={
-            # 'proxies': {'https': "http://pnorwyha:snmfocltb81h@45.192.134.110:6431",
-            #             'http': "http://pnorwyha:snmfocltb81h@45.192.134.110:6431"}}
+        web3 = Web3(Web3.HTTPProvider(rpcs["zora"], request_kwargs={
+                                       'proxies': {'https': "http://pnorwyha:snmfocltb81h@216.173.109.154:6385",
+                                                   'http': "http://pnorwyha:snmfocltb81h@216.173.109.154:6385"}}
                                       ))
 
         logger.info(f"Successfully connected to {rpcs['zora']}")
