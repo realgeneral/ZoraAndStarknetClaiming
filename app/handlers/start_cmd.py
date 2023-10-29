@@ -309,7 +309,7 @@ async def private_keys(message: types.Message, state: FSMContext):
             btn_medium = InlineKeyboardButton("MEDIUM", callback_data="earn_stark_medium")
             # btn_hard = InlineKeyboardButton("HARD", callback_data="earn_stark_hard")
 
-            keyboard.add(btn_test).add(btn_medium).add(btn_hard)
+            keyboard.add(btn_test).add(btn_medium)
 
             await message.answer("<b>🎡 Change the route to run: </b>",
                                  parse_mode=types.ParseMode.HTML,

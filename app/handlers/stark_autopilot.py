@@ -208,7 +208,7 @@ async def tap_to_earn_stark(message: types.Message, state: FSMContext):
     btn_medium = InlineKeyboardButton("MEDIUM", callback_data="earn_stark_medium")
     # btn_hard = InlineKeyboardButton("HARD", callback_data="earn_stark_hard")
 
-    keyboard.add(btn_test).add(btn_medium).add(btn_hard)
+    keyboard.add(btn_test).add(btn_medium)
 
     await UserFollowing.choose_route.set()
     await bot.delete_message(chat_id=wait_message.chat.id,
