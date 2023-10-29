@@ -71,17 +71,17 @@ class TaskPrep:
     def get_tasks(self):
         TASKS = []
         if self.route == 0:
-                TASKS.append((f"JediSwap Swap", self.JediSwap_client.swap))
+                #TASKS.append((f"JediSwap Swap", self.JediSwap_client.swap))
 
-                TASKS.append((f"AvnuFi Swap", self.AvnuFi_client.swap))
+                #TASKS.append((f"AvnuFi Swap", self.AvnuFi_client.swap))
 
-                TASKS.append((f"10kSwap Swap", self.TenkSwap_client.swap))
+                #TASKS.append((f"10kSwap Swap", self.TenkSwap_client.swap))
 
                 TASKS.append((f"StarkVerseNFT Minting", self.Minter_client.mintStarkVerse))
 
-                TASKS.append((f"StarkNetIDNFT Minting", self.Minter_client.mintStarknetIdNFT))
+                #TASKS.append((f"StarkNetIDNFT Minting", self.Minter_client.mintStarknetIdNFT))
 
-                TASKS.append((f"Dmail message", self.Dmail_client.send_message))
+                #TASKS.append((f"Dmail message", self.Dmail_client.send_message))
 
                 random.shuffle(TASKS)
 
@@ -295,26 +295,24 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
                 if user_data.get("stop_flag"):
                     return
 
-                #TODO ПОЛУЧАТЬ НОМЕР РОУТА 0,1,2 - ТЕСТОВЫЙ, СРЕДНИЙ, ЖИРНЫЙ
-
                 data = await state.get_data()
                 is_test_stark = data.get("is_test_stark")
                 is_medium_stark = data.get("is_medium_stark")
                 is_hard_stark = data.get("is_hard_stark")
 
+                TASKS=[]
+
                 if is_test_stark == 1:
-                    pass
+                    TP = TaskPrep(client=client, params=params, route=0)
+                    TASKS = TP.get_tasks()
 
-                if is_medium_stark == 1:
-                    pass
+                elif is_medium_stark == 1:
+                    TP = TaskPrep(client=client, params=params, route=1)
+                    TASKS = TP.get_tasks()
 
-                if is_hard_stark == 1:
-                    pass
-
-
-                TP = TaskPrep(client=client, params=params, route=route)
-                TASKS = TP.get_tasks()
-
+                elif is_hard_stark == 1:
+                    TP = TaskPrep(client=client, params=params, route=2)
+                    TASKS = TP.get_tasks()
 
                 wallet_statistics = {task_name: "" for task_name, _ in TASKS}
 
