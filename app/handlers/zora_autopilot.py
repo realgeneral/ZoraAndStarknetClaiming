@@ -224,7 +224,6 @@ async def mint_10(minter):
 
 
 async def warm_up_mint1(minter):
-    # TODO ДОБАВИТЬ ФУНКЦИЮ mintfun
     return await minter.mintfun("0x1F781d47cD59257D7AA1Bd7b2fbaB50D57AF8587", nft_name="Blocks")
 
 
