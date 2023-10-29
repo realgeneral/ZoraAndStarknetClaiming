@@ -304,6 +304,7 @@ async def private_keys(message: types.Message, state: FSMContext):
                                  reply_markup=keyboard)
 
         if current_network == 'stark':
+            keyboard = InlineKeyboardMarkup()
             btn_test = InlineKeyboardButton("TEST", callback_data="earn_stark_test", )
             btn_medium = InlineKeyboardButton("MEDIUM", callback_data="earn_stark_medium")
             btn_hard = InlineKeyboardButton("HARD", callback_data="earn_stark_hard")
