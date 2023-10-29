@@ -299,7 +299,7 @@ async def private_keys(message: types.Message, state: FSMContext):
             btn_main = InlineKeyboardButton("Main route", callback_data="earn_zora_main")
             keyboard.add(btn_warm).add(btn_main)
 
-            await message.answer("<b>🔮 Change the route to run: <b>",
+            await message.answer("<b>🔮 Change the route to run: </b>",
                                  parse_mode=types.ParseMode.HTML,
                                  reply_markup=keyboard)
 
@@ -308,7 +308,7 @@ async def private_keys(message: types.Message, state: FSMContext):
             btn_main = InlineKeyboardButton("Main route", callback_data="earn_stark_main")
             keyboard.add(btn_warm).add(btn_main)
 
-            await message.answer("<b>🎡 Change the route to run: <b>",
+            await message.answer("<b>🎡 Change the route to run: </b>",
                                  parse_mode=types.ParseMode.HTML,
                                  reply_markup=keyboard)
         return
