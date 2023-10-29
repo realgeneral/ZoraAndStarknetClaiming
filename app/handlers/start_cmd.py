@@ -335,7 +335,7 @@ async def choose_route(callback_query: types.CallbackQuery, state: FSMContext):
     await bot.answer_callback_query(callback_query.id,
                                     text=f"You have chosen {run_type} in {current_network}")
 
-    is_free_run = user_db.is_free_run(message.from_user.id)  # 1 == free
+    is_free_run = user_db.is_free_run(callback_query.from_user.id)  # 1 == free
 
     if current_network == "zora":
         if run_type == "main":
