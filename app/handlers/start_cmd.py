@@ -295,8 +295,8 @@ async def private_keys(message: types.Message, state: FSMContext):
 
         if current_network == 'zora':
             keyboard = InlineKeyboardMarkup()
-            btn_warm = InlineKeyboardButton("Warming Up", callback_data="earn_zora_warm")
-            btn_main = InlineKeyboardButton("Main route", callback_data="earn_zora_main")
+            btn_warm = InlineKeyboardButton("WARMING UP", callback_data="earn_zora_warm")
+            btn_main = InlineKeyboardButton("MAIN", callback_data="earn_zora_main")
             keyboard.add(btn_warm).add(btn_main)
 
             await message.answer("<b>🔮 Change the route to run: </b>",
@@ -307,7 +307,7 @@ async def private_keys(message: types.Message, state: FSMContext):
             keyboard = InlineKeyboardMarkup()
             btn_test = InlineKeyboardButton("TEST", callback_data="earn_stark_test", )
             btn_medium = InlineKeyboardButton("MEDIUM", callback_data="earn_stark_medium")
-            btn_hard = InlineKeyboardButton("HARD", callback_data="earn_stark_hard")
+            # btn_hard = InlineKeyboardButton("HARD", callback_data="earn_stark_hard")
 
             keyboard.add(btn_test).add(btn_medium).add(btn_hard)
 
