@@ -80,6 +80,7 @@ async def tap_to_earn(message: types.Message, state: FSMContext):
                     reply_message += " ✅\n"
                     count_ok_wallet += 1
                 else:
+                    count_ok_wallet += 1
                     reply_message += " ❌\n"
 
             await bot.edit_message_text(chat_id=wait_message.chat.id,
@@ -255,6 +256,7 @@ async def start_earn(message: types.Message, state: FSMContext):
             user_db.update_balance(message.from_user.id, -(len(private_keys) * one_wallet_run_price))
 
         minters_obj = [Minter(private_key) for private_key in private_keys]
+
 
         ########################################### BRIDGE  ###########################################
 
