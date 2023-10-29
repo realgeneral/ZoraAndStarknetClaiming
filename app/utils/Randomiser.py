@@ -37,13 +37,13 @@ class Randomiser:
         return random.randint(90, 120)
     @staticmethod
     def random_warm_up():
-        return random.randint(90, 120)
+        return random.randint(5, 10)
     @staticmethod
     def random_warm_up_after():
-        return random.randint(450, 500)
+        return random.randint(5, 10)
     @staticmethod
     def random_mint():
-        return random.randint(60, 80)
+        return random.randint(5, 10)
     @staticmethod
     def random_mint_after():
-        return random.randint(300, 500)
+        return random.randint(5, 10)
