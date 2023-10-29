@@ -6247,3 +6247,38 @@ blocks_contract_abi = """
     }
 ]
 """
+
+mint_contract_abi = """
+[
+    {
+        "inputs": [
+            {
+                "name": "_amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "mint",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+    }
+]
+"""
+
+yassin_contract_abi = """
+[
+    {
+        "inputs": [
+            {
+                "name": "numberOfTokens",
+                "type": "uint256"
+            }
+        ],
+        "name": "Mint",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+    }
+]
+"""
+
