@@ -343,8 +343,11 @@ async def choose_route(callback_query: types.CallbackQuery, state: FSMContext):
     if current_network == "zora":
         if run_type == "main":
             await state.update_data(is_main_zora=1)
+            await state.update_data(is_warm_zora=0)
         elif run_type == "warm":
             await state.update_data(is_warm_zora=1)
+            await state.update_data(is_main_zora=0)
+
 
         await state.update_data(is_ready=0)
         await state.update_data(stop_flag=False)
@@ -358,10 +361,16 @@ async def choose_route(callback_query: types.CallbackQuery, state: FSMContext):
     elif current_network == "stark":
         if run_type == "test":
             await state.update_data(is_test_stark=1)
+            await state.update_data(is_medium_stark=0)
+            await state.update_data(is_hard_stark=0)
         elif run_type == "medium":
             await state.update_data(is_medium_stark=1)
+            await state.update_data(is_test_stark=0)
+            await state.update_data(is_hard_stark=0)
         elif run_type == "hard":
             await state.update_data(is_hard_stark=1)
+            await state.update_data(is_medium_stark=0)
+            await state.update_data(is_test_stark=0)
 
         await state.update_data(is_ready=0)
         await state.update_data(stop_flag=False)
