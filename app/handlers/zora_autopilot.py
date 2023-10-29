@@ -209,8 +209,7 @@ async def mint_7(minter):
     return await minter.purchase("0xcdc9c8060c7c357ee25cd80455cbe05b226d291f", value_to_send=0.000778)
 
 
-
-async def mint_9(minter): # expires in 29 oct + 25 days
+async def mint_8(minter): # expires in 29 oct + 25 days
     return await minter.mint("0x8b80a069b051e9605b1b4541d3ca2c327ec3d85c", 8)
 
 
