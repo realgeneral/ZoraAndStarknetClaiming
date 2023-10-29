@@ -347,7 +347,7 @@ async def choose_route(callback_query: types.CallbackQuery, state: FSMContext):
 
                 await state.update_data(is_main_zora=1)
                 await UserFollowing.tap_to_earn.set()
-                await start_earn(message, state)
+                await start_earn(callback_query.message, state)
                 return
             else:
                 await state.update_data(is_main_zora=1)
@@ -360,7 +360,7 @@ async def choose_route(callback_query: types.CallbackQuery, state: FSMContext):
 
                 await state.update_data(is_warm_zora=1)
                 await UserFollowing.tap_to_earn.set()
-                await start_earn(message, state)
+                await start_earn(callback_query.message, state)
                 return
             else:
                 await state.update_data(is_warm_zora=1)
