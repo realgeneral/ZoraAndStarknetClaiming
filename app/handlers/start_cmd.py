@@ -57,14 +57,15 @@ async def check_claim_net(message: types.Message, state: FSMContext):
         pk_example = "<i>private_key_of_your_wallet_1</i>\n" \
                      "<i>private_key_of_your_wallet_2</i>\n\n"
 
-        reply_message = f"<b>🔮 Zora script includes:</b>\n\n"
+        reply_message = f"🔮 The total amount of wallets you can run: <b>{max_count}</b>\n\n"
+        reply_message += f"<b>🔮 Zora script includes:</b>\n\n"
         reply_message += "       🔸 <i>Touching Zora's official bridge</i>\n" \
                          "       🔸 <i>Create own NFTs</i>\n" \
                          "       🔸 <i>Mint important NFTs (updated list)</i>\n" \
                          "       🔸 <i>Wallet warm-up (simulation of real human actions)</i>\n" \
-                         "       🔸 <i>GWEI downgrade mode - literally lowers the fees to zero</i>\n\n" \
- \
-        await message.answer(f" The total amount of wallets you can run: <b>{max_count}</b>\n\n" + reply_message,
+                         "       🔸 <i>GWEI downgrade mode - literally lowers the fees to zero</i>\n\n"
+
+        await message.answer(reply_message,
                              parse_mode=types.ParseMode.HTML, reply_markup=ReplyKeyboardRemove())
         await state.update_data(current_network=current_network)
 
@@ -73,7 +74,8 @@ async def check_claim_net(message: types.Message, state: FSMContext):
         pk_example = "<i>address_of_your wallet_1:private_key_of_your wallet_1</i>\n" \
                      "<i>address_of_your wallet_2:private_key_of_your wallet_2</i>\n\n"
 
-        reply_message = f"<b>🎡 Starknet script includes: </b>\n\n" \
+        reply_message = f"🎡 The total amount of wallets you can run: <b>{max_count}</b>\n\n"
+        reply_message += f"<b>🎡 Starknet script includes: </b>\n\n" \
                         f"<b>Interaction with dexes: </b>\n" \
                         "       🔸 <i>JediSwap ( Swaps; Liquidity Adding)</i>\n" \
                         "       🔸 <i>AvnuFi (Swaps)</i>\n" \
@@ -82,7 +84,7 @@ async def check_claim_net(message: types.Message, state: FSMContext):
                         f"<b>NFT mint : </b>\n" \
                         "       🔸 <i>StarkNetID NFT</i>\n" \
                         "       🔸 <i>StarkVerse NFT</i>\n\n"
-        await message.answer(f" The total amount of wallets you can run: <b>{max_count}</b>\n\n" + reply_message,
+        await message.answer(reply_message,
                              parse_mode=types.ParseMode.HTML, reply_markup=ReplyKeyboardRemove())
         await state.update_data(current_network=current_network)
 
@@ -297,7 +299,7 @@ async def private_keys(message: types.Message, state: FSMContext):
             btn_main = InlineKeyboardButton("Main route", callback_data="earn_zora_main")
             keyboard.add(btn_warm).add(btn_main)
 
-            await message.answer("<b>🔮 Change the route to run: <b>",
+            await message.answer("<b>🔮 Change the route to run: </b>",
                                  parse_mode=types.ParseMode.HTML,
                                  reply_markup=keyboard)
 
@@ -306,7 +308,7 @@ async def private_keys(message: types.Message, state: FSMContext):
             btn_main = InlineKeyboardButton("Main route", callback_data="earn_stark_main")
             keyboard.add(btn_warm).add(btn_main)
 
-            await message.answer("<b>🎡 Change the route to run: <b>",
+            await message.answer("<b>🎡 Change the route to run: </b>",
                                  parse_mode=types.ParseMode.HTML,
                                  reply_markup=keyboard)
         return
@@ -324,8 +326,8 @@ async def private_keys(message: types.Message, state: FSMContext):
 
 @dp.callback_query_handler(lambda query: query.data.startswith('earn'), state=UserFollowing.choose_route)
 async def choose_route(callback_query: types.CallbackQuery, state: FSMContext):
-    current_network = int(callback_query.data.split('_')[1])
-    run_type = int(callback_query.data.split('_')[2])
+    current_network = callback_query.data.split('_')[1]
+    run_type = callback_query.data.split('_')[2]
 
     chat_id = callback_query.message.chat.id
     message_id = callback_query.message.message_id
@@ -333,7 +335,7 @@ async def choose_route(callback_query: types.CallbackQuery, state: FSMContext):
     await bot.answer_callback_query(callback_query.id,
                                     text=f"You have chosen {run_type} in {current_network}")
 
-    is_free_run = user_db.is_free_run(message.from_user.id)  # 1 == free
+    is_free_run = user_db.is_free_run(callback_query.from_user.id)  # 1 == free
 
     if current_network == "zora":
         if run_type == "main":
@@ -345,7 +347,7 @@ async def choose_route(callback_query: types.CallbackQuery, state: FSMContext):
 
                 await state.update_data(is_main_zora=1)
                 await UserFollowing.tap_to_earn.set()
-                await start_earn(message, state)
+                await start_earn(callback_query.message, state)
                 return
             else:
                 await state.update_data(is_main_zora=1)
@@ -358,7 +360,7 @@ async def choose_route(callback_query: types.CallbackQuery, state: FSMContext):
 
                 await state.update_data(is_warm_zora=1)
                 await UserFollowing.tap_to_earn.set()
-                await start_earn(message, state)
+                await start_earn(callback_query.message, state)
                 return
             else:
                 await state.update_data(is_warm_zora=1)
