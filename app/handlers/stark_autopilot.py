@@ -191,25 +191,33 @@ async def tap_to_earn_stark(message: types.Message, state: FSMContext):
                      f"<i>* We stretch out time to imitate how humans act</i>\n\n"
 
 
+
     await bot.edit_message_text(chat_id=wait_message.chat.id,
                                 message_id=wait_message.message_id,
                                 text=f"⏳ Preparing information about the script ... 100% ...")
 
-    b1 = KeyboardButton("🐳 LFG!")
+    # b1 = KeyboardButton("🐳 LFG!")
     # b2 = KeyboardButton("⛔️ Stop ⛔️")
     b3 = KeyboardButton("⬅ Go to menu")
 
     buttons = ReplyKeyboardMarkup(resize_keyboard=True)
-    buttons.row(b1).row(b3)
+    buttons.row(b3)
 
-    await state.update_data(is_ready=0)
-    await state.update_data(stop_flag=False)
-    await UserFollowing.tap_to_earn_stark.set()
+    keyboard = InlineKeyboardMarkup()
+    btn_test = InlineKeyboardButton("TEST", callback_data="earn_stark_test", )
+    btn_medium = InlineKeyboardButton("MEDIUM", callback_data="earn_stark_medium")
+    # btn_hard = InlineKeyboardButton("HARD", callback_data="earn_stark_hard")
 
+    keyboard.add(btn_test).add(btn_medium).add(btn_hard)
+
+    await UserFollowing.choose_route.set()
     await bot.delete_message(chat_id=wait_message.chat.id,
                              message_id=wait_message.message_id)
     await message.answer(reply_message, parse_mode=types.ParseMode.HTML,
                          reply_markup=buttons)
+    await message.answer("<b>🎡 Change the route to run: </b>",
+                         parse_mode=types.ParseMode.HTML,
+                         reply_markup=keyboard)
 
 
 @dp.message_handler(Text(equals="⛔️ Stop ⛔️"), state=UserFollowing.tap_to_earn_stark)

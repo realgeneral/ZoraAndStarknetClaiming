@@ -76,14 +76,14 @@ async def check_claim_net(message: types.Message, state: FSMContext):
 
         reply_message = f"🎡 The total amount of wallets you can run: <b>{max_count}</b>\n\n"
         reply_message += f"<b>🎡 Starknet script includes: </b>\n\n" \
-                        f"<b>Interaction with dexes: </b>\n" \
-                        "       🔸 <i>JediSwap ( Swaps; Liquidity Adding)</i>\n" \
-                        "       🔸 <i>AvnuFi (Swaps)</i>\n" \
-                        "       🔸 <i>10K Swap (Swaps)</i>\n" \
-                        "       🔸 <i>Dmail (Message sender)</i>\n\n" \
-                        f"<b>NFT mint : </b>\n" \
-                        "       🔸 <i>StarkNetID NFT</i>\n" \
-                        "       🔸 <i>StarkVerse NFT</i>\n\n"
+                         f"<b>Interaction with dexes: </b>\n" \
+                         "       🔸 <i>JediSwap ( Swaps; Liquidity Adding)</i>\n" \
+                         "       🔸 <i>AvnuFi (Swaps)</i>\n" \
+                         "       🔸 <i>10K Swap (Swaps)</i>\n" \
+                         "       🔸 <i>Dmail (Message sender)</i>\n\n" \
+                         f"<b>NFT mint : </b>\n" \
+                         "       🔸 <i>StarkNetID NFT</i>\n" \
+                         "       🔸 <i>StarkVerse NFT</i>\n\n"
         await message.answer(reply_message,
                              parse_mode=types.ParseMode.HTML, reply_markup=ReplyKeyboardRemove())
         await state.update_data(current_network=current_network)
@@ -369,54 +369,45 @@ async def choose_route(callback_query: types.CallbackQuery, state: FSMContext):
                 await state.update_data(is_warm_zora=1)
     elif current_network == "stark":
         if run_type == "test":
-            if is_free_run == 1:
-                await state.update_data(is_ready=0)
-                await state.update_data(stop_flag=False)
+            await state.update_data(is_ready=0)
+            await state.update_data(stop_flag=False)
 
-                from app.handlers.stark_autopilot import start_earn_stark
+            from app.handlers.stark_autopilot import start_earn_stark
 
-                await state.update_data(is_test_stark=1)
-                await UserFollowing.tap_to_earn_stark.set()
-                await start_earn_stark(callback_query.message, state)
-                return
-            else:
-                await state.update_data(is_test_stark=1)
+            await state.update_data(is_test_stark=1)
+            await UserFollowing.tap_to_earn_stark.set()
+            await start_earn_stark(callback_query.message, state)
+            return
         elif run_type == "medium":
-            if is_free_run == 1:
-                await state.update_data(is_ready=0)
-                await state.update_data(stop_flag=False)
+            await state.update_data(is_ready=0)
+            await state.update_data(stop_flag=False)
 
-                from app.handlers.stark_autopilot import start_earn_stark
+            from app.handlers.stark_autopilot import start_earn_stark
 
-                await state.update_data(is_medium_stark=1)
-                await UserFollowing.tap_to_earn_stark.set()
-                await start_earn_stark(callback_query.message, state)
-                return
-            else:
-                await state.update_data(is_medium_stark=1)
+            await state.update_data(is_medium_stark=1)
+            await UserFollowing.tap_to_earn_stark.set()
+            await start_earn_stark(callback_query.message, state)
+            return
         elif run_type == "hard":
-            if is_free_run == 1:
-                await state.update_data(is_ready=0)
-                await state.update_data(stop_flag=False)
+            await state.update_data(is_ready=0)
+            await state.update_data(stop_flag=False)
 
-                from app.handlers.stark_autopilot import start_earn_stark
+            from app.handlers.stark_autopilot import start_earn_stark
 
-                await state.update_data(is_hard_stark=1)
-                await UserFollowing.tap_to_earn_stark.set()
-                await start_earn_stark(callback_query.message, state)
-                return
-            else:
-                await state.update_data(is_hard_stark=1)
+            await state.update_data(is_hard_stark=1)
+            await UserFollowing.tap_to_earn_stark.set()
+            await start_earn_stark(callback_query.message, state)
+            return
 
-    buttons = [
-        KeyboardButton(text="⬅ Go to menu"),
-        KeyboardButton(text="ℹ️ FAQ"),
-    ]
-
-    reply_markup = ReplyKeyboardMarkup(keyboard=[buttons],
-                                       resize_keyboard=True)
-
-    await UserFollowing.wallet_menu.set(),
-    await message.answer(message_response,
-                         parse_mode=types.ParseMode.HTML,
-                         reply_markup=reply_markup)
+    # buttons = [
+    #     KeyboardButton(text="⬅ Go to menu"),
+    #     KeyboardButton(text="ℹ️ FAQ"),
+    # ]
+    #
+    # reply_markup = ReplyKeyboardMarkup(keyboard=[buttons],
+    #                                    resize_keyboard=True)
+    #
+    # await UserFollowing.wallet_menu.set(),
+    # await message.answer(message_response,
+    #                      parse_mode=types.ParseMode.HTML,
+    #                      reply_markup=reply_markup)
