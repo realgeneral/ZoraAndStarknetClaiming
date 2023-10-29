@@ -15,4 +15,5 @@ class UserFollowing(StatesGroup):
     tap_to_earn_stark = State()
     check_ready = State()
     choose_faq = State()
+    choose_route = State()
 
