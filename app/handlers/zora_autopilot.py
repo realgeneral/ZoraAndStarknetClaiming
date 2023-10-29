@@ -121,8 +121,6 @@ async def tap_to_earn(message: types.Message, state: FSMContext):
                          "       🔸 <i>Wallet warm-up (simulation of real human actions)</i>\n" \
                          "       🔸 <i>GWEI downgrade mode - literally lowers the fees to zero</i>\n\n" \
 
-        reply_message += f"🕔 <b>Estimated running time:</b> ~ {total_time} mins \n\n" \
-                         f"<i>* We stretch out time to imitate how humans act</i>\n\n"
 
         await bot.edit_message_text(chat_id=wait_message.chat.id,
                                     message_id=wait_message.message_id,
@@ -257,148 +255,159 @@ async def start_earn(message: types.Message, state: FSMContext):
 
         minters_obj = [Minter(private_key) for private_key in private_keys]
 
+        data = await state.get_data()
+        is_main_zora = data.get("is_main_zora")
+        is_warm_zora = data.get("is_warm_zora")
 
-        ########################################### BRIDGE  ###########################################
+        if is_main_zora == 1:
+            ########################################### BRIDGE  ###########################################
 
-        user_data = await state.get_data()
-        if user_data.get("stop_flag"):
-            return
-
-        bridgers_obj = [Bridger(private_key) for private_key in private_keys]
-        bridge_data = await state.get_data()
-        bridge_amount = list(bridge_data.get("random_amount"))
-
-        bridgers_counter = 1
-        bridgers_result_list = []
-
-        for bridgers, random_amount in zip(bridgers_obj, bridge_amount):
-            is_used_bridge = await Bridger.used_bridge(bridgers.pk)
-            if is_used_bridge:
-                bridgers_result_list.append("[BRIDGED]")
-            else:
-                result_of_bridge = await bridgers.eth_zora_bridge(random_amount)
-                bridgers_result_list.append(result_of_bridge)
-                await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                            message_id=wait_message.message_id,
-                                            text=f"⏳ Bridge [{bridgers_counter}/{count_private_keys}] \n"
-                                                 f" _(Ethereum mainnet —> Zora mainnet)_",
-                                            parse_mode=types.ParseMode.MARKDOWN)
-                user_data = await state.get_data()
-                if user_data.get("stop_flag"):
-                    return
-
-                bridgers_counter += 1
-                time_bridge = Randomiser.random_bridge()
-                await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                            message_id=wait_message.message_id,
-                                            text=f"⏳ Sleep after Bridge on _{time_bridge} sec ..._",
-                                            parse_mode=types.ParseMode.MARKDOWN)
-                await asyncio.sleep(time_bridge)
-
-        bridge_statistic = "📊 Statistic \n\n" \
-                           " # Bridge (ETH Mainnet —> Zora Mainnet)  \n"
-
-        final_statistic += "\n <u> Bridge (ETH Mainnet —> Zora Mainnet) </u> \n"
-
-        for i in range(len(bridgers_result_list)):
-            final_statistic += f"Wallet {i + 1}: {bridgers_result_list[i]} \n"
-            bridge_statistic += f"Wallet {i + 1}: {bridgers_result_list[i]} \n"
-
-        await state.update_data(final_statistic=final_statistic)
-
-        #############################################################################################
-
-        sleep_on_0 = Randomiser.random_bridge_after()
-        await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                    message_id=wait_message.message_id,
-                                    text=bridge_statistic + f"\n _Sleeping on {sleep_on_0} sec ..._",
-                                    parse_mode=types.ParseMode.MARKDOWN)
-        await asyncio.sleep(sleep_on_0)
-
-        user_data = await state.get_data()
-        if user_data.get("stop_flag"):
-            return
-
-        ########################################## CONTRACT  ###########################################
-
-        random_names = list(animals.animals.keys())
-        random_symbols = list(animals.animals.values())
-        random_desc = list(desc_list.description)
-
-        random.shuffle(random_names)
-        random.shuffle(random_symbols)
-        random.shuffle(random_desc)
-
-        random_names = random_names[:count_private_keys]
-        random_symbols = random_symbols[:count_private_keys]
-        random_desc = random_desc[:count_private_keys]
-
-        mintPrice_list = [Randomiser.mintPrice() for _ in range(count_private_keys)]
-        mintLimitPerAddress_list = [Randomiser.mintLimitPerAddress() for _ in range(count_private_keys)]
-        editionSize_list = [Randomiser.editionSize() for _ in range(count_private_keys)]
-        royaltyBPS_list = [Randomiser.royaltyBPS() for _ in range(count_private_keys)]
-        imageURI_list = []
-
-        for elem in imageURI_list_hashes:
-            imageURI_list.append("ipfs://" + elem)
-        random.shuffle(imageURI_list)
-
-        contract_counter = 1
-        list_of_contract_result = []
-        final_statistic += "\n <u> NFT create </u> \n"
-        wait_message_text = "📊 Statistic \n\n" \
-                            " NFT create \n"
-
-        for minter, name, symbol, description, mintPrice, \
-            mintLimitPerAddress, editionSize, royaltyBPS, imageURI in zip(minters_obj, random_names, random_symbols,
-                                                                          random_desc,
-                                                                          mintPrice_list, mintLimitPerAddress_list,
-                                                                          editionSize_list, royaltyBPS_list,
-                                                                          imageURI_list):
-            await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                        message_id=wait_message.message_id,
-                                        text=f"⏳ *Creating ERC721* [{contract_counter}/{count_private_keys}]",
-                                        parse_mode=types.ParseMode.MARKDOWN)
-
-            result = await minter.createERC721(name=name, symbol=symbol, description=description, mintPrice=mintPrice,
-                                               mintLimitPerAddress=mintLimitPerAddress,
-                                               editionSize=editionSize, royaltyBPS=royaltyBPS, imageURI=imageURI)
             user_data = await state.get_data()
             if user_data.get("stop_flag"):
                 return
 
-            list_of_contract_result.append(result)
+            bridgers_obj = [Bridger(private_key) for private_key in private_keys]
+            bridge_data = await state.get_data()
+            bridge_amount = list(bridge_data.get("random_amount"))
 
-            contract_counter += 1
-            sleep_between_contract = Randomiser.random_contract()
+            bridgers_counter = 1
+            bridgers_result_list = []
+
+            for bridgers, random_amount in zip(bridgers_obj, bridge_amount):
+                is_used_bridge = await Bridger.used_bridge(bridgers.pk)
+                if is_used_bridge:
+                    bridgers_result_list.append("[BRIDGED]")
+                else:
+                    result_of_bridge = await bridgers.eth_zora_bridge(random_amount)
+                    bridgers_result_list.append(result_of_bridge)
+                    await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                                message_id=wait_message.message_id,
+                                                text=f"⏳ Bridge [{bridgers_counter}/{count_private_keys}] \n"
+                                                     f" _(Ethereum mainnet —> Zora mainnet)_",
+                                                parse_mode=types.ParseMode.MARKDOWN)
+                    user_data = await state.get_data()
+                    if user_data.get("stop_flag"):
+                        return
+
+                    bridgers_counter += 1
+                    time_bridge = Randomiser.random_bridge()
+                    await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                                message_id=wait_message.message_id,
+                                                text=f"⏳ Sleep after Bridge on _{time_bridge} sec ..._",
+                                                parse_mode=types.ParseMode.MARKDOWN)
+                    await asyncio.sleep(time_bridge)
+
+            bridge_statistic = "📊 Statistic \n\n" \
+                               " # Bridge (ETH Mainnet —> Zora Mainnet)  \n"
+
+            final_statistic += "\n <u> Bridge (ETH Mainnet —> Zora Mainnet) </u> \n"
+
+            for i in range(len(bridgers_result_list)):
+                final_statistic += f"Wallet {i + 1}: {bridgers_result_list[i]} \n"
+                bridge_statistic += f"Wallet {i + 1}: {bridgers_result_list[i]} \n"
+
+            await state.update_data(final_statistic=final_statistic)
+
+            #############################################################################################
+
+            sleep_on_0 = Randomiser.random_bridge_after()
             await bot.edit_message_text(chat_id=wait_message.chat.id,
                                         message_id=wait_message.message_id,
-                                        text=f"⏳ Sleep after Creating ERC721 on _{sleep_between_contract} sec ..._",
+                                        text=bridge_statistic + f"\n _Sleeping on {sleep_on_0} sec ..._",
                                         parse_mode=types.ParseMode.MARKDOWN)
-            await asyncio.sleep(sleep_between_contract)
+            await asyncio.sleep(sleep_on_0)
 
-        for i in range(len(list_of_contract_result)):
-            final_statistic += f"Wallet {i + 1}: {list_of_contract_result[i]} \n"
-            wait_message_text += f"Wallet {i + 1}: {list_of_contract_result[i]} \n"
+            user_data = await state.get_data()
+            if user_data.get("stop_flag"):
+                return
 
-        await state.update_data(final_statistic=final_statistic)
+            ########################################## CONTRACT  ###########################################
 
-        #############################################################################################
+            random_names = list(animals.animals.keys())
+            random_symbols = list(animals.animals.values())
+            random_desc = list(desc_list.description)
 
-        user_data = await state.get_data()
-        if user_data.get("stop_flag"):
-            return
+            random.shuffle(random_names)
+            random.shuffle(random_symbols)
+            random.shuffle(random_desc)
 
-        sleep_on_1 = Randomiser.random_contract_after()
-        await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                    message_id=wait_message.message_id,
-                                    text=wait_message_text + f"\n _Sleeping on {sleep_on_1} sec ..._",
-                                    parse_mode=types.ParseMode.MARKDOWN)
-        await asyncio.sleep(sleep_on_1)
+            random_names = random_names[:count_private_keys]
+            random_symbols = random_symbols[:count_private_keys]
+            random_desc = random_desc[:count_private_keys]
 
-        user_data = await state.get_data()
-        if user_data.get("stop_flag"):
-            return
+            mintPrice_list = [Randomiser.mintPrice() for _ in range(count_private_keys)]
+            mintLimitPerAddress_list = [Randomiser.mintLimitPerAddress() for _ in range(count_private_keys)]
+            editionSize_list = [Randomiser.editionSize() for _ in range(count_private_keys)]
+            royaltyBPS_list = [Randomiser.royaltyBPS() for _ in range(count_private_keys)]
+            imageURI_list = []
+
+            for elem in imageURI_list_hashes:
+                imageURI_list.append("ipfs://" + elem)
+            random.shuffle(imageURI_list)
+
+            contract_counter = 1
+            list_of_contract_result = []
+            final_statistic += "\n <u> NFT create </u> \n"
+            wait_message_text = "📊 Statistic \n\n" \
+                                " NFT create \n"
+
+            for minter, name, symbol, description, mintPrice, \
+                mintLimitPerAddress, editionSize, royaltyBPS, imageURI in zip(minters_obj, random_names, random_symbols,
+                                                                              random_desc,
+                                                                              mintPrice_list, mintLimitPerAddress_list,
+                                                                              editionSize_list, royaltyBPS_list,
+                                                                              imageURI_list):
+                await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                            message_id=wait_message.message_id,
+                                            text=f"⏳ *Creating ERC721* [{contract_counter}/{count_private_keys}]",
+                                            parse_mode=types.ParseMode.MARKDOWN)
+
+                result = await minter.createERC721(name=name, symbol=symbol, description=description,
+                                                   mintPrice=mintPrice,
+                                                   mintLimitPerAddress=mintLimitPerAddress,
+                                                   editionSize=editionSize, royaltyBPS=royaltyBPS, imageURI=imageURI)
+                user_data = await state.get_data()
+                if user_data.get("stop_flag"):
+                    return
+
+                list_of_contract_result.append(result)
+
+                contract_counter += 1
+                sleep_between_contract = Randomiser.random_contract()
+                await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                            message_id=wait_message.message_id,
+                                            text=f"⏳ Sleep after Creating ERC721 on _{sleep_between_contract} sec ..._",
+                                            parse_mode=types.ParseMode.MARKDOWN)
+                await asyncio.sleep(sleep_between_contract)
+
+            for i in range(len(list_of_contract_result)):
+                final_statistic += f"Wallet {i + 1}: {list_of_contract_result[i]} \n"
+                wait_message_text += f"Wallet {i + 1}: {list_of_contract_result[i]} \n"
+
+            await state.update_data(final_statistic=final_statistic)
+
+            #############################################################################################
+
+            user_data = await state.get_data()
+            if user_data.get("stop_flag"):
+                return
+
+            sleep_on_1 = Randomiser.random_contract_after()
+            await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                        message_id=wait_message.message_id,
+                                        text=wait_message_text + f"\n _Sleeping on {sleep_on_1} sec ..._",
+                                        parse_mode=types.ParseMode.MARKDOWN)
+            await asyncio.sleep(sleep_on_1)
+
+            user_data = await state.get_data()
+            if user_data.get("stop_flag"):
+                return
+
+        if is_warm_zora == 1:
+            pass
+
+
+
 
         ########################################## WARM UP  ###########################################
 
