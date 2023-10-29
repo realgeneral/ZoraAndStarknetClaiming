@@ -121,8 +121,8 @@ async def tap_to_earn(message: types.Message, state: FSMContext):
                          "       🔸 <i>GWEI downgrade mode - literally lowers the fees to zero</i>\n\n"
 
         await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                            message_id=wait_message.message_id,
-                                            text=f"⏳ Preparing information about the script ... 100% ...")
+                                    message_id=wait_message.message_id,
+                                    text=f"⏳ Preparing information about the script ... 100% ...")
 
         b1 = KeyboardButton("🐳 LFG!")
         # b2 = KeyboardButton("⛔️ Stop ⛔️")
@@ -318,993 +318,991 @@ async def start_earn(message: types.Message, state: FSMContext):
             if user_data.get("stop_flag"):
                 return
 
-            ########################################## CONTRACT  ###########################################
-
-            random_names = list(animals.animals.keys())
-            random_symbols = list(animals.animals.values())
-            random_desc = list(desc_list.description)
-
-            random.shuffle(random_names)
-            random.shuffle(random_symbols)
-            random.shuffle(random_desc)
-
-            random_names = random_names[:count_private_keys]
-            random_symbols = random_symbols[:count_private_keys]
-            random_desc = random_desc[:count_private_keys]
-
-            mintPrice_list = [Randomiser.mintPrice() for _ in range(count_private_keys)]
-            mintLimitPerAddress_list = [Randomiser.mintLimitPerAddress() for _ in range(count_private_keys)]
-            editionSize_list = [Randomiser.editionSize() for _ in range(count_private_keys)]
-            royaltyBPS_list = [Randomiser.royaltyBPS() for _ in range(count_private_keys)]
-            imageURI_list = []
-
-            for elem in imageURI_list_hashes:
-                imageURI_list.append("ipfs://" + elem)
-            random.shuffle(imageURI_list)
-
-            contract_counter = 1
-            list_of_contract_result = []
-            final_statistic += "\n <u> NFT create </u> \n"
-            wait_message_text = "📊 Statistic \n\n" \
-                                " NFT create \n"
-
-            for minter, name, symbol, description, mintPrice, \
-                mintLimitPerAddress, editionSize, royaltyBPS, imageURI in zip(minters_obj, random_names, random_symbols,
-                                                                              random_desc,
-                                                                              mintPrice_list, mintLimitPerAddress_list,
-                                                                              editionSize_list, royaltyBPS_list,
-                                                                              imageURI_list):
-                await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                            message_id=wait_message.message_id,
-                                            text=f"⏳ *Creating ERC721* [{contract_counter}/{count_private_keys}]",
-                                            parse_mode=types.ParseMode.MARKDOWN)
-
-                result = await minter.createERC721(name=name, symbol=symbol, description=description,
-                                                   mintPrice=mintPrice,
-                                                   mintLimitPerAddress=mintLimitPerAddress,
-                                                   editionSize=editionSize, royaltyBPS=royaltyBPS, imageURI=imageURI)
-                user_data = await state.get_data()
-                if user_data.get("stop_flag"):
-                    return
-
-                list_of_contract_result.append(result)
-
-                contract_counter += 1
-                sleep_between_contract = Randomiser.random_contract()
-                await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                            message_id=wait_message.message_id,
-                                            text=f"⏳ Sleep after Creating ERC721 on _{sleep_between_contract} sec ..._",
-                                            parse_mode=types.ParseMode.MARKDOWN)
-                await asyncio.sleep(sleep_between_contract)
-
-            for i in range(len(list_of_contract_result)):
-                final_statistic += f"Wallet {i + 1}: {list_of_contract_result[i]} \n"
-                wait_message_text += f"Wallet {i + 1}: {list_of_contract_result[i]} \n"
-
-            await state.update_data(final_statistic=final_statistic)
-
-            #############################################################################################
-
-            user_data = await state.get_data()
-            if user_data.get("stop_flag"):
-                return
-
-            sleep_on_1 = Randomiser.random_contract_after()
-            await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                        message_id=wait_message.message_id,
-                                        text=wait_message_text + f"\n _Sleeping on {sleep_on_1} sec ..._",
-                                        parse_mode=types.ParseMode.MARKDOWN)
-            await asyncio.sleep(sleep_on_1)
-
-            user_data = await state.get_data()
-            if user_data.get("stop_flag"):
-                return
-
-                ############################################## MINTS  ###########################################
-
-                mints_func = [mint_1, mint_2, mint_3, mint_4, mint_5, mint_6, mint_7, mint_8]
-                minters_obj_for_mint = [Minter(private_key) for private_key in private_keys]
-                used_functions_by_minters = {minter: [] for minter in minters_obj_for_mint}
-
-                # 1
-                mint_statistic = "📊 Statistic \n\n" \
-                                 " Mint #1 \n"
-
-                final_statistic += "\n <u> Mint #1 </u> \n"
-
-                mint_1_counter = 1
-                mint_1_result_list = []
-
-                random.shuffle(mints_func)
-
-                for minter in minters_obj_for_mint:
-                    while mints_func[0] in used_functions_by_minters[minter]:
-                        random.shuffle(mints_func)
-
-                    used_functions_by_minters[minter].append(mints_func[0])
-
-                    await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                                message_id=wait_message.message_id,
-                                                text=f"⏳ Starting *Mint #1*  [{mint_1_counter}/{count_private_keys}]",
-                                                parse_mode=types.ParseMode.MARKDOWN)
-
-                    mint_1_result = await mints_func[0](minter)
-
-                    if mint_1_result is None:
-                        mint_1_result = "❌ Something went wrong"
-
-                    mint_1_result_list.append(mint_1_result)
-                    random.shuffle(mints_func)
-
-                    mint_1_counter += 1
-
-                    user_data = await state.get_data()
-                    if user_data.get("stop_flag"):
-                        return
-
-                    sleep_between_mint = Randomiser.random_mint()
-                    await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                                message_id=wait_message.message_id,
-                                                text=f"⏳ Sleep after *Mint* #1 on _{sleep_between_mint} sec ..._",
-                                                parse_mode=types.ParseMode.MARKDOWN)
-                    await asyncio.sleep(sleep_between_mint)
-
-                for i in range(len(mint_1_result_list)):
-                    final_statistic += f"Wallet {i + 1}: {mint_1_result_list[i]} \n"
-                    mint_statistic += f"Wallet {i + 1}: {mint_1_result_list[i]} \n"
-
-                await state.update_data(final_statistic=final_statistic)
-
-                sleep_on = Randomiser.random_mint_after()
-                await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                            message_id=wait_message.message_id,
-                                            text=mint_statistic + f"\n _Sleeping on {sleep_on} sec ..._",
-                                            parse_mode=types.ParseMode.MARKDOWN)
-                await asyncio.sleep(sleep_on)
-
-                user_data = await state.get_data()
-                if user_data.get("stop_flag"):
-                    return
-
-                # 2
-                mint_statistic += "\n Mint #2 \n"
-                final_statistic += "\n <u> Mint #2 </u> \n"
-
-                mint_2_counter = 1
-                mint_2_result_list = []
-                for minter in minters_obj_for_mint:
-                    while mints_func[1] in used_functions_by_minters[minter]:
-                        random.shuffle(mints_func)
-                    used_functions_by_minters[minter].append(mints_func[1])
-
-                    await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                                message_id=wait_message.message_id,
-                                                text=f"⏳ Starting *Mint #2*  [{mint_2_counter}/{count_private_keys}]",
-                                                parse_mode=types.ParseMode.MARKDOWN)
-
-                    mint_2_result = await mints_func[1](minter)
-
-                    if mint_2_result is None:
-                        mint_2_result = "❌ Something went wrong"
-
-                    mint_2_result_list.append(mint_2_result)
-                    random.shuffle(mints_func)
-                    mint_2_counter += 1
-
-                    user_data = await state.get_data()
-                    if user_data.get("stop_flag"):
-                        return
-
-                    sleep_between_mint = Randomiser.random_mint()
-                    await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                                message_id=wait_message.message_id,
-                                                text=f"⏳ Sleep after *Mint* #2 on _{sleep_between_mint} sec ..._",
-                                                parse_mode=types.ParseMode.MARKDOWN)
-                    await asyncio.sleep(sleep_between_mint)
-
-                for i in range(len(mint_2_result_list)):
-                    final_statistic += f"Wallet {i + 1}: {mint_2_result_list[i]} \n"
-                    mint_statistic += f"Wallet {i + 1}: {mint_2_result_list[i]} \n"
-
-                await state.update_data(final_statistic=final_statistic)
-
-                sleep_on = Randomiser.random_mint_after()
-                await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                            message_id=wait_message.message_id,
-                                            text=mint_statistic + f"\n Sleeping on {sleep_on} sec ...")
-                await asyncio.sleep(sleep_on)
-
-                user_data = await state.get_data()
-                if user_data.get("stop_flag"):
-                    return
-
-                # 3
-                mint_statistic += "\n Mint #3 \n"
-                final_statistic += "\n <u> Mint #3 </u> \n"
-
-                mint_3_counter = 1
-                mint_3_result_list = []
-                for minter in minters_obj_for_mint:
-                    while mints_func[2] in used_functions_by_minters[minter]:
-                        random.shuffle(mints_func)
-                    used_functions_by_minters[minter].append(mints_func[2])
-
-                    await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                                message_id=wait_message.message_id,
-                                                text=f"⏳ Starting *Mint #3*  [{mint_3_counter}/{count_private_keys}]",
-                                                parse_mode=types.ParseMode.MARKDOWN)
-
-                    mint_3_result = await mints_func[2](minter)
-
-                    if mint_3_result is None:
-                        mint_3_result = "❌ Something went wrong"
-                    mint_3_result_list.append(mint_3_result)
-                    random.shuffle(mints_func)
-
-                    mint_3_counter += 1
-
-                    user_data = await state.get_data()
-                    if user_data.get("stop_flag"):
-                        return
-
-                    sleep_between_mint = Randomiser.random_mint()
-                    await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                                message_id=wait_message.message_id,
-                                                text=f"⏳ Sleep after *Mint* #3 on _{sleep_between_mint} sec ..._",
-                                                parse_mode=types.ParseMode.MARKDOWN)
-                    await asyncio.sleep(sleep_between_mint)
-
-                for i in range(len(mint_3_result_list)):
-                    final_statistic += f"Wallet {i + 1}: {mint_3_result_list[i]} \n"
-                    mint_statistic += f"Wallet {i + 1}: {mint_3_result_list[i]} \n"
-
-                await state.update_data(final_statistic=final_statistic)
-
-                sleep_on = Randomiser.random_mint_after()
-                await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                            message_id=wait_message.message_id,
-                                            text=mint_statistic + f"\n _Sleeping on {sleep_on} sec ..._",
-                                            parse_mode=types.ParseMode.MARKDOWN)
-                await asyncio.sleep(sleep_on)
-
-                user_data = await state.get_data()
-                if user_data.get("stop_flag"):
-                    return
-
-                # 4
-                mint_statistic += "\n Mint #4 \n"
-                final_statistic += "\n <u> Mint #4 </u> \n"
-
-                mint_4_counter = 1
-                mint_4_result_list = []
-
-                for minter in minters_obj_for_mint:
-                    while mints_func[3] in used_functions_by_minters[minter]:
-                        random.shuffle(mints_func)
-                    used_functions_by_minters[minter].append(mints_func[3])
-
-                    await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                                message_id=wait_message.message_id,
-                                                text=f"⏳ Starting *Mint #4*  [{mint_4_counter}/{count_private_keys}]",
-                                                parse_mode=types.ParseMode.MARKDOWN)
-
-                    mint_4_result = await mints_func[3](minter)
-
-                    if mint_4_result is None:
-                        mint_4_result = "❌ Something went wrong"
-
-                    mint_4_result_list.append(mint_4_result)
-                    random.shuffle(mints_func)
-
-                    mint_4_counter += 1
-
-                    user_data = await state.get_data()
-                    if user_data.get("stop_flag"):
-                        return
-
-                    sleep_between_mint = Randomiser.random_mint()
-                    await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                                message_id=wait_message.message_id,
-                                                text=f"⏳ Sleep after *Mint* #4 on _{sleep_between_mint} sec ..._",
-                                                parse_mode=types.ParseMode.MARKDOWN)
-                    await asyncio.sleep(sleep_between_mint)
-
-                for i in range(len(mint_4_result_list)):
-                    final_statistic += f"Wallet {i + 1}: {mint_4_result_list[i]} \n"
-                    mint_statistic += f"Wallet {i + 1}: {mint_4_result_list[i]} \n"
-
-                await state.update_data(final_statistic=final_statistic)
-
-                sleep_on = Randomiser.random_mint_after()
-                await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                            message_id=wait_message.message_id,
-                                            text=mint_statistic + f"\n _Sleeping on {sleep_on} sec ..._",
-                                            parse_mode=types.ParseMode.MARKDOWN)
-                await asyncio.sleep(sleep_on)
-
-                user_data = await state.get_data()
-                if user_data.get("stop_flag"):
-                    return
-
-                # 5
-                mint_statistic += "\n Mint #5 \n"
-                final_statistic += "\n <u> Mint #5 </u> \n"
-
-                mint_5_counter = 1
-                mint_5_result_list = []
-
-                for minter in minters_obj_for_mint:
-                    while mints_func[4] in used_functions_by_minters[minter]:
-                        random.shuffle(mints_func)
-                    used_functions_by_minters[minter].append(mints_func[4])
-
-                    await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                                message_id=wait_message.message_id,
-                                                text=f"⏳ Starting *Mint #5*  [{mint_5_counter}/{count_private_keys}]",
-                                                parse_mode=types.ParseMode.MARKDOWN)
-
-                    mint_5_result = await mints_func[4](minter)
-
-                    if mint_5_result is None:
-                        mint_5_result = "❌ Something went wrong"
-
-                    mint_5_result_list.append(mint_5_result)
-                    random.shuffle(mints_func)
-
-                    mint_5_counter += 1
-
-                    user_data = await state.get_data()
-                    if user_data.get("stop_flag"):
-                        return
-
-                    sleep_between_mint = Randomiser.random_mint()
-                    await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                                message_id=wait_message.message_id,
-                                                text=f"⏳ Sleep after *Mint* #5 on _{sleep_between_mint} sec ..._",
-                                                parse_mode=types.ParseMode.MARKDOWN)
-                    await asyncio.sleep(sleep_between_mint)
-
-                for i in range(len(mint_5_result_list)):
-                    final_statistic += f"Wallet {i + 1}: {mint_5_result_list[i]} \n"
-                    mint_statistic += f"Wallet {i + 1}: {mint_5_result_list[i]} \n"
-
-                await state.update_data(final_statistic=final_statistic)
-
-                sleep_on = Randomiser.random_mint_after()
-                await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                            message_id=wait_message.message_id,
-                                            text=mint_statistic + f"\n _Sleeping on {sleep_on} sec ..._",
-                                            parse_mode=types.ParseMode.MARKDOWN)
-                await asyncio.sleep(sleep_on)
-                user_data = await state.get_data()
-
-                if user_data.get("stop_flag"):
-                    return
-
-                # 6
-                mint_statistic += "\n Mint #6 \n"
-                final_statistic += "\n <u> Mint #6 </u> \n"
-
-                mint_6_counter = 1
-                mint_6_result_list = []
-
-                for minter in minters_obj_for_mint:
-                    while mints_func[5] in used_functions_by_minters[minter]:
-                        random.shuffle(mints_func)
-                    used_functions_by_minters[minter].append(mints_func[5])
-
-                    await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                                message_id=wait_message.message_id,
-                                                text=f"⏳ Starting *Mint #6*  [{mint_6_counter}/{count_private_keys}]",
-                                                parse_mode=types.ParseMode.MARKDOWN)
-
-                    mint_6_result = await mints_func[5](minter)
-
-                    if mint_6_result is None:
-                        mint_6_result = "❌ Something went wrong"
-
-                    mint_6_result_list.append(mint_6_result)
-                    random.shuffle(mints_func)
-
-                    mint_6_counter += 1
-
-                    user_data = await state.get_data()
-                    if user_data.get("stop_flag"):
-                        return
-
-                    sleep_between_mint = Randomiser.random_mint()
-                    await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                                message_id=wait_message.message_id,
-                                                text=f"⏳ Sleep after *Mint* #6 on _{sleep_between_mint} sec ..._",
-                                                parse_mode=types.ParseMode.MARKDOWN)
-                    await asyncio.sleep(sleep_between_mint)
-
-                for i in range(len(mint_6_result_list)):
-                    final_statistic += f"Wallet {i + 1}: {mint_6_result_list[i]} \n"
-                    mint_statistic += f"Wallet {i + 1}: {mint_6_result_list[i]} \n"
-
-                await state.update_data(final_statistic=final_statistic)
-
-                sleep_on = Randomiser.random_mint_after()
-                await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                            message_id=wait_message.message_id,
-                                            text=mint_statistic + f"\n _Sleeping on {sleep_on} sec ..._",
-                                            parse_mode=types.ParseMode.MARKDOWN)
-                await asyncio.sleep(sleep_on)
-
-                user_data = await state.get_data()
-                if user_data.get("stop_flag"):
-                    return
-
-                # 7
-                mint_statistic += "\n Mint #7 \n"
-                final_statistic += "\n <u> Mint #7 </u> \n"
-
-                mint_7_counter = 1
-                mint_7_result_list = []
-
-                for minter in minters_obj_for_mint:
-                    while mints_func[6] in used_functions_by_minters[minter]:
-                        random.shuffle(mints_func)
-                    used_functions_by_minters[minter].append(mints_func[6])
-
-                    await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                                message_id=wait_message.message_id,
-                                                text=f"⏳ Starting *Mint #7*  [{mint_7_counter}/{count_private_keys}]",
-                                                parse_mode=types.ParseMode.MARKDOWN)
-
-                    mint_7_result = await mints_func[6](minter)
-
-                    if mint_7_result is None:
-                        mint_7_result = "❌ Something went wrong"
-
-                    mint_7_result_list.append(mint_7_result)
-                    random.shuffle(mints_func)
-
-                    mint_7_counter += 1
-
-                    user_data = await state.get_data()
-                    if user_data.get("stop_flag"):
-                        return
-
-                    sleep_between_mint = Randomiser.random_mint()
-                    await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                                message_id=wait_message.message_id,
-                                                text=f"⏳ Sleep after *Mint* #7 on _{sleep_between_mint} sec ..._",
-                                                parse_mode=types.ParseMode.MARKDOWN)
-                    await asyncio.sleep(sleep_between_mint)
-
-                for i in range(len(mint_7_result_list)):
-                    final_statistic += f"Wallet {i + 1}: {mint_7_result_list[i]} \n"
-                    mint_statistic += f"Wallet {i + 1}: {mint_7_result_list[i]} \n"
-
-                await state.update_data(final_statistic=final_statistic)
-
-                sleep_on = Randomiser.random_mint_after()
-                await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                            message_id=wait_message.message_id,
-                                            text=mint_statistic + f"\n _Sleeping on {sleep_on} sec ..._",
-                                            parse_mode=types.ParseMode.MARKDOWN)
-                await asyncio.sleep(sleep_on)
-
-                user_data = await state.get_data()
-                if user_data.get("stop_flag"):
-                    return
-
-                # 8
-                mint_statistic += "\n Mint #8 \n"
-                final_statistic += "\n <u> Mint #8 </u> \n"
-
-                mint_8_counter = 1
-                mint_8_result_list = []
-                for minter in minters_obj_for_mint:
-                    while mints_func[7] in used_functions_by_minters[minter]:
-                        random.shuffle(mints_func)
-                    used_functions_by_minters[minter].append(mints_func[7])
-
-                    await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                                message_id=wait_message.message_id,
-                                                text=f"⏳ Starting *Mint #8*  [{mint_8_counter}/{count_private_keys}]",
-                                                parse_mode=types.ParseMode.MARKDOWN)
-
-                    mint_8_result = await mints_func[7](minter)
-
-                    if mint_8_result is None:
-                        mint_8_result = "❌ Something went wrong"
-
-                    mint_8_result_list.append(mint_8_result)
-                    random.shuffle(mints_func)
-
-                    mint_8_counter += 1
-
-                    user_data = await state.get_data()
-                    if user_data.get("stop_flag"):
-                        return
-
-                    sleep_between_mint = Randomiser.random_mint()
-                    await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                                message_id=wait_message.message_id,
-                                                text=f"⏳ Sleep after *Mint* #8 on _{sleep_between_mint} sec ..._",
-                                                parse_mode=types.ParseMode.MARKDOWN)
-                    await asyncio.sleep(sleep_between_mint)
-
-                for i in range(len(mint_8_result_list)):
-                    final_statistic += f"Wallet {i + 1}: {mint_8_result_list[i]} \n"
-                    mint_statistic += f"Wallet {i + 1}: {mint_8_result_list[i]} \n"
-
-                await state.update_data(final_statistic=final_statistic)
-
-                sleep_on = Randomiser.random_mint_after()
-                await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                            message_id=wait_message.message_id,
-                                            text=mint_statistic + f"\n _Sleeping on {sleep_on} sec ..._",
-                                            parse_mode=types.ParseMode.MARKDOWN)
-                await asyncio.sleep(sleep_on)
-
-                user_data = await state.get_data()
-                if user_data.get("stop_flag"):
-                    return
-
-                # 9
-                mint_statistic += "\n Mint #9 \n"
-                final_statistic += "\n <u> Mint #9 </u> \n"
-
-                mint_9_counter = 1
-                mint_9_result_list = []
-
-                for minter in minters_obj_for_mint:
-                    while mints_func[8] in used_functions_by_minters[minter]:
-                        random.shuffle(mints_func)
-                    used_functions_by_minters[minter].append(mints_func[8])
-
-                    await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                                message_id=wait_message.message_id,
-                                                text=f"⏳ Starting *Mint #9*  [{mint_9_counter}/{count_private_keys}]",
-                                                parse_mode=types.ParseMode.MARKDOWN)
-
-                    mint_9_result = await mints_func[8](minter)
-
-                    logger.info(f"🔉 List used_functions_by_minters: {used_functions_by_minters[minter]}")
-
-                    if mint_9_result is None:
-                        mint_9_result = "❌ Something went wrong"
-
-                    mint_9_result_list.append(mint_9_result)
-                    random.shuffle(mints_func)
-
-                    mint_9_counter += 1
-
-                    user_data = await state.get_data()
-                    if user_data.get("stop_flag"):
-                        return
-
-                    sleep_between_mint = Randomiser.random_mint()
-                    await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                                message_id=wait_message.message_id,
-                                                text=f"⏳ Sleep after *Mint* #9 on _{sleep_between_mint} sec ..._",
-                                                parse_mode=types.ParseMode.MARKDOWN)
-                    await asyncio.sleep(sleep_between_mint)
-
-                for i in range(len(mint_9_result_list)):
-                    final_statistic += f"Wallet {i + 1}: {mint_9_result_list[i]} \n"
-                    mint_statistic += f"Wallet {i + 1}: {mint_9_result_list[i]} \n"
-
-        if is_warm_zora == 1:
-            user_data = await state.get_data()
-            if user_data.get("stop_flag"):
-                return
-            ########################################## WARM UP  ###########################################
-
-            warm_up_statistic = "📊 Statistic \n\n" \
-                                " Warm Up #1 \n"
-
-            final_statistic += "\n <u> Warm Up #1 </u> \n"
-
-            # 1
-            warm_up_counter_1 = 1
-            warm_up_result_1_list = []
-            for minter in minters_obj:
-                await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                            message_id=wait_message.message_id,
-                                            text=f"⏳ Starting *Warm up #3*  [{warm_up_counter_1}/{count_private_keys}]",
-                                            parse_mode=types.ParseMode.MARKDOWN)
-
-                result1 = await minter.walletWarmUp1(minter.collectionAddress, Minter.generateUri())
-                warm_up_result_1_list.append(result1)
-
-                warm_up_counter_1 += 1
-
-                user_data = await state.get_data()
-                if user_data.get("stop_flag"):
-                    return
-
-                sleep_between_warm_up_1 = Randomiser.random_warm_up()
-                await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                            message_id=wait_message.message_id,
-                                            text=f"⏳ Sleep after WarmUp #1 on _{sleep_between_warm_up_1} sec ..._",
-                                            parse_mode=types.ParseMode.MARKDOWN)
-                await asyncio.sleep(sleep_between_warm_up_1)
-
-            for i in range(len(warm_up_result_1_list)):
-                final_statistic += f"Wallet {i + 1}: {warm_up_result_1_list[i]} \n"
-                warm_up_statistic += f"Wallet {i + 1}: {warm_up_result_1_list[i]} \n"
-
-            await state.update_data(final_statistic=final_statistic)
-
-            sleep_on_warm_up_1 = Randomiser.random_warm_up_after()
-            await bot.edit_message_text(chat_id=wait_message.chat.id,
-                                        message_id=wait_message.message_id,
-                                        text=warm_up_statistic + f"\n _Sleeping on {sleep_on_warm_up_1} sec ..._",
-                                        parse_mode=types.ParseMode.MARKDOWN)
-
-            await asyncio.sleep(sleep_on_warm_up_1)
-
-            user_data = await state.get_data()
-            if user_data.get("stop_flag"):
-                return
-
-
             ############################################## MINTS  ###########################################
 
-            mints_func = [warm_up_mint1, warm_up_mint2, warm_up_mint3, warm_up_mint4]
-
+            mints_func = [mint_1, mint_2, mint_3, mint_4, mint_5, mint_6, mint_7, mint_8]
             minters_obj_for_mint = [Minter(private_key) for private_key in private_keys]
             used_functions_by_minters = {minter: [] for minter in minters_obj_for_mint}
 
-            # # 1
-            # mint_statistic = "📊 Statistic \n\n" \
-            #                  " Mint #1 \n"
-            #
-            # final_statistic += "\n <u> Mint #1 </u> \n"
-            #
-            # mint_1_counter = 1
-            # mint_1_result_list = []
-            #
-            # random.shuffle(mints_func)
-            #
-            # for minter in minters_obj_for_mint:
-            #     while mints_func[0] in used_functions_by_minters[minter]:
-            #         random.shuffle(mints_func)
-            #
-            #     used_functions_by_minters[minter].append(mints_func[0])
-            #
-            #     await bot.edit_message_text(chat_id=wait_message.chat.id,
-            #                                 message_id=wait_message.message_id,
-            #                                 text=f"⏳ Starting *Mint #1*  [{mint_1_counter}/{count_private_keys}]",
-            #                                 parse_mode=types.ParseMode.MARKDOWN)
-            #
-            #     mint_1_result = await mints_func[0](minter)
-            #
-            #     if mint_1_result is None:
-            #         mint_1_result = "❌ Something went wrong"
-            #
-            #     mint_1_result_list.append(mint_1_result)
-            #     random.shuffle(mints_func)
-            #
-            #     mint_1_counter += 1
-            #
-            #     user_data = await state.get_data()
-            #     if user_data.get("stop_flag"):
-            #         return
-            #
-            #     sleep_between_mint = Randomiser.random_mint()
-            #     await bot.edit_message_text(chat_id=wait_message.chat.id,
-            #                                 message_id=wait_message.message_id,
-            #                                 text=f"⏳ Sleep after *Mint* #1 on _{sleep_between_mint} sec ..._",
-            #                                 parse_mode=types.ParseMode.MARKDOWN)
-            #     await asyncio.sleep(sleep_between_mint)
-            #
-            # for i in range(len(mint_1_result_list)):
-            #     final_statistic += f"Wallet {i + 1}: {mint_1_result_list[i]} \n"
-            #     mint_statistic += f"Wallet {i + 1}: {mint_1_result_list[i]} \n"
-            #
-            # await state.update_data(final_statistic=final_statistic)
-            #
-            # sleep_on = Randomiser.random_mint_after()
-            # await bot.edit_message_text(chat_id=wait_message.chat.id,
-            #                             message_id=wait_message.message_id,
-            #                             text=mint_statistic + f"\n _Sleeping on {sleep_on} sec ..._",
-            #                             parse_mode=types.ParseMode.MARKDOWN)
-            # await asyncio.sleep(sleep_on)
-            #
-            # user_data = await state.get_data()
-            # if user_data.get("stop_flag"):
-            #     return
+            # 1
+            mint_statistic = "📊 Statistic \n\n" \
+                             " Mint #1 \n"
 
+            final_statistic += "\n <u> Mint #1 </u> \n"
 
-            # Warm Up 3
-            warm_up_statistic += "\n Warm Up #2 \n"
-            final_statistic += "\n <u> Warm Up #2 </u> \n"
+            mint_1_counter = 1
+            mint_1_result_list = []
 
-            warm_up_counter_3 = 1
-            warm_up_result_3_list = []
-            for minter in minters_obj:
+            random.shuffle(mints_func)
+
+            for minter in minters_obj_for_mint:
+                while mints_func[0] in used_functions_by_minters[minter]:
+                    random.shuffle(mints_func)
+
+                used_functions_by_minters[minter].append(mints_func[0])
+
                 await bot.edit_message_text(chat_id=wait_message.chat.id,
                                             message_id=wait_message.message_id,
-                                            text=f"⏳ Startnig *Warm up #2*  [{warm_up_counter_3}/{count_private_keys}]",
+                                            text=f"⏳ Starting *Mint #1*  [{mint_1_counter}/{count_private_keys}]",
                                             parse_mode=types.ParseMode.MARKDOWN)
 
-                result3 = await minter.walletWarmUp2(minter.collectionAddress, round(random.uniform(0.00001, 150), 5))
-                warm_up_result_3_list.append(result3)
+                mint_1_result = await mints_func[0](minter)
 
-                warm_up_counter_3 += 1
+                if mint_1_result is None:
+                    mint_1_result = "❌ Something went wrong"
+
+                mint_1_result_list.append(mint_1_result)
+                random.shuffle(mints_func)
+
+                mint_1_counter += 1
 
                 user_data = await state.get_data()
                 if user_data.get("stop_flag"):
                     return
 
-                sleep_between_warm_up_3 = Randomiser.random_warm_up()
+                sleep_between_mint = Randomiser.random_mint()
                 await bot.edit_message_text(chat_id=wait_message.chat.id,
                                             message_id=wait_message.message_id,
-                                            text=f"⏳ Sleep after Warm up #3 on _{sleep_between_warm_up_3} sec ..._",
+                                            text=f"⏳ Sleep after *Mint* #1 on _{sleep_between_mint} sec ..._",
                                             parse_mode=types.ParseMode.MARKDOWN)
-                await asyncio.sleep(sleep_between_warm_up_3)
+                await asyncio.sleep(sleep_between_mint)
 
-            for i in range(len(warm_up_result_3_list)):
-                final_statistic += f"Wallet {i + 1}: {warm_up_result_3_list[i]} \n"
-                warm_up_statistic += f"Wallet {i + 1}: {warm_up_result_3_list[i]} \n"
+            for i in range(len(mint_1_result_list)):
+                final_statistic += f"Wallet {i + 1}: {mint_1_result_list[i]} \n"
+                mint_statistic += f"Wallet {i + 1}: {mint_1_result_list[i]} \n"
 
             await state.update_data(final_statistic=final_statistic)
 
-            user_data = await state.get_data()
-            if user_data.get("stop_flag"):
-                return
-
-            sleep_on_warm_up_3 = Randomiser.random_warm_up_after()
+            sleep_on = Randomiser.random_mint_after()
             await bot.edit_message_text(chat_id=wait_message.chat.id,
                                         message_id=wait_message.message_id,
-                                        text=warm_up_statistic + f"\n _Sleeping on {sleep_on_warm_up_3} sec ..._",
+                                        text=mint_statistic + f"\n _Sleeping on {sleep_on} sec ..._",
                                         parse_mode=types.ParseMode.MARKDOWN)
-            await asyncio.sleep(sleep_on_warm_up_3)
+            await asyncio.sleep(sleep_on)
 
             user_data = await state.get_data()
             if user_data.get("stop_flag"):
                 return
 
             # 2
-            # mint_statistic += "\n Mint #2 \n"
-            # final_statistic += "\n <u> Mint #2 </u> \n"
-            #
-            # mint_2_counter = 1
-            # mint_2_result_list = []
-            # for minter in minters_obj_for_mint:
-            #     while mints_func[1] in used_functions_by_minters[minter]:
-            #         random.shuffle(mints_func)
-            #     used_functions_by_minters[minter].append(mints_func[1])
-            #
-            #     await bot.edit_message_text(chat_id=wait_message.chat.id,
-            #                                 message_id=wait_message.message_id,
-            #                                 text=f"⏳ Starting *Mint #2*  [{mint_2_counter}/{count_private_keys}]",
-            #                                 parse_mode=types.ParseMode.MARKDOWN)
-            #
-            #     mint_2_result = await mints_func[1](minter)
-            #
-            #     if mint_2_result is None:
-            #         mint_2_result = "❌ Something went wrong"
-            #
-            #     mint_2_result_list.append(mint_2_result)
-            #     random.shuffle(mints_func)
-            #     mint_2_counter += 1
-            #
-            #     user_data = await state.get_data()
-            #     if user_data.get("stop_flag"):
-            #         return
-            #
-            #     sleep_between_mint = Randomiser.random_mint()
-            #     await bot.edit_message_text(chat_id=wait_message.chat.id,
-            #                                 message_id=wait_message.message_id,
-            #                                 text=f"⏳ Sleep after *Mint* #2 on _{sleep_between_mint} sec ..._",
-            #                                 parse_mode=types.ParseMode.MARKDOWN)
-            #     await asyncio.sleep(sleep_between_mint)
-            #
-            # for i in range(len(mint_2_result_list)):
-            #     final_statistic += f"Wallet {i + 1}: {mint_2_result_list[i]} \n"
-            #     mint_statistic += f"Wallet {i + 1}: {mint_2_result_list[i]} \n"
-            #
-            # await state.update_data(final_statistic=final_statistic)
-            #
-            # sleep_on = Randomiser.random_mint_after()
-            # await bot.edit_message_text(chat_id=wait_message.chat.id,
-            #                             message_id=wait_message.message_id,
-            #                             text=mint_statistic + f"\n Sleeping on {sleep_on} sec ...")
-            # await asyncio.sleep(sleep_on)
-            #
-            # user_data = await state.get_data()
-            # if user_data.get("stop_flag"):
-            #     return
-            #
-            # # 3
-            # mint_statistic += "\n Mint #3 \n"
-            # final_statistic += "\n <u> Mint #3 </u> \n"
-            #
-            # mint_3_counter = 1
-            # mint_3_result_list = []
-            # for minter in minters_obj_for_mint:
-            #     while mints_func[2] in used_functions_by_minters[minter]:
-            #         random.shuffle(mints_func)
-            #     used_functions_by_minters[minter].append(mints_func[2])
-            #
-            #     await bot.edit_message_text(chat_id=wait_message.chat.id,
-            #                                 message_id=wait_message.message_id,
-            #                                 text=f"⏳ Starting *Mint #3*  [{mint_3_counter}/{count_private_keys}]",
-            #                                 parse_mode=types.ParseMode.MARKDOWN)
-            #
-            #     mint_3_result = await mints_func[2](minter)
-            #
-            #     if mint_3_result is None:
-            #         mint_3_result = "❌ Something went wrong"
-            #     mint_3_result_list.append(mint_3_result)
-            #     random.shuffle(mints_func)
-            #
-            #     mint_3_counter += 1
-            #
-            #     user_data = await state.get_data()
-            #     if user_data.get("stop_flag"):
-            #         return
-            #
-            #     sleep_between_mint = Randomiser.random_mint()
-            #     await bot.edit_message_text(chat_id=wait_message.chat.id,
-            #                                 message_id=wait_message.message_id,
-            #                                 text=f"⏳ Sleep after *Mint* #3 on _{sleep_between_mint} sec ..._",
-            #                                 parse_mode=types.ParseMode.MARKDOWN)
-            #     await asyncio.sleep(sleep_between_mint)
-            #
-            # for i in range(len(mint_3_result_list)):
-            #     final_statistic += f"Wallet {i + 1}: {mint_3_result_list[i]} \n"
-            #     mint_statistic += f"Wallet {i + 1}: {mint_3_result_list[i]} \n"
-            #
-            # await state.update_data(final_statistic=final_statistic)
-            #
-            # sleep_on = Randomiser.random_mint_after()
-            # await bot.edit_message_text(chat_id=wait_message.chat.id,
-            #                             message_id=wait_message.message_id,
-            #                             text=mint_statistic + f"\n _Sleeping on {sleep_on} sec ..._",
-            #                             parse_mode=types.ParseMode.MARKDOWN)
-            # await asyncio.sleep(sleep_on)
-            #
-            # user_data = await state.get_data()
-            # if user_data.get("stop_flag"):
-            #     return
+            mint_statistic += "\n Mint #2 \n"
+            final_statistic += "\n <u> Mint #2 </u> \n"
 
-            # Warm Up 2
-            warm_up_statistic += "\n Warm Up #3 \n"
-            final_statistic += "\n <u> Warm Up #3 </u> \n"
+            mint_2_counter = 1
+            mint_2_result_list = []
+            for minter in minters_obj_for_mint:
+                while mints_func[1] in used_functions_by_minters[minter]:
+                    random.shuffle(mints_func)
+                used_functions_by_minters[minter].append(mints_func[1])
 
-            warm_up_counter_2 = 1
-            warm_up_result_2_list = []
-            for minter in minters_obj:
                 await bot.edit_message_text(chat_id=wait_message.chat.id,
                                             message_id=wait_message.message_id,
-                                            text=f"⏳ Startnig *Warm up #3*  [{warm_up_counter_2}/{count_private_keys}]",
+                                            text=f"⏳ Starting *Mint #2*  [{mint_2_counter}/{count_private_keys}]",
                                             parse_mode=types.ParseMode.MARKDOWN)
 
-                result2 = await minter.walletWarmUp2(minter.collectionAddress, round(random.uniform(0.00001, 150), 5))
-                warm_up_result_2_list.append(result2)
+                mint_2_result = await mints_func[1](minter)
 
-                warm_up_counter_2 += 1
+                if mint_2_result is None:
+                    mint_2_result = "❌ Something went wrong"
+
+                mint_2_result_list.append(mint_2_result)
+                random.shuffle(mints_func)
+                mint_2_counter += 1
+
                 user_data = await state.get_data()
                 if user_data.get("stop_flag"):
                     return
 
-                sleep_between_warm_up_2 = Randomiser.random_warm_up()
+                sleep_between_mint = Randomiser.random_mint()
                 await bot.edit_message_text(chat_id=wait_message.chat.id,
                                             message_id=wait_message.message_id,
-                                            text=f"⏳ Sleep after WarmUp #3 on _{sleep_between_warm_up_2} sec ..._",
+                                            text=f"⏳ Sleep after *Mint* #2 on _{sleep_between_mint} sec ..._",
                                             parse_mode=types.ParseMode.MARKDOWN)
-                await asyncio.sleep(sleep_between_warm_up_2)
+                await asyncio.sleep(sleep_between_mint)
 
-            for i in range(len(warm_up_result_2_list)):
-                final_statistic += f"Wallet {i + 1}: {warm_up_result_2_list[i]} \n"
-                warm_up_statistic += f"Wallet {i + 1}: {warm_up_result_2_list[i]} \n"
+            for i in range(len(mint_2_result_list)):
+                final_statistic += f"Wallet {i + 1}: {mint_2_result_list[i]} \n"
+                mint_statistic += f"Wallet {i + 1}: {mint_2_result_list[i]} \n"
 
             await state.update_data(final_statistic=final_statistic)
 
-            sleep_on_warm_up_2 = Randomiser.random_warm_up_after()
+            sleep_on = Randomiser.random_mint_after()
             await bot.edit_message_text(chat_id=wait_message.chat.id,
                                         message_id=wait_message.message_id,
-                                        text=warm_up_statistic + f"\n _Sleeping on {sleep_on_warm_up_2} sec ..._",
-                                        parse_mode=types.ParseMode.MARKDOWN)
-            await asyncio.sleep(sleep_on_warm_up_2)
+                                        text=mint_statistic + f"\n Sleeping on {sleep_on} sec ...")
+            await asyncio.sleep(sleep_on)
 
             user_data = await state.get_data()
             if user_data.get("stop_flag"):
                 return
 
+            # 3
+            mint_statistic += "\n Mint #3 \n"
+            final_statistic += "\n <u> Mint #3 </u> \n"
+
+            mint_3_counter = 1
+            mint_3_result_list = []
+            for minter in minters_obj_for_mint:
+                while mints_func[2] in used_functions_by_minters[minter]:
+                    random.shuffle(mints_func)
+                used_functions_by_minters[minter].append(mints_func[2])
+
+                await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                            message_id=wait_message.message_id,
+                                            text=f"⏳ Starting *Mint #3*  [{mint_3_counter}/{count_private_keys}]",
+                                            parse_mode=types.ParseMode.MARKDOWN)
+
+                mint_3_result = await mints_func[2](minter)
+
+                if mint_3_result is None:
+                    mint_3_result = "❌ Something went wrong"
+                mint_3_result_list.append(mint_3_result)
+                random.shuffle(mints_func)
+
+                mint_3_counter += 1
+
+                user_data = await state.get_data()
+                if user_data.get("stop_flag"):
+                    return
+
+                sleep_between_mint = Randomiser.random_mint()
+                await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                            message_id=wait_message.message_id,
+                                            text=f"⏳ Sleep after *Mint* #3 on _{sleep_between_mint} sec ..._",
+                                            parse_mode=types.ParseMode.MARKDOWN)
+                await asyncio.sleep(sleep_between_mint)
+
+            for i in range(len(mint_3_result_list)):
+                final_statistic += f"Wallet {i + 1}: {mint_3_result_list[i]} \n"
+                mint_statistic += f"Wallet {i + 1}: {mint_3_result_list[i]} \n"
+
+            await state.update_data(final_statistic=final_statistic)
+
+            sleep_on = Randomiser.random_mint_after()
+            await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                        message_id=wait_message.message_id,
+                                        text=mint_statistic + f"\n _Sleeping on {sleep_on} sec ..._",
+                                        parse_mode=types.ParseMode.MARKDOWN)
+            await asyncio.sleep(sleep_on)
+
+            user_data = await state.get_data()
+            if user_data.get("stop_flag"):
+                return
 
             # 4
-            # mint_statistic += "\n Mint #4 \n"
-            # final_statistic += "\n <u> Mint #4 </u> \n"
-            #
-            # mint_4_counter = 1
-            # mint_4_result_list = []
-            #
-            # for minter in minters_obj_for_mint:
-            #     while mints_func[3] in used_functions_by_minters[minter]:
-            #         random.shuffle(mints_func)
-            #     used_functions_by_minters[minter].append(mints_func[3])
-            #
-            #     await bot.edit_message_text(chat_id=wait_message.chat.id,
-            #                                 message_id=wait_message.message_id,
-            #                                 text=f"⏳ Starting *Mint #4*  [{mint_4_counter}/{count_private_keys}]",
-            #                                 parse_mode=types.ParseMode.MARKDOWN)
-            #
-            #     mint_4_result = await mints_func[3](minter)
-            #
-            #     if mint_4_result is None:
-            #         mint_4_result = "❌ Something went wrong"
-            #
-            #     mint_4_result_list.append(mint_4_result)
-            #     random.shuffle(mints_func)
-            #
-            #     mint_4_counter += 1
-            #
-            #     user_data = await state.get_data()
-            #     if user_data.get("stop_flag"):
-            #         return
-            #
-            #     sleep_between_mint = Randomiser.random_mint()
-            #     await bot.edit_message_text(chat_id=wait_message.chat.id,
-            #                                 message_id=wait_message.message_id,
-            #                                 text=f"⏳ Sleep after *Mint* #4 on _{sleep_between_mint} sec ..._",
-            #                                 parse_mode=types.ParseMode.MARKDOWN)
-            #     await asyncio.sleep(sleep_between_mint)
-            #
-            # for i in range(len(mint_4_result_list)):
-            #     final_statistic += f"Wallet {i + 1}: {mint_4_result_list[i]} \n"
-            #     mint_statistic += f"Wallet {i + 1}: {mint_4_result_list[i]} \n"
-            #
-            # await state.update_data(final_statistic=final_statistic)
-            #
-            # sleep_on = Randomiser.random_mint_after()
-            # await bot.edit_message_text(chat_id=wait_message.chat.id,
-            #                             message_id=wait_message.message_id,
-            #                             text=mint_statistic + f"\n _Sleeping on {sleep_on} sec ..._",
-            #                             parse_mode=types.ParseMode.MARKDOWN)
-            # await asyncio.sleep(sleep_on)
-            #
-            # user_data = await state.get_data()
-            # if user_data.get("stop_flag"):
-            #     return
+            mint_statistic += "\n Mint #4 \n"
+            final_statistic += "\n <u> Mint #4 </u> \n"
 
-        is_ready_to_start = 0
+            mint_4_counter = 1
+            mint_4_result_list = []
+
+            for minter in minters_obj_for_mint:
+                while mints_func[3] in used_functions_by_minters[minter]:
+                    random.shuffle(mints_func)
+                used_functions_by_minters[minter].append(mints_func[3])
+
+                await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                            message_id=wait_message.message_id,
+                                            text=f"⏳ Starting *Mint #4*  [{mint_4_counter}/{count_private_keys}]",
+                                            parse_mode=types.ParseMode.MARKDOWN)
+
+                mint_4_result = await mints_func[3](minter)
+
+                if mint_4_result is None:
+                    mint_4_result = "❌ Something went wrong"
+
+                mint_4_result_list.append(mint_4_result)
+                random.shuffle(mints_func)
+
+                mint_4_counter += 1
+
+                user_data = await state.get_data()
+                if user_data.get("stop_flag"):
+                    return
+
+                sleep_between_mint = Randomiser.random_mint()
+                await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                            message_id=wait_message.message_id,
+                                            text=f"⏳ Sleep after *Mint* #4 on _{sleep_between_mint} sec ..._",
+                                            parse_mode=types.ParseMode.MARKDOWN)
+                await asyncio.sleep(sleep_between_mint)
+
+            for i in range(len(mint_4_result_list)):
+                final_statistic += f"Wallet {i + 1}: {mint_4_result_list[i]} \n"
+                mint_statistic += f"Wallet {i + 1}: {mint_4_result_list[i]} \n"
+
+            await state.update_data(final_statistic=final_statistic)
+
+            sleep_on = Randomiser.random_mint_after()
+            await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                        message_id=wait_message.message_id,
+                                        text=mint_statistic + f"\n _Sleeping on {sleep_on} sec ..._",
+                                        parse_mode=types.ParseMode.MARKDOWN)
+            await asyncio.sleep(sleep_on)
+
+            user_data = await state.get_data()
+            if user_data.get("stop_flag"):
+                return
+
+            # 5
+            mint_statistic += "\n Mint #5 \n"
+            final_statistic += "\n <u> Mint #5 </u> \n"
+
+            mint_5_counter = 1
+            mint_5_result_list = []
+
+            for minter in minters_obj_for_mint:
+                while mints_func[4] in used_functions_by_minters[minter]:
+                    random.shuffle(mints_func)
+                used_functions_by_minters[minter].append(mints_func[4])
+
+                await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                            message_id=wait_message.message_id,
+                                            text=f"⏳ Starting *Mint #5*  [{mint_5_counter}/{count_private_keys}]",
+                                            parse_mode=types.ParseMode.MARKDOWN)
+
+                mint_5_result = await mints_func[4](minter)
+
+                if mint_5_result is None:
+                    mint_5_result = "❌ Something went wrong"
+
+                mint_5_result_list.append(mint_5_result)
+                random.shuffle(mints_func)
+
+                mint_5_counter += 1
+
+                user_data = await state.get_data()
+                if user_data.get("stop_flag"):
+                    return
+
+                sleep_between_mint = Randomiser.random_mint()
+                await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                            message_id=wait_message.message_id,
+                                            text=f"⏳ Sleep after *Mint* #5 on _{sleep_between_mint} sec ..._",
+                                            parse_mode=types.ParseMode.MARKDOWN)
+                await asyncio.sleep(sleep_between_mint)
+
+            for i in range(len(mint_5_result_list)):
+                final_statistic += f"Wallet {i + 1}: {mint_5_result_list[i]} \n"
+                mint_statistic += f"Wallet {i + 1}: {mint_5_result_list[i]} \n"
+
+            await state.update_data(final_statistic=final_statistic)
+
+            sleep_on = Randomiser.random_mint_after()
+            await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                        message_id=wait_message.message_id,
+                                        text=mint_statistic + f"\n _Sleeping on {sleep_on} sec ..._",
+                                        parse_mode=types.ParseMode.MARKDOWN)
+            await asyncio.sleep(sleep_on)
+            user_data = await state.get_data()
+
+            if user_data.get("stop_flag"):
+                return
+
+            # 6
+            mint_statistic += "\n Mint #6 \n"
+            final_statistic += "\n <u> Mint #6 </u> \n"
+
+            mint_6_counter = 1
+            mint_6_result_list = []
+
+            for minter in minters_obj_for_mint:
+                while mints_func[5] in used_functions_by_minters[minter]:
+                    random.shuffle(mints_func)
+                used_functions_by_minters[minter].append(mints_func[5])
+
+                await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                            message_id=wait_message.message_id,
+                                            text=f"⏳ Starting *Mint #6*  [{mint_6_counter}/{count_private_keys}]",
+                                            parse_mode=types.ParseMode.MARKDOWN)
+
+                mint_6_result = await mints_func[5](minter)
+
+                if mint_6_result is None:
+                    mint_6_result = "❌ Something went wrong"
+
+                mint_6_result_list.append(mint_6_result)
+                random.shuffle(mints_func)
+
+                mint_6_counter += 1
+
+                user_data = await state.get_data()
+                if user_data.get("stop_flag"):
+                    return
+
+                sleep_between_mint = Randomiser.random_mint()
+                await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                            message_id=wait_message.message_id,
+                                            text=f"⏳ Sleep after *Mint* #6 on _{sleep_between_mint} sec ..._",
+                                            parse_mode=types.ParseMode.MARKDOWN)
+                await asyncio.sleep(sleep_between_mint)
+
+            for i in range(len(mint_6_result_list)):
+                final_statistic += f"Wallet {i + 1}: {mint_6_result_list[i]} \n"
+                mint_statistic += f"Wallet {i + 1}: {mint_6_result_list[i]} \n"
+
+            await state.update_data(final_statistic=final_statistic)
+
+            sleep_on = Randomiser.random_mint_after()
+            await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                        message_id=wait_message.message_id,
+                                        text=mint_statistic + f"\n _Sleeping on {sleep_on} sec ..._",
+                                        parse_mode=types.ParseMode.MARKDOWN)
+            await asyncio.sleep(sleep_on)
+
+            user_data = await state.get_data()
+            if user_data.get("stop_flag"):
+                return
+
+            # 7
+            mint_statistic += "\n Mint #7 \n"
+            final_statistic += "\n <u> Mint #7 </u> \n"
+
+            mint_7_counter = 1
+            mint_7_result_list = []
+
+            for minter in minters_obj_for_mint:
+                while mints_func[6] in used_functions_by_minters[minter]:
+                    random.shuffle(mints_func)
+                used_functions_by_minters[minter].append(mints_func[6])
+
+                await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                            message_id=wait_message.message_id,
+                                            text=f"⏳ Starting *Mint #7*  [{mint_7_counter}/{count_private_keys}]",
+                                            parse_mode=types.ParseMode.MARKDOWN)
+
+                mint_7_result = await mints_func[6](minter)
+
+                if mint_7_result is None:
+                    mint_7_result = "❌ Something went wrong"
+
+                mint_7_result_list.append(mint_7_result)
+                random.shuffle(mints_func)
+
+                mint_7_counter += 1
+
+                user_data = await state.get_data()
+                if user_data.get("stop_flag"):
+                    return
+
+                sleep_between_mint = Randomiser.random_mint()
+                await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                            message_id=wait_message.message_id,
+                                            text=f"⏳ Sleep after *Mint* #7 on _{sleep_between_mint} sec ..._",
+                                            parse_mode=types.ParseMode.MARKDOWN)
+                await asyncio.sleep(sleep_between_mint)
+
+            for i in range(len(mint_7_result_list)):
+                final_statistic += f"Wallet {i + 1}: {mint_7_result_list[i]} \n"
+                mint_statistic += f"Wallet {i + 1}: {mint_7_result_list[i]} \n"
+
+            await state.update_data(final_statistic=final_statistic)
+
+            sleep_on = Randomiser.random_mint_after()
+            await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                        message_id=wait_message.message_id,
+                                        text=mint_statistic + f"\n _Sleeping on {sleep_on} sec ..._",
+                                        parse_mode=types.ParseMode.MARKDOWN)
+            await asyncio.sleep(sleep_on)
+
+            user_data = await state.get_data()
+            if user_data.get("stop_flag"):
+                return
+
+            # 8
+            mint_statistic += "\n Mint #8 \n"
+            final_statistic += "\n <u> Mint #8 </u> \n"
+
+            mint_8_counter = 1
+            mint_8_result_list = []
+            for minter in minters_obj_for_mint:
+                while mints_func[7] in used_functions_by_minters[minter]:
+                    random.shuffle(mints_func)
+                used_functions_by_minters[minter].append(mints_func[7])
+
+                await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                            message_id=wait_message.message_id,
+                                            text=f"⏳ Starting *Mint #8*  [{mint_8_counter}/{count_private_keys}]",
+                                            parse_mode=types.ParseMode.MARKDOWN)
+
+                mint_8_result = await mints_func[7](minter)
+
+                if mint_8_result is None:
+                    mint_8_result = "❌ Something went wrong"
+
+                mint_8_result_list.append(mint_8_result)
+                random.shuffle(mints_func)
+
+                mint_8_counter += 1
+
+                user_data = await state.get_data()
+                if user_data.get("stop_flag"):
+                    return
+
+                sleep_between_mint = Randomiser.random_mint()
+                await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                            message_id=wait_message.message_id,
+                                            text=f"⏳ Sleep after *Mint* #8 on _{sleep_between_mint} sec ..._",
+                                            parse_mode=types.ParseMode.MARKDOWN)
+                await asyncio.sleep(sleep_between_mint)
+
+            for i in range(len(mint_8_result_list)):
+                final_statistic += f"Wallet {i + 1}: {mint_8_result_list[i]} \n"
+                mint_statistic += f"Wallet {i + 1}: {mint_8_result_list[i]} \n"
+
+            await state.update_data(final_statistic=final_statistic)
+
+            sleep_on = Randomiser.random_mint_after()
+            await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                        message_id=wait_message.message_id,
+                                        text=mint_statistic + f"\n _Sleeping on {sleep_on} sec ..._",
+                                        parse_mode=types.ParseMode.MARKDOWN)
+            await asyncio.sleep(sleep_on)
+
+            user_data = await state.get_data()
+            if user_data.get("stop_flag"):
+                return
+
+            # 9
+            mint_statistic += "\n Mint #9 \n"
+            final_statistic += "\n <u> Mint #9 </u> \n"
+
+            mint_9_counter = 1
+            mint_9_result_list = []
+
+            for minter in minters_obj_for_mint:
+                while mints_func[8] in used_functions_by_minters[minter]:
+                    random.shuffle(mints_func)
+                used_functions_by_minters[minter].append(mints_func[8])
+
+                await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                            message_id=wait_message.message_id,
+                                            text=f"⏳ Starting *Mint #9*  [{mint_9_counter}/{count_private_keys}]",
+                                            parse_mode=types.ParseMode.MARKDOWN)
+
+                mint_9_result = await mints_func[8](minter)
+
+                logger.info(f"🔉 List used_functions_by_minters: {used_functions_by_minters[minter]}")
+
+                if mint_9_result is None:
+                    mint_9_result = "❌ Something went wrong"
+
+                mint_9_result_list.append(mint_9_result)
+                random.shuffle(mints_func)
+
+                mint_9_counter += 1
+
+                user_data = await state.get_data()
+                if user_data.get("stop_flag"):
+                    return
+
+                sleep_between_mint = Randomiser.random_mint()
+                await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                            message_id=wait_message.message_id,
+                                            text=f"⏳ Sleep after *Mint* #9 on _{sleep_between_mint} sec ..._",
+                                            parse_mode=types.ParseMode.MARKDOWN)
+                await asyncio.sleep(sleep_between_mint)
+
+            for i in range(len(mint_9_result_list)):
+                final_statistic += f"Wallet {i + 1}: {mint_9_result_list[i]} \n"
+                mint_statistic += f"Wallet {i + 1}: {mint_9_result_list[i]} \n"
+
+    if is_warm_zora == 1:
+        user_data = await state.get_data()
+        if user_data.get("stop_flag"):
+            return
+
+        ########################################## CONTRACT  ###########################################
+
+        random_names = list(animals.animals.keys())
+        random_symbols = list(animals.animals.values())
+        random_desc = list(desc_list.description)
+
+        random.shuffle(random_names)
+        random.shuffle(random_symbols)
+        random.shuffle(random_desc)
+
+        random_names = random_names[:count_private_keys]
+        random_symbols = random_symbols[:count_private_keys]
+        random_desc = random_desc[:count_private_keys]
+
+        mintPrice_list = [Randomiser.mintPrice() for _ in range(count_private_keys)]
+        mintLimitPerAddress_list = [Randomiser.mintLimitPerAddress() for _ in range(count_private_keys)]
+        editionSize_list = [Randomiser.editionSize() for _ in range(count_private_keys)]
+        royaltyBPS_list = [Randomiser.royaltyBPS() for _ in range(count_private_keys)]
+        imageURI_list = []
+
+        for elem in imageURI_list_hashes:
+            imageURI_list.append("ipfs://" + elem)
+        random.shuffle(imageURI_list)
+
+        contract_counter = 1
+        list_of_contract_result = []
+        final_statistic += "\n <u> NFT create </u> \n"
+        wait_message_text = "📊 Statistic \n\n" \
+                            " NFT create \n"
+
+        for minter, name, symbol, description, mintPrice, \
+            mintLimitPerAddress, editionSize, royaltyBPS, imageURI in zip(minters_obj, random_names, random_symbols,
+                                                                          random_desc,
+                                                                          mintPrice_list, mintLimitPerAddress_list,
+                                                                          editionSize_list, royaltyBPS_list,
+                                                                          imageURI_list):
+            await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                        message_id=wait_message.message_id,
+                                        text=f"⏳ *Creating ERC721* [{contract_counter}/{count_private_keys}]",
+                                        parse_mode=types.ParseMode.MARKDOWN)
+
+            result = await minter.createERC721(name=name, symbol=symbol, description=description,
+                                               mintPrice=mintPrice,
+                                               mintLimitPerAddress=mintLimitPerAddress,
+                                               editionSize=editionSize, royaltyBPS=royaltyBPS, imageURI=imageURI)
+            user_data = await state.get_data()
+            if user_data.get("stop_flag"):
+                return
+
+            list_of_contract_result.append(result)
+
+            contract_counter += 1
+            sleep_between_contract = Randomiser.random_contract()
+            await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                        message_id=wait_message.message_id,
+                                        text=f"⏳ Sleep after Creating ERC721 on _{sleep_between_contract} sec ..._",
+                                        parse_mode=types.ParseMode.MARKDOWN)
+            await asyncio.sleep(sleep_between_contract)
+
+        for i in range(len(list_of_contract_result)):
+            final_statistic += f"Wallet {i + 1}: {list_of_contract_result[i]} \n"
+            wait_message_text += f"Wallet {i + 1}: {list_of_contract_result[i]} \n"
+
         await state.update_data(final_statistic=final_statistic)
-        await state.update_data(is_ready_to_start=is_ready_to_start)
 
-        await bot.delete_message(chat_id=wait_message.chat.id,
-                                 message_id=wait_message.message_id)
+        #############################################################################################
 
-        buttons = [
-            KeyboardButton(text="⬅ Go to menu"),
-        ]
-        reply_markup = ReplyKeyboardMarkup(keyboard=[buttons],
-                                           resize_keyboard=True)
-        is_ready = 0
+        user_data = await state.get_data()
+        if user_data.get("stop_flag"):
+            return
 
-        is_free_run = user_db.is_free_run(message.from_user.id)  # 1 == free
+        sleep_on_1 = Randomiser.random_contract_after()
+        await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                    message_id=wait_message.message_id,
+                                    text=wait_message_text + f"\n _Sleeping on {sleep_on_1} sec ..._",
+                                    parse_mode=types.ParseMode.MARKDOWN)
+        await asyncio.sleep(sleep_on_1)
 
-        await state.update_data(is_ready=is_ready)
-        await UserFollowing.wallet_menu.set()
-        await message.answer(final_statistic,
+        user_data = await state.get_data()
+        if user_data.get("stop_flag"):
+            return
+
+        ########################################## WARM UP  ###########################################
+
+        warm_up_statistic = "📊 Statistic \n\n" \
+                            " Warm Up #1 \n"
+
+        final_statistic += "\n <u> Warm Up #1 </u> \n"
+
+        # 1
+        warm_up_counter_1 = 1
+        warm_up_result_1_list = []
+        for minter in minters_obj:
+            await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                        message_id=wait_message.message_id,
+                                        text=f"⏳ Starting *Warm up #3*  [{warm_up_counter_1}/{count_private_keys}]",
+                                        parse_mode=types.ParseMode.MARKDOWN)
+
+            result1 = await minter.walletWarmUp1(minter.collectionAddress, Minter.generateUri())
+            warm_up_result_1_list.append(result1)
+
+            warm_up_counter_1 += 1
+
+            user_data = await state.get_data()
+            if user_data.get("stop_flag"):
+                return
+
+            sleep_between_warm_up_1 = Randomiser.random_warm_up()
+            await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                        message_id=wait_message.message_id,
+                                        text=f"⏳ Sleep after WarmUp #1 on _{sleep_between_warm_up_1} sec ..._",
+                                        parse_mode=types.ParseMode.MARKDOWN)
+            await asyncio.sleep(sleep_between_warm_up_1)
+
+        for i in range(len(warm_up_result_1_list)):
+            final_statistic += f"Wallet {i + 1}: {warm_up_result_1_list[i]} \n"
+            warm_up_statistic += f"Wallet {i + 1}: {warm_up_result_1_list[i]} \n"
+
+        await state.update_data(final_statistic=final_statistic)
+
+        sleep_on_warm_up_1 = Randomiser.random_warm_up_after()
+        await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                    message_id=wait_message.message_id,
+                                    text=warm_up_statistic + f"\n _Sleeping on {sleep_on_warm_up_1} sec ..._",
+                                    parse_mode=types.ParseMode.MARKDOWN)
+
+        await asyncio.sleep(sleep_on_warm_up_1)
+
+        user_data = await state.get_data()
+        if user_data.get("stop_flag"):
+            return
+
+        ############################################## MINTS  ###########################################
+
+        mints_func = [warm_up_mint1, warm_up_mint2, warm_up_mint3, warm_up_mint4]
+
+        minters_obj_for_mint = [Minter(private_key) for private_key in private_keys]
+        used_functions_by_minters = {minter: [] for minter in minters_obj_for_mint}
+
+        # # 1
+        # mint_statistic = "📊 Statistic \n\n" \
+        #                  " Mint #1 \n"
+        #
+        # final_statistic += "\n <u> Mint #1 </u> \n"
+        #
+        # mint_1_counter = 1
+        # mint_1_result_list = []
+        #
+        # random.shuffle(mints_func)
+        #
+        # for minter in minters_obj_for_mint:
+        #     while mints_func[0] in used_functions_by_minters[minter]:
+        #         random.shuffle(mints_func)
+        #
+        #     used_functions_by_minters[minter].append(mints_func[0])
+        #
+        #     await bot.edit_message_text(chat_id=wait_message.chat.id,
+        #                                 message_id=wait_message.message_id,
+        #                                 text=f"⏳ Starting *Mint #1*  [{mint_1_counter}/{count_private_keys}]",
+        #                                 parse_mode=types.ParseMode.MARKDOWN)
+        #
+        #     mint_1_result = await mints_func[0](minter)
+        #
+        #     if mint_1_result is None:
+        #         mint_1_result = "❌ Something went wrong"
+        #
+        #     mint_1_result_list.append(mint_1_result)
+        #     random.shuffle(mints_func)
+        #
+        #     mint_1_counter += 1
+        #
+        #     user_data = await state.get_data()
+        #     if user_data.get("stop_flag"):
+        #         return
+        #
+        #     sleep_between_mint = Randomiser.random_mint()
+        #     await bot.edit_message_text(chat_id=wait_message.chat.id,
+        #                                 message_id=wait_message.message_id,
+        #                                 text=f"⏳ Sleep after *Mint* #1 on _{sleep_between_mint} sec ..._",
+        #                                 parse_mode=types.ParseMode.MARKDOWN)
+        #     await asyncio.sleep(sleep_between_mint)
+        #
+        # for i in range(len(mint_1_result_list)):
+        #     final_statistic += f"Wallet {i + 1}: {mint_1_result_list[i]} \n"
+        #     mint_statistic += f"Wallet {i + 1}: {mint_1_result_list[i]} \n"
+        #
+        # await state.update_data(final_statistic=final_statistic)
+        #
+        # sleep_on = Randomiser.random_mint_after()
+        # await bot.edit_message_text(chat_id=wait_message.chat.id,
+        #                             message_id=wait_message.message_id,
+        #                             text=mint_statistic + f"\n _Sleeping on {sleep_on} sec ..._",
+        #                             parse_mode=types.ParseMode.MARKDOWN)
+        # await asyncio.sleep(sleep_on)
+        #
+        # user_data = await state.get_data()
+        # if user_data.get("stop_flag"):
+        #     return
+
+        # Warm Up 3
+        warm_up_statistic += "\n Warm Up #2 \n"
+        final_statistic += "\n <u> Warm Up #2 </u> \n"
+
+        warm_up_counter_3 = 1
+        warm_up_result_3_list = []
+        for minter in minters_obj:
+            await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                        message_id=wait_message.message_id,
+                                        text=f"⏳ Startnig *Warm up #2*  [{warm_up_counter_3}/{count_private_keys}]",
+                                        parse_mode=types.ParseMode.MARKDOWN)
+
+            result3 = await minter.walletWarmUp2(minter.collectionAddress, round(random.uniform(0.00001, 150), 5))
+            warm_up_result_3_list.append(result3)
+
+            warm_up_counter_3 += 1
+
+            user_data = await state.get_data()
+            if user_data.get("stop_flag"):
+                return
+
+            sleep_between_warm_up_3 = Randomiser.random_warm_up()
+            await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                        message_id=wait_message.message_id,
+                                        text=f"⏳ Sleep after Warm up #3 on _{sleep_between_warm_up_3} sec ..._",
+                                        parse_mode=types.ParseMode.MARKDOWN)
+            await asyncio.sleep(sleep_between_warm_up_3)
+
+        for i in range(len(warm_up_result_3_list)):
+            final_statistic += f"Wallet {i + 1}: {warm_up_result_3_list[i]} \n"
+            warm_up_statistic += f"Wallet {i + 1}: {warm_up_result_3_list[i]} \n"
+
+        await state.update_data(final_statistic=final_statistic)
+
+        user_data = await state.get_data()
+        if user_data.get("stop_flag"):
+            return
+
+        sleep_on_warm_up_3 = Randomiser.random_warm_up_after()
+        await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                    message_id=wait_message.message_id,
+                                    text=warm_up_statistic + f"\n _Sleeping on {sleep_on_warm_up_3} sec ..._",
+                                    parse_mode=types.ParseMode.MARKDOWN)
+        await asyncio.sleep(sleep_on_warm_up_3)
+
+        user_data = await state.get_data()
+        if user_data.get("stop_flag"):
+            return
+
+        # 2
+        # mint_statistic += "\n Mint #2 \n"
+        # final_statistic += "\n <u> Mint #2 </u> \n"
+        #
+        # mint_2_counter = 1
+        # mint_2_result_list = []
+        # for minter in minters_obj_for_mint:
+        #     while mints_func[1] in used_functions_by_minters[minter]:
+        #         random.shuffle(mints_func)
+        #     used_functions_by_minters[minter].append(mints_func[1])
+        #
+        #     await bot.edit_message_text(chat_id=wait_message.chat.id,
+        #                                 message_id=wait_message.message_id,
+        #                                 text=f"⏳ Starting *Mint #2*  [{mint_2_counter}/{count_private_keys}]",
+        #                                 parse_mode=types.ParseMode.MARKDOWN)
+        #
+        #     mint_2_result = await mints_func[1](minter)
+        #
+        #     if mint_2_result is None:
+        #         mint_2_result = "❌ Something went wrong"
+        #
+        #     mint_2_result_list.append(mint_2_result)
+        #     random.shuffle(mints_func)
+        #     mint_2_counter += 1
+        #
+        #     user_data = await state.get_data()
+        #     if user_data.get("stop_flag"):
+        #         return
+        #
+        #     sleep_between_mint = Randomiser.random_mint()
+        #     await bot.edit_message_text(chat_id=wait_message.chat.id,
+        #                                 message_id=wait_message.message_id,
+        #                                 text=f"⏳ Sleep after *Mint* #2 on _{sleep_between_mint} sec ..._",
+        #                                 parse_mode=types.ParseMode.MARKDOWN)
+        #     await asyncio.sleep(sleep_between_mint)
+        #
+        # for i in range(len(mint_2_result_list)):
+        #     final_statistic += f"Wallet {i + 1}: {mint_2_result_list[i]} \n"
+        #     mint_statistic += f"Wallet {i + 1}: {mint_2_result_list[i]} \n"
+        #
+        # await state.update_data(final_statistic=final_statistic)
+        #
+        # sleep_on = Randomiser.random_mint_after()
+        # await bot.edit_message_text(chat_id=wait_message.chat.id,
+        #                             message_id=wait_message.message_id,
+        #                             text=mint_statistic + f"\n Sleeping on {sleep_on} sec ...")
+        # await asyncio.sleep(sleep_on)
+        #
+        # user_data = await state.get_data()
+        # if user_data.get("stop_flag"):
+        #     return
+        #
+        # # 3
+        # mint_statistic += "\n Mint #3 \n"
+        # final_statistic += "\n <u> Mint #3 </u> \n"
+        #
+        # mint_3_counter = 1
+        # mint_3_result_list = []
+        # for minter in minters_obj_for_mint:
+        #     while mints_func[2] in used_functions_by_minters[minter]:
+        #         random.shuffle(mints_func)
+        #     used_functions_by_minters[minter].append(mints_func[2])
+        #
+        #     await bot.edit_message_text(chat_id=wait_message.chat.id,
+        #                                 message_id=wait_message.message_id,
+        #                                 text=f"⏳ Starting *Mint #3*  [{mint_3_counter}/{count_private_keys}]",
+        #                                 parse_mode=types.ParseMode.MARKDOWN)
+        #
+        #     mint_3_result = await mints_func[2](minter)
+        #
+        #     if mint_3_result is None:
+        #         mint_3_result = "❌ Something went wrong"
+        #     mint_3_result_list.append(mint_3_result)
+        #     random.shuffle(mints_func)
+        #
+        #     mint_3_counter += 1
+        #
+        #     user_data = await state.get_data()
+        #     if user_data.get("stop_flag"):
+        #         return
+        #
+        #     sleep_between_mint = Randomiser.random_mint()
+        #     await bot.edit_message_text(chat_id=wait_message.chat.id,
+        #                                 message_id=wait_message.message_id,
+        #                                 text=f"⏳ Sleep after *Mint* #3 on _{sleep_between_mint} sec ..._",
+        #                                 parse_mode=types.ParseMode.MARKDOWN)
+        #     await asyncio.sleep(sleep_between_mint)
+        #
+        # for i in range(len(mint_3_result_list)):
+        #     final_statistic += f"Wallet {i + 1}: {mint_3_result_list[i]} \n"
+        #     mint_statistic += f"Wallet {i + 1}: {mint_3_result_list[i]} \n"
+        #
+        # await state.update_data(final_statistic=final_statistic)
+        #
+        # sleep_on = Randomiser.random_mint_after()
+        # await bot.edit_message_text(chat_id=wait_message.chat.id,
+        #                             message_id=wait_message.message_id,
+        #                             text=mint_statistic + f"\n _Sleeping on {sleep_on} sec ..._",
+        #                             parse_mode=types.ParseMode.MARKDOWN)
+        # await asyncio.sleep(sleep_on)
+        #
+        # user_data = await state.get_data()
+        # if user_data.get("stop_flag"):
+        #     return
+
+        # Warm Up 2
+        warm_up_statistic += "\n Warm Up #3 \n"
+        final_statistic += "\n <u> Warm Up #3 </u> \n"
+
+        warm_up_counter_2 = 1
+        warm_up_result_2_list = []
+        for minter in minters_obj:
+            await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                        message_id=wait_message.message_id,
+                                        text=f"⏳ Startnig *Warm up #3*  [{warm_up_counter_2}/{count_private_keys}]",
+                                        parse_mode=types.ParseMode.MARKDOWN)
+
+            result2 = await minter.walletWarmUp2(minter.collectionAddress, round(random.uniform(0.00001, 150), 5))
+            warm_up_result_2_list.append(result2)
+
+            warm_up_counter_2 += 1
+            user_data = await state.get_data()
+            if user_data.get("stop_flag"):
+                return
+
+            sleep_between_warm_up_2 = Randomiser.random_warm_up()
+            await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                        message_id=wait_message.message_id,
+                                        text=f"⏳ Sleep after WarmUp #3 on _{sleep_between_warm_up_2} sec ..._",
+                                        parse_mode=types.ParseMode.MARKDOWN)
+            await asyncio.sleep(sleep_between_warm_up_2)
+
+        for i in range(len(warm_up_result_2_list)):
+            final_statistic += f"Wallet {i + 1}: {warm_up_result_2_list[i]} \n"
+            warm_up_statistic += f"Wallet {i + 1}: {warm_up_result_2_list[i]} \n"
+
+        await state.update_data(final_statistic=final_statistic)
+
+        sleep_on_warm_up_2 = Randomiser.random_warm_up_after()
+        await bot.edit_message_text(chat_id=wait_message.chat.id,
+                                    message_id=wait_message.message_id,
+                                    text=warm_up_statistic + f"\n _Sleeping on {sleep_on_warm_up_2} sec ..._",
+                                    parse_mode=types.ParseMode.MARKDOWN)
+        await asyncio.sleep(sleep_on_warm_up_2)
+
+        user_data = await state.get_data()
+        if user_data.get("stop_flag"):
+            return
+
+        # 4
+        # mint_statistic += "\n Mint #4 \n"
+        # final_statistic += "\n <u> Mint #4 </u> \n"
+        #
+        # mint_4_counter = 1
+        # mint_4_result_list = []
+        #
+        # for minter in minters_obj_for_mint:
+        #     while mints_func[3] in used_functions_by_minters[minter]:
+        #         random.shuffle(mints_func)
+        #     used_functions_by_minters[minter].append(mints_func[3])
+        #
+        #     await bot.edit_message_text(chat_id=wait_message.chat.id,
+        #                                 message_id=wait_message.message_id,
+        #                                 text=f"⏳ Starting *Mint #4*  [{mint_4_counter}/{count_private_keys}]",
+        #                                 parse_mode=types.ParseMode.MARKDOWN)
+        #
+        #     mint_4_result = await mints_func[3](minter)
+        #
+        #     if mint_4_result is None:
+        #         mint_4_result = "❌ Something went wrong"
+        #
+        #     mint_4_result_list.append(mint_4_result)
+        #     random.shuffle(mints_func)
+        #
+        #     mint_4_counter += 1
+        #
+        #     user_data = await state.get_data()
+        #     if user_data.get("stop_flag"):
+        #         return
+        #
+        #     sleep_between_mint = Randomiser.random_mint()
+        #     await bot.edit_message_text(chat_id=wait_message.chat.id,
+        #                                 message_id=wait_message.message_id,
+        #                                 text=f"⏳ Sleep after *Mint* #4 on _{sleep_between_mint} sec ..._",
+        #                                 parse_mode=types.ParseMode.MARKDOWN)
+        #     await asyncio.sleep(sleep_between_mint)
+        #
+        # for i in range(len(mint_4_result_list)):
+        #     final_statistic += f"Wallet {i + 1}: {mint_4_result_list[i]} \n"
+        #     mint_statistic += f"Wallet {i + 1}: {mint_4_result_list[i]} \n"
+        #
+        # await state.update_data(final_statistic=final_statistic)
+        #
+        # sleep_on = Randomiser.random_mint_after()
+        # await bot.edit_message_text(chat_id=wait_message.chat.id,
+        #                             message_id=wait_message.message_id,
+        #                             text=mint_statistic + f"\n _Sleeping on {sleep_on} sec ..._",
+        #                             parse_mode=types.ParseMode.MARKDOWN)
+        # await asyncio.sleep(sleep_on)
+        #
+        # user_data = await state.get_data()
+        # if user_data.get("stop_flag"):
+        #     return
+
+    is_ready_to_start = 0
+    await state.update_data(final_statistic=final_statistic)
+    await state.update_data(is_ready_to_start=is_ready_to_start)
+
+    await bot.delete_message(chat_id=wait_message.chat.id,
+                             message_id=wait_message.message_id)
+
+    buttons = [
+        KeyboardButton(text="⬅ Go to menu"),
+    ]
+    reply_markup = ReplyKeyboardMarkup(keyboard=[buttons],
+                                       resize_keyboard=True)
+    is_ready = 0
+
+    is_free_run = user_db.is_free_run(message.from_user.id)  # 1 == free
+
+    await state.update_data(is_ready=is_ready)
+    await UserFollowing.wallet_menu.set()
+    await message.answer(final_statistic,
+                         parse_mode=types.ParseMode.HTML,
+                         reply_markup=reply_markup)
+    if is_free_run == 1:
+        user_db.set_false_free_run(message.from_user.id)
+        congratulations = "\n\n🎉 Congratulations, Arnold AIO has successfully done <b>Zora script</b> for you! \n\n" \
+                          "😤 In the past, the average web3 user has made $550 per wallet for doing the same actions in airdrops. \n\n" \
+                          "⬇️If you want to run another wallet - top up your balance in the <b>💵 Balance and deposit</b> section!"
+        await message.answer(congratulations,
                              parse_mode=types.ParseMode.HTML,
                              reply_markup=reply_markup)
-        if is_free_run == 1:
-            user_db.set_false_free_run(message.from_user.id)
-            congratulations = "\n\n🎉 Congratulations, Arnold AIO has successfully done <b>Zora script</b> for you! \n\n" \
-                              "😤 In the past, the average web3 user has made $550 per wallet for doing the same actions in airdrops. \n\n" \
-                              "⬇️If you want to run another wallet - top up your balance in the <b>💵 Balance and deposit</b> section!"
-            await message.answer(congratulations,
-                                 parse_mode=types.ParseMode.HTML,
-                                 reply_markup=reply_markup)
 
-    else:
-        b1 = KeyboardButton("🐳 LFG!")
-        # b2 = KeyboardButton("⛔️ Stop ⛔️")
-        b3 = KeyboardButton("⬅ Go to menu")
+else:
+b1 = KeyboardButton("🐳 LFG!")
+# b2 = KeyboardButton("⛔️ Stop ⛔️")
+b3 = KeyboardButton("⬅ Go to menu")
 
-        buttons = ReplyKeyboardMarkup(resize_keyboard=True)
-        buttons.row(b1).row(b3)
+buttons = ReplyKeyboardMarkup(resize_keyboard=True)
+buttons.row(b1).row(b3)
 
-        is_ready = 0
-        await state.update_data(is_ready=is_ready)
-        await message.answer(f"❗️ *Wait for wallet processing*", parse_mode=types.ParseMode.MARKDOWN,
-                             reply_markup=buttons)
+is_ready = 0
+await state.update_data(is_ready=is_ready)
+await message.answer(f"❗️ *Wait for wallet processing*", parse_mode=types.ParseMode.MARKDOWN,
+                     reply_markup=buttons)

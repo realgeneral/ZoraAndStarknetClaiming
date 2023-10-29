@@ -31,10 +31,10 @@ class Randomiser:
         return random.randint(90, 120)
     @staticmethod
     def random_contract():
-        return random.randint(100, 120)
+        return random.randint(5, 10)
     @staticmethod
     def random_contract_after():
-        return random.randint(90, 120)
+        return random.randint(5, 10)
     @staticmethod
     def random_warm_up():
         return random.randint(5, 10)
