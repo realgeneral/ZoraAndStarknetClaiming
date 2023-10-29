@@ -326,8 +326,8 @@ async def private_keys(message: types.Message, state: FSMContext):
 
 @dp.callback_query_handler(lambda query: query.data.startswith('earn'), state=UserFollowing.choose_route)
 async def choose_route(callback_query: types.CallbackQuery, state: FSMContext):
-    current_network = int(callback_query.data.split('_')[1])
-    run_type = int(callback_query.data.split('_')[2])
+    current_network = callback_query.data.split('_')[1]
+    run_type = callback_query.data.split('_')[2]
 
     chat_id = callback_query.message.chat.id
     message_id = callback_query.message.message_id
