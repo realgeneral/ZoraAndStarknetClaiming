@@ -237,7 +237,7 @@ async def warm_up_mint3(minter):
 
 
 async def warm_up_mint4(minter):
-    return await minter.mintfun("0xDC4D755DD6b31b20977a56dBFBDD5ABB2d5E734A", nft_name="SpiderMan in Vintage Vibe")
+    return await minter.mintfun("0xD425b16d3eF1a1ec0AB9b3f6CBeFD5Fe6BE42259", nft_name="Yassin Art on Zora")
 
 
 @dp.message_handler(Text(equals="🐳 LFG!"), state=UserFollowing.tap_to_earn)
