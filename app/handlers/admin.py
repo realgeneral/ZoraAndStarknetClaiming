@@ -11,6 +11,7 @@ from app.create_bot import dp, bot
 from app.states import AdminMode
 from app.handlers.start_cmd import user_db
 from app.handlers.deposit_balance import payment_session
+from app.logs import logging
 
 _one_wallet_run_price = 5
 
@@ -23,8 +24,8 @@ def set_one_wallet_run_price(value):
     global _one_wallet_run_price
     _one_wallet_run_price = value
 
-
-@dp.message_handler(Text(equals=["⬅ Go to admin menu"]), state=AdminMode.admin_menu)
+admin_states = [AdminMode.admin_menu, AdminMode.send_alert]
+@dp.message_handler(text=["⬅ Go to admin menu"], state=[AdminMode.admin_menu, AdminMode.send_alert])
 async def go_admin_menu(message: types.Message):
     await send_admin_menu(message)
 
@@ -36,6 +37,7 @@ async def send_admin_menu(message: types.Message):
         message_response = "# *ADMIN MODE* \n"
 
         b1 = KeyboardButton("Increase max. wallets count")
+        b9 = KeyboardButton("🔔 Send alert to all users")
         b2 = KeyboardButton("User list")
         b3 = KeyboardButton("Today logs")
         b4 = KeyboardButton("Users statistic")
@@ -45,7 +47,7 @@ async def send_admin_menu(message: types.Message):
         b5 = KeyboardButton("⬅ Go to menu")
 
         buttons = ReplyKeyboardMarkup(resize_keyboard=True)
-        buttons.row(b1).row(b2, b4).row(b6, b3).row(b7, b8).row(b5)
+        buttons.row(b1, b9).row(b2, b4).row(b6, b3).row(b7, b8).row(b5)
 
         await AdminMode.admin_menu.set()
         await message.answer(message_response, parse_mode=types.ParseMode.MARKDOWN, reply_markup=buttons)
@@ -275,3 +277,48 @@ async def user_list_handler(message: types.Message):
 
     await message.answer(user_list_text, parse_mode=types.ParseMode.MARKDOWN)
 
+# ================================================= Сonfig settings ================================================
+
+
+@dp.message_handler(Text(equals="🔔 Send alert to all users"), state=AdminMode.admin_menu)
+async def send_new_price(message: types.Message):
+    message_response = ("⚠️ *WARNING* ⚠️ \n\n"
+                        "*IF* u got here by accident, then _click the button below_\n"
+                        "*ELSE* _send a message that all users will see_.")
+
+    buttons = [
+        KeyboardButton(text="⬅ Go to admin menu"),
+    ]
+    reply_markup = ReplyKeyboardMarkup(keyboard=[buttons], resize_keyboard=True)
+
+    await AdminMode.send_alert.set()
+    await message.answer(message_response, reply_markup=reply_markup, parse_mode=types.ParseMode.MARKDOWN)
+
+# ======================================== SEND ALERT ===========================================================
+@dp.message_handler(state=AdminMode.send_alert)
+async def send_alert(message: types.Message):
+    all_users = user_db.get_all_users()
+    final_statistic = {"successful": 0, "unsuccessful": 0}
+
+    for user_id in all_users:
+        try:
+            await bot.send_message(int(user_id[0]), text=message.text)
+            final_statistic["successful"] = final_statistic["successful"] + 1
+        except Exception as err_:
+            final_statistic["unsuccessful"] = final_statistic["unsuccessful"] + 1
+            logging.error(f"Error sending alert {err_}")
+
+    message_response = f"*USERS COUNT:* {len(all_users)} \n\n"
+    message_response += f"{final_statistic['successful']} successful messages sent \n"
+    message_response += f"{final_statistic['unsuccessful']} unsuccessful messages sent \n"
+
+    buttons = [
+        KeyboardButton(text="⬅ Go to admin menu"),
+    ]
+    reply_markup = ReplyKeyboardMarkup(keyboard=[buttons], resize_keyboard=True)
+
+    await AdminMode.admin_menu.set()
+    await message.answer(message_response, reply_markup=reply_markup, parse_mode=types.ParseMode.MARKDOWN)
+
+
+# ===============================================================================================================
