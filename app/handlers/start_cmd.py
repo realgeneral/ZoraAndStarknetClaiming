@@ -15,12 +15,15 @@ from app.utils.Bridger import Bridger
 from app.utils.Estimate import Estimate
 from app.utils.UsersDb import Users
 from app.utils.stark_utils.Client import ClientHelper
+from app.utils.ServicePrices import ServicePrices
+from app.utils.stark_utils.Client import ClientHelper
+from app.logs.log import logging
 
 CHANNEL_ID = -1001984019900
 NOTSUB_MESSAGE = "Looks like you're not subscribed yet! 🙁 Subscribe now to access all the features"
 
 user_db = Users()
-
+prices = ServicePrices(warm_up_zora=2.0, main_zora=5.0, warm_up_stark=2.0, medium_stark=4.0, premium_stark=5.0)
 
 @dp.message_handler(commands=['start'])
 async def start_cmd(message: types.Message):
@@ -262,7 +265,6 @@ async def private_keys(message: types.Message, state: FSMContext):
                         count_ok_wallet += 1
                         print("eth_balance >= eth_required")
                     else:
-                        print("eth_balance < eth_required")
                         count_ok_wallet += 1
                         message_response += " ❌\n"
                 elif eth_balance == "-":
@@ -305,7 +307,7 @@ async def private_keys(message: types.Message, state: FSMContext):
 
         if current_network == 'stark':
             keyboard = InlineKeyboardMarkup()
-            btn_test = InlineKeyboardButton("TEST", callback_data="earn_stark_test", )
+            btn_test = InlineKeyboardButton("WARMING UP", callback_data="earn_stark_test", )
             btn_medium = InlineKeyboardButton("MEDIUM", callback_data="earn_stark_medium")
             # btn_hard = InlineKeyboardButton("HARD", callback_data="earn_stark_hard")
 
@@ -339,15 +341,38 @@ async def choose_route(callback_query: types.CallbackQuery, state: FSMContext):
                                     text=f"You have chosen {run_type} in {current_network}")
 
     is_free_run = user_db.is_free_run(callback_query.from_user.id)  # 1 == free
+    price_of_run = 0
+    callback_query.message.from_user.id = callback_query.from_user.id
+
+    data = await state.get_data()
+    private_keys = list(data.get("private_keys"))
 
     if current_network == "zora":
         if run_type == "main":
+            price_of_run = prices.main_zora
+
             await state.update_data(is_main_zora=1)
             await state.update_data(is_warm_zora=0)
         elif run_type == "warm":
+            price_of_run = prices.warm_up_zora
+
             await state.update_data(is_warm_zora=1)
             await state.update_data(is_main_zora=0)
 
+        if is_free_run == 0:
+            balance_in_bot = user_db.get_current_balance(callback_query.from_user.id)
+
+            if balance_in_bot < (len(private_keys) * price_of_run):
+                reply_message = f"*Your balance* {balance_in_bot}$ is less than required " \
+                                 f"({len(private_keys)} x {price_of_run}$ = {(len(private_keys) * price_of_run)}$) \n"
+
+                b1 = KeyboardButton("⬅ Go to menu")
+
+                buttons = ReplyKeyboardMarkup(resize_keyboard=True)
+                buttons.row(b1)
+                await bot.send_message(callback_query.from_user.id, reply_message, parse_mode=types.ParseMode.MARKDOWN,
+                                       reply_markup=buttons)
+                return
 
         await state.update_data(is_ready=0)
         await state.update_data(stop_flag=False)
@@ -359,24 +384,47 @@ async def choose_route(callback_query: types.CallbackQuery, state: FSMContext):
         return
 
     elif current_network == "stark":
-        if run_type == "test":
-            await state.update_data(is_test_stark=1)
-            await state.update_data(is_medium_stark=0)
-            await state.update_data(is_hard_stark=0)
-        elif run_type == "medium":
-            await state.update_data(is_medium_stark=1)
-            await state.update_data(is_test_stark=0)
-            await state.update_data(is_hard_stark=0)
-        elif run_type == "hard":
-            await state.update_data(is_hard_stark=1)
-            await state.update_data(is_medium_stark=0)
-            await state.update_data(is_test_stark=0)
+        try:
+            if run_type == "test":
+                price_of_run = prices.warm_up_stark
+                await state.update_data(is_test_stark=1)
+                await state.update_data(is_medium_stark=0)
+                await state.update_data(is_hard_stark=0)
+            elif run_type == "medium":
+                price_of_run = prices.medium_stark
 
-        await state.update_data(is_ready=0)
-        await state.update_data(stop_flag=False)
+                await state.update_data(is_medium_stark=1)
+                await state.update_data(is_test_stark=0)
+                await state.update_data(is_hard_stark=0)
+            elif run_type == "hard":
+                price_of_run = prices.hard_stark
 
-        from app.handlers.stark_autopilot import start_earn_stark
+                await state.update_data(is_hard_stark=1)
+                await state.update_data(is_medium_stark=0)
+                await state.update_data(is_test_stark=0)
 
-        await UserFollowing.tap_to_earn_stark.set()
-        await start_earn_stark(callback_query.message, state)
-        return
+            if is_free_run == 0:
+                balance_in_bot = user_db.get_current_balance(callback_query.from_user.id)
+                if balance_in_bot < (len(private_keys) * price_of_run):
+                    reply_message = f"*Your balance* {balance_in_bot}$ is less than required " \
+                                     f"({len(private_keys)} x {price_of_run}$ = {(len(private_keys) * price_of_run)}$) \n"
+
+                    b1 = KeyboardButton("⬅ Go to menu")
+
+                    buttons = ReplyKeyboardMarkup(resize_keyboard=True)
+                    buttons.row(b1)
+                    await bot.send_message(callback_query.from_user.id, reply_message, parse_mode=types.ParseMode.MARKDOWN,
+                                            reply_markup=buttons)
+                    return
+
+            await state.update_data(is_ready=0)
+            await state.update_data(stop_flag=False)
+
+            from app.handlers.stark_autopilot import start_earn_stark
+
+            await UserFollowing.tap_to_earn_stark.set()
+            await start_earn_stark(callback_query.message, state)
+            return
+        except Exception as e:
+            print(e)
+            logging.error(e)

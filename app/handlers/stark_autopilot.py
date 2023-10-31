@@ -8,7 +8,7 @@ from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemo
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher import FSMContext
 
-from app.handlers.start_cmd import user_db
+from app.handlers.start_cmd import user_db, prices
 from app.create_bot import dp, bot
 from app.states import UserFollowing
 
@@ -146,24 +146,6 @@ async def tap_to_earn_stark(message: types.Message, state: FSMContext):
     data = await state.get_data()
     private_keys = list(data.get("private_keys"))
 
-    balance_in_bot = user_db.get_current_balance(message.from_user.id)
-    is_free_run = user_db.is_free_run(message.from_user.id)  # 1 == free
-
-    one_wallet_run_price = get_one_wallet_run_price()
-    print(f"one_wallet_run_price stark - {one_wallet_run_price}")
-
-    if balance_in_bot < (len(private_keys) * one_wallet_run_price) and is_free_run == 0:
-        reply_message += f"*Your balance* {balance_in_bot}$ is less than required " \
-                         f"({len(private_keys)} x {one_wallet_run_price} = {(len(private_keys) * one_wallet_run_price)}$) \n"
-
-        b1 = KeyboardButton("⬅ Go to menu")
-
-        buttons = ReplyKeyboardMarkup(resize_keyboard=True)
-        buttons.row(b1)
-        await message.answer(reply_message, parse_mode=types.ParseMode.MARKDOWN,
-                             reply_markup=buttons)
-        return
-
     if len(private_keys) == 1:
         edit_message = "Waiting for refilling of the wallet...."
     else:
@@ -190,8 +172,6 @@ async def tap_to_earn_stark(message: types.Message, state: FSMContext):
     total_time = "45"
     reply_message += f"🕔 <b>Total time</b> ~ {total_time} mins *\n\n" \
                      f"<i>* We stretch out time to imitate how humans act</i>\n\n"
-
-
 
     await bot.edit_message_text(chat_id=wait_message.chat.id,
                                 message_id=wait_message.message_id,
@@ -309,19 +289,32 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
                 is_medium_stark = data.get("is_medium_stark")
                 is_hard_stark = data.get("is_hard_stark")
 
+                is_free_run = user_db.is_free_run(message.from_user.id)  # 1 == free
+                price_of_run = 0
+
                 TASKS=[]
 
                 if is_test_stark == 1:
+                    price_of_run = prices.warm_up_stark
+
                     TP = TaskPrep(client=client, params=params, route=0)
                     TASKS = TP.get_tasks()
 
                 elif is_medium_stark == 1:
+                    price_of_run = prices.medium_stark
+
                     TP = TaskPrep(client=client, params=params, route=1)
                     TASKS = TP.get_tasks()
 
                 elif is_hard_stark == 1:
+                    price_of_run = prices.hard_stark
+
                     TP = TaskPrep(client=client, params=params, route=2)
                     TASKS = TP.get_tasks()
+
+
+                if is_free_run == 0:
+                    user_db.update_balance(message.from_user.id, -(len(private_keys) * price_of_run))
 
                 wallet_statistics = {task_name: "" for task_name, _ in TASKS}
 
@@ -339,11 +332,6 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
                                                  f"before starting script",
                                             parse_mode=types.ParseMode.MARKDOWN)
 
-                one_wallet_run_price = get_one_wallet_run_price()
-                is_free_run = user_db.is_free_run(message.from_user.id)  # 1 == free
-
-                if is_free_run == 0:
-                    user_db.update_balance(message.from_user.id, -(len(private_keys) * one_wallet_run_price))
 
                 await asyncio.sleep(start_delay)
                 TOTAL_SLEEP_TIME += start_delay

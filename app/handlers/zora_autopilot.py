@@ -8,7 +8,7 @@ from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemo
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher import FSMContext
 
-from app.handlers.start_cmd import user_db
+from app.handlers.start_cmd import user_db, prices
 from app.create_bot import dp, bot
 from app.states import UserFollowing
 from app.utils.Minter import Minter
@@ -24,8 +24,6 @@ from app.handlers.admin import get_one_wallet_run_price
 
 @dp.message_handler(Text(equals="💸 Start Zora script"), state=UserFollowing.choose_point)
 async def tap_to_earn(message: types.Message, state: FSMContext):
-    one_wallet_run_price = get_one_wallet_run_price()
-    print(f"one_wallet_run_price zora < {one_wallet_run_price} >")
 
     reply_message = ""
     count_ok_wallet = 0
@@ -36,21 +34,6 @@ async def tap_to_earn(message: types.Message, state: FSMContext):
     private_keys = list(data.get("private_keys"))
     bridge_amount = list(data.get("random_amount"))
     is_ready_to_start = data.get("is_ready_to_start")
-
-    balance_in_bot = user_db.get_current_balance(message.from_user.id)
-    is_free_run = user_db.is_free_run(message.from_user.id)  # 1 == free
-
-    if balance_in_bot < (len(private_keys) * one_wallet_run_price) and is_free_run == 0:
-        reply_message += f"*Your balance* {balance_in_bot}$ is less than required " \
-                         f"({len(private_keys)} x {one_wallet_run_price} = {(len(private_keys) * one_wallet_run_price)}$) \n"
-
-        b1 = KeyboardButton("⬅ Go to menu")
-
-        buttons = ReplyKeyboardMarkup(resize_keyboard=True)
-        buttons.row(b1)
-        await message.answer(reply_message, parse_mode=types.ParseMode.MARKDOWN,
-                             reply_markup=buttons)
-        return
 
     if len(private_keys) == 1:
         edit_message = "Waiting for refilling of the wallet...."
@@ -247,27 +230,28 @@ async def start_earn(message: types.Message, state: FSMContext):
         is_ready = -1
         await state.update_data(is_ready=is_ready)
 
-        private_keys = list(data.get("private_keys"))
 
-        await state.update_data(stop_flag=False)
-
-        count_private_keys = len(private_keys)
 
         final_statistic = "\n📊 <b>Statistic</b> \n\n"
 
         wait_message = await message.answer("Starting *Zora* script ✈️...", parse_mode=types.ParseMode.MARKDOWN)
 
-        one_wallet_run_price = get_one_wallet_run_price()
-        is_free_run = user_db.is_free_run(message.from_user.id)  # 1 == free
-
-        if is_free_run == 0:
-            user_db.update_balance(message.from_user.id, -(len(private_keys) * one_wallet_run_price))
-
-        minters_obj = [Minter(private_key) for private_key in private_keys]
-
         data = await state.get_data()
         is_main_zora = data.get("is_main_zora")
         is_warm_zora = data.get("is_warm_zora")
+
+        is_free_run = user_db.is_free_run(message.from_user.id)  # 1 == free
+        price_of_run = 0
+
+        if is_main_zora == 1:
+            price_of_run = prices.main_zora
+        elif is_warm_zora == 1:
+            price_of_run = prices.warm_zora
+
+        if is_free_run == 0:
+            user_db.update_balance(message.from_user.id, -(len(private_keys) * price_of_run))
+
+        minters_obj = [Minter(private_key) for private_key in private_keys]
 
         if is_main_zora == 1:
             ########################################### BRIDGE  ###########################################
