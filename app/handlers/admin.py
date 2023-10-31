@@ -2,6 +2,7 @@ import asyncio
 import csv
 import datetime
 import os
+import re
 
 from aiogram import types
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
@@ -9,7 +10,7 @@ from aiogram.dispatcher.filters import Text
 
 from app.create_bot import dp, bot
 from app.states import AdminMode
-from app.handlers.start_cmd import user_db
+from app.handlers.start_cmd import user_db, prices
 from app.handlers.deposit_balance import payment_session
 
 _one_wallet_run_price = 5
@@ -39,7 +40,7 @@ async def send_admin_menu(message: types.Message):
         b2 = KeyboardButton("User list")
         b3 = KeyboardButton("Today logs")
         b4 = KeyboardButton("Users statistic")
-        b7 = KeyboardButton("Сonfig settings")
+        b7 = KeyboardButton("PRICE settings")
         b8 = KeyboardButton("🔐 DATA DUMP")
         b6 = KeyboardButton("Give money")
         b5 = KeyboardButton("⬅ Go to menu")
@@ -84,55 +85,69 @@ async def send_data_dump(message: types.Message):
         await bot.delete_message(chat_id=message.chat.id, message_id=sent_message.message_id)
 
 
-@dp.message_handler(state=AdminMode.set_new_price)
-async def save_new_price(message: types.Message):
-
-    try:
-        set_one_wallet_run_price(int(message.text))
-        message_response = f"*[SUCCESS]:* New one wallet price: _{int(message.text)}_"
-    except Exception as err_:
-        message_response = f"*[ERROR]:* {err_}"
-
-    buttons = [
-        KeyboardButton(text="⬅ Go to admin menu"),
-    ]
-    reply_markup = ReplyKeyboardMarkup(keyboard=[buttons], resize_keyboard=True)
-
-    print(f"one_wallet_run_price admin - {_one_wallet_run_price}")
-    await AdminMode.admin_menu.set()
-    await message.answer(message_response, reply_markup=reply_markup, parse_mode=types.ParseMode.MARKDOWN)
-
-
 # ===============================================================================================================
 
 # ================================================= Сonfig settings ================================================
 
 
-@dp.message_handler(Text(equals="Сonfig settings"), state=AdminMode.admin_menu)
+@dp.message_handler(Text(equals="PRICE settings"), state=AdminMode.admin_menu)
 async def send_new_price(message: types.Message):
-    message_response = "Submit a new price for one wallet run"
+    message_response = ("*Submit a new price for wallet run.* _In format_ \n\n"
+                        "`warm_up_zora:10\n"
+                        "main_zora:20\n"
+                        "warm_up_stark:30\n"
+                        "medium_stark:30\n"
+                        "premium_stark:40`\n")
 
     await AdminMode.set_new_price.set()
-    await message.answer(message_response, reply_markup=ReplyKeyboardRemove())
+    await message.answer(message_response, reply_markup=ReplyKeyboardRemove(), parse_mode=types.ParseMode.MARKDOWN)
 
 
 @dp.message_handler(state=AdminMode.set_new_price)
 async def save_new_price(message: types.Message):
-
     try:
-        set_one_wallet_run_price(int(message.text))
-        message_response = f"*[SUCCESS]:* New one wallet price: _{int(message.text)}_"
+        raw_message = message.text
+
+        lines = raw_message.split('\n')
+        for line in lines:
+            line = line.strip()
+
+            if not line:
+                continue
+
+            match = re.match(r'(\w+):(\d+)', line)
+            if not match:
+                raise ValueError(f"Неверный формат строки: '{line}'")
+
+            service, price = match.groups()
+            if not hasattr(prices, service):
+                raise ValueError(f"Неизвестная услуга: '{service}'")
+
+            setattr(prices, service, float(price))
+
+        updated_prices = (
+            f"warm_up_zora: {prices.warm_up_zora}\n"
+            f"main_zora: {prices.main_zora}\n"
+            f"warm_up_stark: {prices.warm_up_stark}\n"
+            f"medium_stark: {prices.medium_stark}\n"
+            f"premium_stark: {prices.premium_stark}"
+        )
+
+        message_response = f"*[SUCCESS]:* \n\nUpdated Prices:\n {updated_prices}"
     except Exception as err_:
         message_response = f"*[ERROR]:* {err_}"
+        logger.error(err_)
 
     buttons = [
         KeyboardButton(text="⬅ Go to admin menu"),
     ]
+
     reply_markup = ReplyKeyboardMarkup(keyboard=[buttons], resize_keyboard=True)
 
-    print(f"one_wallet_run_price admin - {_one_wallet_run_price}")
     await AdminMode.admin_menu.set()
-    await message.answer(message_response, reply_markup=reply_markup, parse_mode=types.ParseMode.MARKDOWN)
+    await message.answer(message_response, reply_markup=reply_markup)
+
+
 
 
 # ===============================================================================================================
@@ -143,7 +158,7 @@ async def save_new_price(message: types.Message):
 
 @dp.message_handler(Text(equals="Give money"), state=AdminMode.admin_menu)
 async def send_money_to_user(message: types.Message):
-    print(f"one_wallet_run_price admin - {_one_wallet_run_price}")
+
     message_response = "Send user telegram_id:adding_usd"
 
     await AdminMode.add_money.set()
@@ -224,7 +239,6 @@ async def get_today_logs(message: types.Message):
     if mess_len >= 4000:
         reply_message = reply_message[-4000:]
     else:
-        print(mess_len)
         reply_message = reply_message[-(mess_len):]
 
     await message.answer(reply_message)
