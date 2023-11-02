@@ -3,11 +3,12 @@ import random
 from dataclasses import dataclass
 
 from aiogram import types
-from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
+from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardButton, \
+    InlineKeyboardMarkup, CallbackQuery, InputFile
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher import FSMContext
 
-from app.handlers.start_cmd import user_db
+from app.handlers.start_cmd import user_db, prices
 from app.create_bot import dp, bot
 from app.states import UserFollowing
 
@@ -21,6 +22,7 @@ from app.utils.defi.TenkSwap import TenkSwap
 from app.utils.mint.StarkMinter import Minter as Stark_Minter
 from app.utils.stark_utils.Client import Client
 from app.handlers.admin import get_one_wallet_run_price
+from app.utils.InfoMessage import InfoMessage
 
 
 
@@ -55,30 +57,95 @@ class RunningParams:
     # DMAIL_MESSAGES_COUNT: int = 2
 
 
+class TaskPrep:
+    def __init__(self, client, route: int, params):
+        self.JediSwap_client = JediSwap(client=client, JEDISWAP_SWAP_PERCENTAGE=params.JEDISWAP_SWAP_PERCENTAGE,
+                                   JEDISWAP_LIQ_PERCENTAGE=params.JEDISWAP_LIQ_PERCENTAGE,
+                                   SLIPPAGE=params.SWAP_SLIPPAGE)
+        self.AvnuFi_client = AvnuFi(client=client, AVNUFI_SWAP_PERCENTAGE=params.AVNUFI_SWAP_PERCENTAGE,
+                               SLIPPAGE=params.SWAP_SLIPPAGE)
+        self.TenkSwap_client = TenkSwap(client=client, TENK_SWAP_PERCENTAGE=params.TENK_SWAP_PERCENTAGE,
+                                   SLIPPAGE=params.SWAP_SLIPPAGE)
+        self.Minter_client = Stark_Minter(client=client)
+        self.Dmail_client = Dmail(client=client)
+        self.route = route
+
+    def get_tasks(self):
+        TASKS = []
+        if self.route == 0:
+                #TASKS.append((f"JediSwap Swap", self.JediSwap_client.swap))
+
+                #TASKS.append((f"AvnuFi Swap", self.AvnuFi_client.swap))
+
+                #TASKS.append((f"10kSwap Swap", self.TenkSwap_client.swap))
+
+                TASKS.append((f"StarkVerseNFT Minting", self.Minter_client.mintStarkVerse))
+
+                #TASKS.append((f"StarkNetIDNFT Minting", self.Minter_client.mintStarknetIdNFT))
+
+                #TASKS.append((f"Dmail message", self.Dmail_client.send_message))
+
+                random.shuffle(TASKS)
+
+                #TASKS.append(("JediSwap Liquidity Adding", JediSwap_client.add_liquidity))
+
+        elif self.route == 1:
+
+            for i in range(2):
+                TASKS.append((f"JediSwap Swap {i + 1}", JediSwap_client.swap))
+
+            for i in range(2):
+                TASKS.append((f"AvnuFi Swap {i + 1}", AvnuFi_client.swap))
+
+            for i in range(2):
+                TASKS.append((f"10kSwap Swap {i + 1}", TenkSwap_client.swap))
+
+            for i in range(2):
+                TASKS.append((f"StarkVerseNFT Minting {i + 1}", Minter_client.mintStarkVerse))
+
+            for i in range(2):
+                TASKS.append((f"StarkNetIDNFT Minting {i + 1}", Minter_client.mintStarknetIdNFT))
+
+            for i in range(3):
+                TASKS.append((f"Dmail message {i + 1}", Dmail_client.send_message))
+
+            random.shuffle(TASKS)
+
+            #TASKS.append(("JediSwap Liquidity Adding", JediSwap_client.add_liquidity))
+
+        elif self.route == 2:
+
+            for i in range(3):
+                TASKS.append((f"JediSwap Swap {i + 1}", JediSwap_client.swap))
+
+            for i in range(3):
+                TASKS.append((f"AvnuFi Swap {i + 1}", AvnuFi_client.swap))
+
+            for i in range(2):
+                TASKS.append((f"10kSwap Swap {i + 1}", TenkSwap_client.swap))
+
+            for i in range(4):
+                TASKS.append((f"StarkVerseNFT Minting {i + 1}", Minter_client.mintStarkVerse))
+
+            for i in range(3):
+                TASKS.append((f"StarkNetIDNFT Minting {i + 1}", Minter_client.mintStarknetIdNFT))
+
+            for i in range(8):
+                TASKS.append((f"Dmail message {i + 1}", Dmail_client.send_message))
+
+            random.shuffle(TASKS)
+
+            TASKS.append(("JediSwap Liquidity Adding", JediSwap_client.add_liquidity))
+
+        return TASKS
+
+
 @dp.message_handler(Text(equals="💸 Start Starknet script"), state=UserFollowing.choose_point)
 async def tap_to_earn_stark(message: types.Message, state: FSMContext):
     reply_message = ""
 
     data = await state.get_data()
     private_keys = list(data.get("private_keys"))
-
-    balance_in_bot = user_db.get_current_balance(message.from_user.id)
-    is_free_run = user_db.is_free_run(message.from_user.id)  # 1 == free
-
-    one_wallet_run_price = get_one_wallet_run_price()
-    print(f"one_wallet_run_price stark - {one_wallet_run_price}")
-
-    if balance_in_bot < (len(private_keys) * one_wallet_run_price) and is_free_run == 0:
-        reply_message += f"*Your balance* {balance_in_bot}$ is less than required " \
-                         f"({len(private_keys)} x {one_wallet_run_price} = {(len(private_keys) * one_wallet_run_price)}$) \n"
-
-        b1 = KeyboardButton("⬅ Go to menu")
-
-        buttons = ReplyKeyboardMarkup(resize_keyboard=True)
-        buttons.row(b1)
-        await message.answer(reply_message, parse_mode=types.ParseMode.MARKDOWN,
-                             reply_markup=buttons)
-        return
 
     if len(private_keys) == 1:
         edit_message = "Waiting for refilling of the wallet...."
@@ -92,41 +159,34 @@ async def tap_to_earn_stark(message: types.Message, state: FSMContext):
                                 text=f"⏳ Preparing information about the script ... 0% ...")
     len_pk = len(private_keys)
 
-    reply_message += f"\n📍 Total сount of wallets: <b>{len_pk}</b>\n\n"
-    reply_message += f"<b>🎡 Starknet script includes: </b>\n\n" \
-                     f"<b>Interaction with dexes: </b>\n\n" \
-                     "       🔸 <i>JediSwap ( Swaps; Liquidity Adding)</i>\n" \
-                     "       🔸 <i>AvnuFi (Swaps)</i>\n" \
-                     "       🔸 <i>10K Swap (Swaps)</i>\n" \
-                     "       🔸 <i>Dmail (Message sender)</i>\n\n" \
-                     f"<b>NFT mint : </b>\n\n" \
-                     "       🔸 <i>StarkNetID NFT</i>\n" \
-                     "       🔸 <i>StarkVerse NFT</i>\n\n" \
-
-    total_time = "45"
-    reply_message += f"🕔 <b>Total time</b> ~ {total_time} mins *\n\n" \
-                     f"<i>* We stretch out time to imitate how humans act</i>\n\n"
-
+    reply_message = InfoMessage.info_route_stark
 
     await bot.edit_message_text(chat_id=wait_message.chat.id,
                                 message_id=wait_message.message_id,
                                 text=f"⏳ Preparing information about the script ... 100% ...")
 
-    b1 = KeyboardButton("🐳 LFG!")
+    # b1 = KeyboardButton("🐳 LFG!")
     # b2 = KeyboardButton("⛔️ Stop ⛔️")
     b3 = KeyboardButton("⬅ Go to menu")
 
     buttons = ReplyKeyboardMarkup(resize_keyboard=True)
-    buttons.row(b1).row(b3)
+    buttons.row(b3)
 
-    await state.update_data(is_ready=0)
-    await state.update_data(stop_flag=False)
-    await UserFollowing.tap_to_earn_stark.set()
+    keyboard = InlineKeyboardMarkup()
+    btn_test = InlineKeyboardButton("WARM UP", callback_data="earn_stark_test", )
+    btn_medium = InlineKeyboardButton("MEDIUM", callback_data="earn_stark_medium")
+    # btn_hard = InlineKeyboardButton("HARD", callback_data="earn_stark_hard")
 
+    keyboard.add(btn_test).add(btn_medium)
+
+    await UserFollowing.choose_route.set()
     await bot.delete_message(chat_id=wait_message.chat.id,
                              message_id=wait_message.message_id)
     await message.answer(reply_message, parse_mode=types.ParseMode.HTML,
                          reply_markup=buttons)
+    await message.answer("<b>🎡 Change the route to run: </b>",
+                         parse_mode=types.ParseMode.HTML,
+                         reply_markup=keyboard)
 
 
 @dp.message_handler(Text(equals="⛔️ Stop ⛔️"), state=UserFollowing.tap_to_earn_stark)
@@ -212,41 +272,37 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
                 if user_data.get("stop_flag"):
                     return
 
-                TASKS = []
+                data = await state.get_data()
+                is_test_stark = data.get("is_test_stark")
+                is_medium_stark = data.get("is_medium_stark")
+                is_hard_stark = data.get("is_hard_stark")
 
-                JediSwap_client = JediSwap(client=client, JEDISWAP_SWAP_PERCENTAGE=params.JEDISWAP_SWAP_PERCENTAGE,
-                                           JEDISWAP_LIQ_PERCENTAGE=params.JEDISWAP_LIQ_PERCENTAGE,
-                                           SLIPPAGE=params.SWAP_SLIPPAGE)
-                AvnuFi_client = AvnuFi(client=client, AVNUFI_SWAP_PERCENTAGE=params.AVNUFI_SWAP_PERCENTAGE,
-                                       SLIPPAGE=params.SWAP_SLIPPAGE)
-                TenkSwap_client = TenkSwap(client=client, TENK_SWAP_PERCENTAGE=params.TENK_SWAP_PERCENTAGE,
-                                           SLIPPAGE=params.SWAP_SLIPPAGE)
-                Minter_client = Stark_Minter(client=client)
+                is_free_run = user_db.is_free_run(message.from_user.id)  # 1 == free
+                price_of_run = 0
 
-                Dmail_client = Dmail(client=client)
+                TASKS=[]
 
-                for i in range(params.JEDISWAP_SWAP_COUNT):
-                    TASKS.append((f"JediSwap Swap {i + 1}", JediSwap_client.swap))
+                if is_test_stark == 1:
+                    price_of_run = prices.warm_up_stark
 
-                for i in range(params.AVNUFI_SWAP_COUNT):
-                    TASKS.append((f"AvnuFi Swap {i + 1}", AvnuFi_client.swap))
+                    TP = TaskPrep(client=client, params=params, route=0)
+                    TASKS = TP.get_tasks()
 
-                for i in range(params.TENKSWAP_SWAP_COUNT):
-                    TASKS.append((f"10kSwap Swap {i + 1}", TenkSwap_client.swap))
+                elif is_medium_stark == 1:
+                    price_of_run = prices.medium_stark
 
-                for i in range(params.STARKVERSE_NFT_MINT_COUNT):
-                    TASKS.append((f"StarkVerseNFT Minting {i + 1}", Minter_client.mintStarkVerse))
+                    TP = TaskPrep(client=client, params=params, route=1)
+                    TASKS = TP.get_tasks()
 
-                for i in range(params.STARKNETID_NFT_MINT_COUNT):
-                    TASKS.append((f"StarkNetIDNFT Minting {i + 1}", Minter_client.mintStarknetIdNFT))
+                elif is_hard_stark == 1:
+                    price_of_run = prices.hard_stark
 
-                for i in range(params.DMAIL_MESSAGES_COUNT):
-                    TASKS.append((f"Dmail message {i + 1}", Dmail_client.send_message))
+                    TP = TaskPrep(client=client, params=params, route=2)
+                    TASKS = TP.get_tasks()
 
-                random.shuffle(TASKS)
 
-                # Adding liq at the end
-                TASKS.append(("JediSwap Liquidity Adding", JediSwap_client.add_liquidity))
+                if is_free_run == 0:
+                    user_db.update_balance(message.from_user.id, -(len(private_keys) * price_of_run))
 
                 wallet_statistics = {task_name: "" for task_name, _ in TASKS}
 
@@ -264,11 +320,6 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
                                                  f"before starting script",
                                             parse_mode=types.ParseMode.MARKDOWN)
 
-                one_wallet_run_price = get_one_wallet_run_price()
-                is_free_run = user_db.is_free_run(message.from_user.id)  # 1 == free
-
-                if is_free_run == 0:
-                    user_db.update_balance(message.from_user.id, -(len(private_keys) * one_wallet_run_price))
 
                 await asyncio.sleep(start_delay)
                 TOTAL_SLEEP_TIME += start_delay

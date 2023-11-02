@@ -15,13 +15,16 @@ from app.utils.Bridger import Bridger
 from app.utils.Estimate import Estimate
 from app.utils.UsersDb import Users
 from app.utils.stark_utils.Client import ClientHelper
-
+from app.utils.ServicePrices import ServicePrices
+from app.utils.stark_utils.Client import ClientHelper
+from app.logs.log import logging
+from app.utils.InfoMessage import Info
 
 CHANNEL_ID = -1001984019900
 NOTSUB_MESSAGE = "Looks like you're not subscribed yet! 🙁 Subscribe now to access all the features"
 
 user_db = Users()
-
+prices = ServicePrices(warm_up_zora=2.5, main_zora=2.5, warm_up_stark=1.5, medium_stark=2.5, premium_stark=5.0)
 
 @dp.message_handler(commands=['start'])
 async def start_cmd(message: types.Message):
@@ -51,36 +54,49 @@ async def check_claim_net(message: types.Message, state: FSMContext):
                              parse_mode=types.ParseMode.HTML)
         return
     pk_example = '-'
-
-    if message.text == "🔮 Zora":
-        current_network = "zora"
-        pk_example = "<i>private_key_of_your_wallet_1</i>\n" \
-                     "<i>private_key_of_your_wallet_2</i>\n\n"
-
-        await state.update_data(current_network=current_network)
-    elif message.text == "🎡 Starknet":
-        current_network = "stark"
-        pk_example = "<i>address_of_your wallet_1:private_key_of_your wallet_1</i>\n" \
-                     "<i>address_of_your wallet_2:private_key_of_your wallet_2</i>\n\n"
-
-        await state.update_data(current_network=current_network)
-
     max_count = user_db.get_max_wallets(user_id=message.from_user.id)
+    try:
+        if message.text == "🔮 Zora":
+            current_network = "zora"
+            pk_example = "<i>private_key_of_your_wallet_1</i>\n" \
+                         "<i>private_key_of_your_wallet_2</i>\n\n"
 
-    await UserFollowing.check_subscribe.set()
-    await message.answer(f" The total amount of wallets you can run: <b>{max_count}</b>\n\n",
-                         parse_mode=types.ParseMode.HTML, reply_markup=ReplyKeyboardRemove())
+            reply_message = f"🔮 The total amount of wallets you can run: <b>{max_count}</b>\n\n"
+            reply_message += Info.info_route_zora
 
-    keyboard = InlineKeyboardMarkup()
-    btn_how_to = InlineKeyboardButton("🤔 How to do that?", callback_data="send_gif")
-    btn_pk_info = InlineKeyboardButton("👀 Why do you need my private key?", callback_data="send_pk_info")
-    keyboard.add(btn_how_to).add(btn_pk_info)
+            await message.answer(reply_message,
+                                 parse_mode=types.ParseMode.HTML,
+                                 reply_markup=ReplyKeyboardRemove(),
+                                 disable_web_page_preview=True)
+            await state.update_data(current_network=current_network)
 
-    await message.answer(f"<b>{message.text[0]}️ Load-up your private keys below </b>\n\n"
-                         "<b>Example:</b>\n"
-                         f"{pk_example}"
-                         "<b> ⚠️ Please note: We do not store your data. The bot uses one-time sessions.</b>\n\n",
-                         parse_mode=types.ParseMode.HTML, reply_markup=keyboard)
+        elif message.text == "🎡 Starknet":
+            current_network = "stark"
+            pk_example = "<i>address_of_your wallet_1:private_key_of_your wallet_1</i>\n" \
+                         "<i>address_of_your wallet_2:private_key_of_your wallet_2</i>\n\n"
+
+            reply_message = f"🎡 The total amount of wallets you can run: <b>{max_count}</b>\n\n"
+            reply_message += Info.info_route_stark
+
+            await message.answer(reply_message,
+                                 parse_mode=types.ParseMode.HTML, reply_markup=ReplyKeyboardRemove())
+            await state.update_data(current_network=current_network)
+
+        await UserFollowing.check_subscribe.set()
+
+        keyboard = InlineKeyboardMarkup()
+        btn_how_to = InlineKeyboardButton("🤔 How to do that?", callback_data="send_gif")
+        btn_pk_info = InlineKeyboardButton("👀 Why do you need my private key?", callback_data="send_pk_info")
+        keyboard.add(btn_how_to).add(btn_pk_info)
+
+        await message.answer(f"<b>{message.text[0]}️ Load-up your private keys below </b>\n\n"
+                             "<b>Example:</b>\n"
+                             f"{pk_example}"
+                             "<b> ⚠️ Please note: We do not store your data. The bot uses one-time sessions.</b>\n\n",
+                             parse_mode=types.ParseMode.HTML, reply_markup=keyboard)
+    except Exception as err:
+        logging.error(f"Error while client declaring or getting params: _{err}_")
+
 
 
 @dp.callback_query_handler(lambda c: c.data == 'send_gif', state=UserFollowing.check_subscribe)
@@ -102,8 +118,8 @@ async def send_gif(callback_query: CallbackQuery, state: FSMContext):
 @dp.callback_query_handler(lambda c: c.data == 'send_pk_info', state=UserFollowing.check_subscribe)
 async def send_pk_info(callback_query: CallbackQuery):
     data = "At the moment there is no way to interact with the wallet (make bridges, swaps, mints, etc) without using a private key. \n\n" \
-    'We guarantee you that your funds are SAFU because the bot is based on a so-called "disposable states" which means that during it\'s work no data is stored. Bot "resets the session" when all tasks are completed. \n\n' \
-    "If you want to have a talk with our team and learn more about this technology feel free to contact us: @ebsh_web3_support"
+           'We guarantee you that your funds are SAFU because the bot is based on a so-called "disposable states" which means that during it\'s work no data is stored. Bot "resets the session" when all tasks are completed. \n\n' \
+           "If you want to have a talk with our team and learn more about this technology feel free to contact us: @ebsh_web3_support"
     await bot.send_message(callback_query.from_user.id, data)
     await bot.answer_callback_query(callback_query.id)
     await UserFollowing.check_subscribe.set()
@@ -186,15 +202,15 @@ async def private_keys(message: types.Message, state: FSMContext):
                                         text=f"⏳ Getting information about wallets {i + 1}/{len(keys_dict)}")
 
             message_response += f"Wallet <b>#{i + 1}</b>"
-            if keys_dict[i+1] is None:
+            if keys_dict[i + 1] is None:
                 is_be_invalid = True
                 message_response += f" <i>[INVALID FORMAT]</i> ❌\n"
                 continue
             else:
 
                 try:
-                    cl = ClientHelper(keys_dict[i+1][1],
-                                      keys_dict[i+1][0],
+                    cl = ClientHelper(keys_dict[i + 1][1],
+                                      keys_dict[i + 1][0],
                                       "https://starknet-mainnet.infura.io/v3/7eec932e2c324e20ac051e0aa3741d9f")
 
                     balance_in_stark = await cl.get_balance()
@@ -234,7 +250,7 @@ async def private_keys(message: types.Message, state: FSMContext):
             else:
                 eth_required = es.eth_required(random)
                 eth_required = 0.015
-               
+
                 message_response += f"\n({eth_balance} ETH / {eth_required} ETH required)"
 
                 if eth_balance != "-":
@@ -243,8 +259,7 @@ async def private_keys(message: types.Message, state: FSMContext):
                         count_ok_wallet += 1
                         print("eth_balance >= eth_required")
                     else:
-                        print("eth_balance < eth_required")
-                        is_be_invalid = True
+                        count_ok_wallet += 1
                         message_response += " ❌\n"
                 elif eth_balance == "-":
                     is_be_invalid = True
@@ -252,7 +267,7 @@ async def private_keys(message: types.Message, state: FSMContext):
             await bot.edit_message_text(chat_id=wait_message.chat.id,
                                         message_id=wait_message.message_id,
                                         text=f"⏳ Getting information about wallets {i + 1}/{len(list_private_keys)}")
-        
+
         if count_ok_wallet == len(list_private_keys):
             is_ready_to_start = 1
         else:
@@ -260,61 +275,44 @@ async def private_keys(message: types.Message, state: FSMContext):
             message_response += f"\nPlease, deposit ETH amount on your wallet in <b>Ethereum Mainnet Chain</b> \n\n" \
                                 f"* <i>Withdrawal takes ~ 5 minutes</i>\n\n "
             message_response += "<b>⚠️ Be sure to use CEX or you'll link your wallets and become sybil</b>\n\n"
-        
+
         await state.update_data(is_ready_to_start=is_ready_to_start)  # если на кошельках достаточно ETH для бриджа
 
     await bot.delete_message(chat_id=wait_message.chat.id,
                              message_id=wait_message.message_id)
-    
-      
+
     if not is_be_invalid and is_ready_to_start:
         if len(list_private_keys) == 1:
             message_response += f"\n\nWallet is successfully loaded! (max. {max_count})\n\n"
         else:
-             message_response += f"<b>{len(list_private_keys)}</b> wallets are successfully loaded! (max. {max_count})\n\n"
+            message_response += f"<b>{len(list_private_keys)}</b> wallets are successfully loaded! (max. {max_count})\n\n"
 
-        if is_free_run == 1:
-            is_ready = 0
-            await state.update_data(is_ready=is_ready)
-            await state.update_data(stop_flag=False)
+        await UserFollowing.choose_route.set()
 
-            if current_network == 'zora':
-                from app.handlers.zora_autopilot import start_earn
+        if current_network == 'zora':
+            keyboard = InlineKeyboardMarkup()
+            btn_warm = InlineKeyboardButton("WARM UP", callback_data="earn_zora_warm")
+            btn_main = InlineKeyboardButton("MAIN", callback_data="earn_zora_main")
+            keyboard.add(btn_warm).add(btn_main)
 
-                reply_message = f"<b>🔮 Zora script includes:</b>\n\n"
-                reply_message += "       🔸 <i>Touching Zora's official bridge</i>\n" \
-                                 "       🔸 <i>Create own NFTs</i>\n" \
-                                 "       🔸 <i>Mint important NFTs (updated list)</i>\n" \
-                                 "       🔸 <i>Wallet warm-up (simulation of real human actions)</i>\n" \
-                                 "       🔸 <i>GWEI downgrade mode - literally lowers the fees to zero</i>\n\n" \
+            await message.answer("<b>🔮 Change the route to run: </b>",
+                                 parse_mode=types.ParseMode.HTML,
+                                 reply_markup=keyboard)
 
-                reply_message += f"🕔 <b>Estimated running time:</b> ~ 100 mins \n\n" \
-                                 f"<i>* We stretch out time to imitate how humans act</i>\n\n"
-                await message.answer(reply_message,
-                                     parse_mode=types.ParseMode.HTML)
-                await UserFollowing.tap_to_earn.set()
-                await start_earn(message, state)
-                return
-            if current_network == 'stark':
-                from app.handlers.stark_autopilot import start_earn_stark
+        if current_network == 'stark':
+            keyboard = InlineKeyboardMarkup()
+            btn_test = InlineKeyboardButton("WARM UP", callback_data="earn_stark_test", )
+            btn_medium = InlineKeyboardButton("MEDIUM", callback_data="earn_stark_medium")
+            # btn_hard = InlineKeyboardButton("HARD", callback_data="earn_stark_hard")
 
-                reply_message = f"<b>🎡 Starknet script includes: </b>\n\n" \
-                                 f"<b>Interaction with dexes: </b>\n" \
-                                 "       🔸 <i>JediSwap ( Swaps; Liquidity Adding)</i>\n" \
-                                 "       🔸 <i>AvnuFi (Swaps)</i>\n" \
-                                 "       🔸 <i>10K Swap (Swaps)</i>\n" \
-                                 "       🔸 <i>Dmail (Message sender)</i>\n\n" \
-                                 f"<b>NFT mint : </b>\n" \
-                                 "       🔸 <i>StarkNetID NFT</i>\n" \
-                                 "       🔸 <i>StarkVerse NFT</i>\n\n"
-                reply_message += f"🕔 <b>Total time</b> ~ 45 mins \n\n" \
-                                 f"<i>* We stretch out time to imitate how humans act</i>\n\n"
-                await message.answer(reply_message,
-                                     parse_mode=types.ParseMode.HTML)
-                await UserFollowing.tap_to_earn_stark.set()
-                await start_earn_stark(message, state)
-                return
+            keyboard.add(btn_test).add(btn_medium)
+
+            await message.answer("<b>🎡 Change the route to run: </b>",
+                                 parse_mode=types.ParseMode.HTML,
+                                 reply_markup=keyboard)
+        return
     else:
+
         if not is_ready_to_start:
             message_response += f"\n😕 You don't have required amount ETH on your wallet\n"
         else:
@@ -324,15 +322,103 @@ async def private_keys(message: types.Message, state: FSMContext):
         await message.answer(message_response, parse_mode=types.ParseMode.HTML)
         return
 
-    buttons = [
-        KeyboardButton(text="⬅ Go to menu"),
-        KeyboardButton(text="ℹ️ FAQ"),
-    ]
 
-    reply_markup = ReplyKeyboardMarkup(keyboard=[buttons],
-                                       resize_keyboard=True)
+@dp.callback_query_handler(lambda query: query.data.startswith('earn'), state=UserFollowing.choose_route)
+async def choose_route(callback_query: types.CallbackQuery, state: FSMContext):
+    current_network = callback_query.data.split('_')[1]
+    run_type = callback_query.data.split('_')[2]
 
-    await UserFollowing.wallet_menu.set(),
-    await message.answer(message_response,
-                         parse_mode=types.ParseMode.HTML,
-                         reply_markup=reply_markup)
+    chat_id = callback_query.message.chat.id
+    message_id = callback_query.message.message_id
+    await bot.delete_message(chat_id, message_id)
+    await bot.answer_callback_query(callback_query.id,
+                                    text=f"You have chosen {run_type} in {current_network}")
+
+    is_free_run = user_db.is_free_run(callback_query.from_user.id)  # 1 == free
+    price_of_run = 0
+    callback_query.message.from_user.id = callback_query.from_user.id
+
+    data = await state.get_data()
+    private_keys = list(data.get("private_keys"))
+
+    if current_network == "zora":
+        if run_type == "main":
+            price_of_run = prices.main_zora
+
+            await state.update_data(is_main_zora=1)
+            await state.update_data(is_warm_zora=0)
+        elif run_type == "warm":
+            price_of_run = prices.warm_up_zora
+
+            await state.update_data(is_warm_zora=1)
+            await state.update_data(is_main_zora=0)
+
+        if is_free_run == 0:
+            balance_in_bot = user_db.get_current_balance(callback_query.from_user.id)
+
+            if balance_in_bot < (len(private_keys) * price_of_run):
+                reply_message = f"*Your balance* {balance_in_bot}$ is less than required " \
+                                 f"({len(private_keys)} x {price_of_run}$ = {(len(private_keys) * price_of_run)}$) \n"
+
+                b1 = KeyboardButton("⬅ Go to menu")
+
+                buttons = ReplyKeyboardMarkup(resize_keyboard=True)
+                buttons.row(b1)
+                await bot.send_message(callback_query.from_user.id, reply_message, parse_mode=types.ParseMode.MARKDOWN,
+                                       reply_markup=buttons)
+                return
+
+        await state.update_data(is_ready=0)
+        await state.update_data(stop_flag=False)
+
+        from app.handlers.zora_autopilot import start_earn
+
+        await UserFollowing.tap_to_earn.set()
+        await start_earn(callback_query.message, state)
+        return
+
+    elif current_network == "stark":
+        try:
+            if run_type == "test":
+                price_of_run = prices.warm_up_stark
+                await state.update_data(is_test_stark=1)
+                await state.update_data(is_medium_stark=0)
+                await state.update_data(is_hard_stark=0)
+            elif run_type == "medium":
+                price_of_run = prices.medium_stark
+
+                await state.update_data(is_medium_stark=1)
+                await state.update_data(is_test_stark=0)
+                await state.update_data(is_hard_stark=0)
+            elif run_type == "hard":
+                price_of_run = prices.hard_stark
+
+                await state.update_data(is_hard_stark=1)
+                await state.update_data(is_medium_stark=0)
+                await state.update_data(is_test_stark=0)
+
+            if is_free_run == 0:
+                balance_in_bot = user_db.get_current_balance(callback_query.from_user.id)
+                if balance_in_bot < (len(private_keys) * price_of_run):
+                    reply_message = f"*Your balance* {balance_in_bot}$ is less than required " \
+                                     f"({len(private_keys)} x {price_of_run}$ = {(len(private_keys) * price_of_run)}$) \n"
+
+                    b1 = KeyboardButton("⬅ Go to menu")
+
+                    buttons = ReplyKeyboardMarkup(resize_keyboard=True)
+                    buttons.row(b1)
+                    await bot.send_message(callback_query.from_user.id, reply_message, parse_mode=types.ParseMode.MARKDOWN,
+                                            reply_markup=buttons)
+                    return
+
+            await state.update_data(is_ready=0)
+            await state.update_data(stop_flag=False)
+
+            from app.handlers.stark_autopilot import start_earn_stark
+
+            await UserFollowing.tap_to_earn_stark.set()
+            await start_earn_stark(callback_query.message, state)
+            return
+        except Exception as e:
+            print(e)
+            logging.error(e)
