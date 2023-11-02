@@ -302,7 +302,7 @@ async def send_alert(message: types.Message):
 
     for user_id in all_users:
         try:
-            await bot.send_message(int(user_id[0]), text=message.text)
+            await bot.send_message(int(user_id[0]), text=message.text, parse_mode=types.ParseMode.MARKDOWN)
             final_statistic["successful"] = final_statistic["successful"] + 1
         except Exception as err_:
             final_statistic["unsuccessful"] = final_statistic["unsuccessful"] + 1
