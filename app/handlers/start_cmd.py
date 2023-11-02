@@ -24,7 +24,7 @@ CHANNEL_ID = -1001984019900
 NOTSUB_MESSAGE = "Looks like you're not subscribed yet! 🙁 Subscribe now to access all the features"
 
 user_db = Users()
-prices = ServicePrices(warm_up_zora=2.0, main_zora=5.0, warm_up_stark=2.0, medium_stark=4.0, premium_stark=5.0)
+prices = ServicePrices(warm_up_zora=2.5, main_zora=2.5, warm_up_stark=1.5, medium_stark=2.5, premium_stark=5.0)
 
 @dp.message_handler(commands=['start'])
 async def start_cmd(message: types.Message):
@@ -62,15 +62,12 @@ async def check_claim_net(message: types.Message, state: FSMContext):
                          "<i>private_key_of_your_wallet_2</i>\n\n"
 
             reply_message = f"🔮 The total amount of wallets you can run: <b>{max_count}</b>\n\n"
-            reply_message += f"<b>🔮 Zora script includes:</b>\n\n"
-            reply_message += "       🔸 <i>Touching Zora's official bridge</i>\n" \
-                             "       🔸 <i>Create own NFTs</i>\n" \
-                             "       🔸 <i>Mint important NFTs (updated list)</i>\n" \
-                             "       🔸 <i>Wallet warm-up (simulation of real human actions)</i>\n" \
-                             "       🔸 <i>GWEI downgrade mode - literally lowers the fees to zero</i>\n\n"
+            reply_message += Info.info_route_zora
 
             await message.answer(reply_message,
-                                 parse_mode=types.ParseMode.HTML, reply_markup=ReplyKeyboardRemove())
+                                 parse_mode=types.ParseMode.HTML,
+                                 reply_markup=ReplyKeyboardRemove(),
+                                 disable_web_page_preview=True)
             await state.update_data(current_network=current_network)
 
         elif message.text == "🎡 Starknet":
