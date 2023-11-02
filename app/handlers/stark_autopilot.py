@@ -22,6 +22,7 @@ from app.utils.defi.TenkSwap import TenkSwap
 from app.utils.mint.StarkMinter import Minter as Stark_Minter
 from app.utils.stark_utils.Client import Client
 from app.handlers.admin import get_one_wallet_run_price
+from app.utils.InfoMessage import InfoMessage
 
 
 
@@ -158,20 +159,7 @@ async def tap_to_earn_stark(message: types.Message, state: FSMContext):
                                 text=f"⏳ Preparing information about the script ... 0% ...")
     len_pk = len(private_keys)
 
-    reply_message += f"\n📍 Total сount of wallets: <b>{len_pk}</b>\n\n"
-    reply_message += f"<b>🎡 Starknet script includes: </b>\n\n" \
-                     f"<b>Interaction with dexes: </b>\n\n" \
-                     "       🔸 <i>JediSwap ( Swaps; Liquidity Adding)</i>\n" \
-                     "       🔸 <i>AvnuFi (Swaps)</i>\n" \
-                     "       🔸 <i>10K Swap (Swaps)</i>\n" \
-                     "       🔸 <i>Dmail (Message sender)</i>\n\n" \
-                     f"<b>NFT mint : </b>\n\n" \
-                     "       🔸 <i>StarkNetID NFT</i>\n" \
-                     "       🔸 <i>StarkVerse NFT</i>\n\n" \
-
-    total_time = "45"
-    reply_message += f"🕔 <b>Total time</b> ~ {total_time} mins *\n\n" \
-                     f"<i>* We stretch out time to imitate how humans act</i>\n\n"
+    reply_message = InfoMessage.info_route_stark
 
     await bot.edit_message_text(chat_id=wait_message.chat.id,
                                 message_id=wait_message.message_id,
@@ -185,7 +173,7 @@ async def tap_to_earn_stark(message: types.Message, state: FSMContext):
     buttons.row(b3)
 
     keyboard = InlineKeyboardMarkup()
-    btn_test = InlineKeyboardButton("TEST", callback_data="earn_stark_test", )
+    btn_test = InlineKeyboardButton("WARM UP", callback_data="earn_stark_test", )
     btn_medium = InlineKeyboardButton("MEDIUM", callback_data="earn_stark_medium")
     # btn_hard = InlineKeyboardButton("HARD", callback_data="earn_stark_hard")
 

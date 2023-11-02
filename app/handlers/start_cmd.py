@@ -18,6 +18,7 @@ from app.utils.stark_utils.Client import ClientHelper
 from app.utils.ServicePrices import ServicePrices
 from app.utils.stark_utils.Client import ClientHelper
 from app.logs.log import logging
+from app.utils.InfoMessage import Info
 
 CHANNEL_ID = -1001984019900
 NOTSUB_MESSAGE = "Looks like you're not subscribed yet! 🙁 Subscribe now to access all the features"
@@ -54,55 +55,51 @@ async def check_claim_net(message: types.Message, state: FSMContext):
         return
     pk_example = '-'
     max_count = user_db.get_max_wallets(user_id=message.from_user.id)
+    try:
+        if message.text == "🔮 Zora":
+            current_network = "zora"
+            pk_example = "<i>private_key_of_your_wallet_1</i>\n" \
+                         "<i>private_key_of_your_wallet_2</i>\n\n"
 
-    if message.text == "🔮 Zora":
-        current_network = "zora"
-        pk_example = "<i>private_key_of_your_wallet_1</i>\n" \
-                     "<i>private_key_of_your_wallet_2</i>\n\n"
+            reply_message = f"🔮 The total amount of wallets you can run: <b>{max_count}</b>\n\n"
+            reply_message += f"<b>🔮 Zora script includes:</b>\n\n"
+            reply_message += "       🔸 <i>Touching Zora's official bridge</i>\n" \
+                             "       🔸 <i>Create own NFTs</i>\n" \
+                             "       🔸 <i>Mint important NFTs (updated list)</i>\n" \
+                             "       🔸 <i>Wallet warm-up (simulation of real human actions)</i>\n" \
+                             "       🔸 <i>GWEI downgrade mode - literally lowers the fees to zero</i>\n\n"
 
-        reply_message = f"🔮 The total amount of wallets you can run: <b>{max_count}</b>\n\n"
-        reply_message += f"<b>🔮 Zora script includes:</b>\n\n"
-        reply_message += "       🔸 <i>Touching Zora's official bridge</i>\n" \
-                         "       🔸 <i>Create own NFTs</i>\n" \
-                         "       🔸 <i>Mint important NFTs (updated list)</i>\n" \
-                         "       🔸 <i>Wallet warm-up (simulation of real human actions)</i>\n" \
-                         "       🔸 <i>GWEI downgrade mode - literally lowers the fees to zero</i>\n\n"
+            await message.answer(reply_message,
+                                 parse_mode=types.ParseMode.HTML, reply_markup=ReplyKeyboardRemove())
+            await state.update_data(current_network=current_network)
 
-        await message.answer(reply_message,
-                             parse_mode=types.ParseMode.HTML, reply_markup=ReplyKeyboardRemove())
-        await state.update_data(current_network=current_network)
+        elif message.text == "🎡 Starknet":
+            current_network = "stark"
+            pk_example = "<i>address_of_your wallet_1:private_key_of_your wallet_1</i>\n" \
+                         "<i>address_of_your wallet_2:private_key_of_your wallet_2</i>\n\n"
 
-    elif message.text == "🎡 Starknet":
-        current_network = "stark"
-        pk_example = "<i>address_of_your wallet_1:private_key_of_your wallet_1</i>\n" \
-                     "<i>address_of_your wallet_2:private_key_of_your wallet_2</i>\n\n"
+            reply_message = f"🎡 The total amount of wallets you can run: <b>{max_count}</b>\n\n"
+            reply_message += Info.info_route_stark
 
-        reply_message = f"🎡 The total amount of wallets you can run: <b>{max_count}</b>\n\n"
-        reply_message += f"<b>🎡 Starknet script includes: </b>\n\n" \
-                         f"<b>Interaction with dexes: </b>\n" \
-                         "       🔸 <i>JediSwap ( Swaps; Liquidity Adding)</i>\n" \
-                         "       🔸 <i>AvnuFi (Swaps)</i>\n" \
-                         "       🔸 <i>10K Swap (Swaps)</i>\n" \
-                         "       🔸 <i>Dmail (Message sender)</i>\n\n" \
-                         f"<b>NFT mint : </b>\n" \
-                         "       🔸 <i>StarkNetID NFT</i>\n" \
-                         "       🔸 <i>StarkVerse NFT</i>\n\n"
-        await message.answer(reply_message,
-                             parse_mode=types.ParseMode.HTML, reply_markup=ReplyKeyboardRemove())
-        await state.update_data(current_network=current_network)
+            await message.answer(reply_message,
+                                 parse_mode=types.ParseMode.HTML, reply_markup=ReplyKeyboardRemove())
+            await state.update_data(current_network=current_network)
 
-    await UserFollowing.check_subscribe.set()
+        await UserFollowing.check_subscribe.set()
 
-    keyboard = InlineKeyboardMarkup()
-    btn_how_to = InlineKeyboardButton("🤔 How to do that?", callback_data="send_gif")
-    btn_pk_info = InlineKeyboardButton("👀 Why do you need my private key?", callback_data="send_pk_info")
-    keyboard.add(btn_how_to).add(btn_pk_info)
+        keyboard = InlineKeyboardMarkup()
+        btn_how_to = InlineKeyboardButton("🤔 How to do that?", callback_data="send_gif")
+        btn_pk_info = InlineKeyboardButton("👀 Why do you need my private key?", callback_data="send_pk_info")
+        keyboard.add(btn_how_to).add(btn_pk_info)
 
-    await message.answer(f"<b>{message.text[0]}️ Load-up your private keys below </b>\n\n"
-                         "<b>Example:</b>\n"
-                         f"{pk_example}"
-                         "<b> ⚠️ Please note: We do not store your data. The bot uses one-time sessions.</b>\n\n",
-                         parse_mode=types.ParseMode.HTML, reply_markup=keyboard)
+        await message.answer(f"<b>{message.text[0]}️ Load-up your private keys below </b>\n\n"
+                             "<b>Example:</b>\n"
+                             f"{pk_example}"
+                             "<b> ⚠️ Please note: We do not store your data. The bot uses one-time sessions.</b>\n\n",
+                             parse_mode=types.ParseMode.HTML, reply_markup=keyboard)
+    except Exception as err:
+        logging.error(f"Error while client declaring or getting params: _{err}_")
+
 
 
 @dp.callback_query_handler(lambda c: c.data == 'send_gif', state=UserFollowing.check_subscribe)
@@ -297,7 +294,7 @@ async def private_keys(message: types.Message, state: FSMContext):
 
         if current_network == 'zora':
             keyboard = InlineKeyboardMarkup()
-            btn_warm = InlineKeyboardButton("WARMING UP", callback_data="earn_zora_warm")
+            btn_warm = InlineKeyboardButton("WARM UP", callback_data="earn_zora_warm")
             btn_main = InlineKeyboardButton("MAIN", callback_data="earn_zora_main")
             keyboard.add(btn_warm).add(btn_main)
 
@@ -307,7 +304,7 @@ async def private_keys(message: types.Message, state: FSMContext):
 
         if current_network == 'stark':
             keyboard = InlineKeyboardMarkup()
-            btn_test = InlineKeyboardButton("WARMING UP", callback_data="earn_stark_test", )
+            btn_test = InlineKeyboardButton("WARM UP", callback_data="earn_stark_test", )
             btn_medium = InlineKeyboardButton("MEDIUM", callback_data="earn_stark_medium")
             # btn_hard = InlineKeyboardButton("HARD", callback_data="earn_stark_hard")
 
