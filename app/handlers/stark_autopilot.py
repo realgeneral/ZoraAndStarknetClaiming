@@ -73,69 +73,73 @@ class TaskPrep:
     def get_tasks(self):
         TASKS = []
         if self.route == 0:
-                #TASKS.append((f"JediSwap Swap", self.JediSwap_client.swap))
+                random_jedi_count = random.randint(4, 5)
+                random_avnufi_count = random.randint(4, 5)
+                random_10kswap_count = random.randint(4, 5)
+                random_dmail_count = random.randint(5, 6)
 
-                #TASKS.append((f"AvnuFi Swap", self.AvnuFi_client.swap))
+                for i in range(random_jedi_count):
+                    TASKS.append((f"JediSwap Swap {i + 1}", self.JediSwap_client.swap))
 
-                #TASKS.append((f"10kSwap Swap", self.TenkSwap_client.swap))
+                for i in range(random_avnufi_count):
+                    TASKS.append((f"AvnuFi Swap {i + 1}", self.AvnuFi_client.swap))
 
-                TASKS.append((f"StarkVerseNFT Minting", self.Minter_client.mintStarkVerse))
+                for i in range(random_10kswap_count):
+                    TASKS.append((f"10kSwap Swap {i + 1}", self.TenkSwap_client.swap))
 
-                #TASKS.append((f"StarkNetIDNFT Minting", self.Minter_client.mintStarknetIdNFT))
-
-                #TASKS.append((f"Dmail message", self.Dmail_client.send_message))
+                for i in range(random_dmail_count):
+                    TASKS.append((f"Dmail message {i + 1}", self.Dmail_client.send_message))
 
                 random.shuffle(TASKS)
 
                 #TASKS.append(("JediSwap Liquidity Adding", JediSwap_client.add_liquidity))
 
         elif self.route == 1:
+            random_jedi_count = random.randint(4, 6)
+            random_avnufi_count = random.randint(4, 6)
+            random_10kswap_count = random.randint(4, 6)
+            random_dmail_count = random.randint(6, 8)
 
-            for i in range(2):
-                TASKS.append((f"JediSwap Swap {i + 1}", JediSwap_client.swap))
+            for i in range(random_jedi_count):
+                TASKS.append((f"JediSwap Swap {i + 1}", self.JediSwap_client.swap))
 
-            for i in range(2):
-                TASKS.append((f"AvnuFi Swap {i + 1}", AvnuFi_client.swap))
+            for i in range(random_avnufi_count):
+                TASKS.append((f"AvnuFi Swap {i + 1}", self.AvnuFi_client.swap))
 
-            for i in range(2):
-                TASKS.append((f"10kSwap Swap {i + 1}", TenkSwap_client.swap))
+            for i in range(random_10kswap_count):
+                TASKS.append((f"10kSwap Swap {i + 1}", self.TenkSwap_client.swap))
 
-            for i in range(2):
-                TASKS.append((f"StarkVerseNFT Minting {i + 1}", Minter_client.mintStarkVerse))
+            TASKS.append((f"StarkVerseNFT Minting ", self.Minter_client.mintStarkVerse))
+            TASKS.append((f"StarkNetIDNFT Minting ", self.Minter_client.mintStarknetIdNFT))
 
-            for i in range(2):
-                TASKS.append((f"StarkNetIDNFT Minting {i + 1}", Minter_client.mintStarknetIdNFT))
-
-            for i in range(3):
-                TASKS.append((f"Dmail message {i + 1}", Dmail_client.send_message))
+            for i in range(random_dmail_count):
+                TASKS.append((f"Dmail message {i + 1}", self.Dmail_client.send_message))
 
             random.shuffle(TASKS)
-
-            #TASKS.append(("JediSwap Liquidity Adding", JediSwap_client.add_liquidity))
 
         elif self.route == 2:
 
             for i in range(3):
-                TASKS.append((f"JediSwap Swap {i + 1}", JediSwap_client.swap))
+                TASKS.append((f"JediSwap Swap {i + 1}", self.JediSwap_client.swap))
 
             for i in range(3):
-                TASKS.append((f"AvnuFi Swap {i + 1}", AvnuFi_client.swap))
+                TASKS.append((f"AvnuFi Swap {i + 1}", self.AvnuFi_client.swap))
 
             for i in range(2):
-                TASKS.append((f"10kSwap Swap {i + 1}", TenkSwap_client.swap))
+                TASKS.append((f"10kSwap Swap {i + 1}", self.TenkSwap_client.swap))
 
             for i in range(4):
-                TASKS.append((f"StarkVerseNFT Minting {i + 1}", Minter_client.mintStarkVerse))
+                TASKS.append((f"StarkVerseNFT Minting {i + 1}", self.Minter_client.mintStarkVerse))
 
             for i in range(3):
-                TASKS.append((f"StarkNetIDNFT Minting {i + 1}", Minter_client.mintStarknetIdNFT))
+                TASKS.append((f"StarkNetIDNFT Minting {i + 1}", self.Minter_client.mintStarknetIdNFT))
 
             for i in range(8):
-                TASKS.append((f"Dmail message {i + 1}", Dmail_client.send_message))
+                TASKS.append((f"Dmail message {i + 1}", self.Dmail_client.send_message))
 
             random.shuffle(TASKS)
 
-            TASKS.append(("JediSwap Liquidity Adding", JediSwap_client.add_liquidity))
+            TASKS.append(("JediSwap Liquidity Adding", self.JediSwap_client.add_liquidity))
 
         return TASKS
 
@@ -262,7 +266,6 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
                                                 text=f"⏳ _Wallet was successfully deployed_",
                                                 parse_mode=types.ParseMode.MARKDOWN)
                     await asyncio.sleep(2)
-
                 ########################################### TASKS PREPARING #################################
                 await bot.edit_message_text(chat_id=wait_message.chat.id,
                                             message_id=wait_message.message_id,
@@ -271,7 +274,6 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
                 user_data = await state.get_data()
                 if user_data.get("stop_flag"):
                     return
-
                 data = await state.get_data()
                 is_test_stark = data.get("is_test_stark")
                 is_medium_stark = data.get("is_medium_stark")
@@ -291,9 +293,8 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
                 elif is_medium_stark == 1:
                     price_of_run = prices.medium_stark
 
-                    TP = TaskPrep(client=client, params=params, route=1)
+                    TP = TaskPrep(client=client, route=1, params=params)
                     TASKS = TP.get_tasks()
-
                 elif is_hard_stark == 1:
                     price_of_run = prices.hard_stark
 
