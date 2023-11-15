@@ -62,7 +62,7 @@ async def check_claim_net(message: types.Message, state: FSMContext):
                          "<i>private_key_of_your_wallet_2</i>\n\n"
 
             reply_message = f"🔮 The total amount of wallets you can run: <b>{max_count}</b>\n\n"
-            reply_message += Info.info_route_zora
+
 
             await message.answer(reply_message,
                                  parse_mode=types.ParseMode.HTML,
@@ -76,7 +76,6 @@ async def check_claim_net(message: types.Message, state: FSMContext):
                          "<i>address_of_your wallet_2:private_key_of_your wallet_2</i>\n\n"
 
             reply_message = f"🎡 The total amount of wallets you can run: <b>{max_count}</b>\n\n"
-            reply_message += Info.info_route_stark
 
             await message.answer(reply_message,
                                  parse_mode=types.ParseMode.HTML, reply_markup=ReplyKeyboardRemove())
@@ -85,7 +84,7 @@ async def check_claim_net(message: types.Message, state: FSMContext):
         await UserFollowing.check_subscribe.set()
 
         keyboard = InlineKeyboardMarkup()
-        btn_how_to = InlineKeyboardButton("🤔 How to do that?", callback_data="send_gif")
+        btn_how_to = InlineKeyboardButton("🔑 How to extract my private keys?", callback_data="send_gif")
         btn_pk_info = InlineKeyboardButton("👀 Why do you need my private key?", callback_data="send_pk_info")
         keyboard.add(btn_how_to).add(btn_pk_info)
 
@@ -99,7 +98,7 @@ async def check_claim_net(message: types.Message, state: FSMContext):
 
 
 
-@dp.callback_query_handler(lambda c: c.data == 'send_gif', state=UserFollowing.check_subscribe)
+@dp.callback_query_handler(lambda c: c.data == 'send_gif', state=[UserFollowing.check_subscribe, UserFollowing.get_private_keys])
 async def send_gif(callback_query: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     current_network = data.get("current_network")
@@ -140,7 +139,7 @@ async def check_subscribe(message: types.Message, state: FSMContext):
         await state.update_data(message=message)
         await UserFollowing.check_subscribe.set()
         await message.answer(
-            "👋📢 Haven't joined our <a href='https://t.me/EBSH_WEB3'>channel</a> yet? \n\n"
+            "👋📢 Haven't joined our <a href='https://t.me/ARNI_Concepts'>channel</a> yet? \n\n"
             "We're dropping <b> crypto wisdom </b> and sharing our <b> know-how </b>. \n"
             "Your sub supports us to make <b> new retro-bots </b> for You! \n \n"
             "Hit that sub button below ⬇️, then <b> hit us back </b> with  <b> 'Done'</b>! ",
@@ -290,36 +289,46 @@ async def private_keys(message: types.Message, state: FSMContext):
         await UserFollowing.choose_route.set()
 
         if current_network == 'zora':
+            message_response += Info.info_route_zora
+
             keyboard = InlineKeyboardMarkup()
-            btn_warm = InlineKeyboardButton("WARM UP", callback_data="earn_zora_warm")
-            btn_main = InlineKeyboardButton("MAIN", callback_data="earn_zora_main")
+            btn_warm = InlineKeyboardButton("🔥WARM-UP🔥", callback_data="earn_zora_warm")
+            btn_main = InlineKeyboardButton("⛏ MAIN ⛏", callback_data="earn_zora_main")
             keyboard.add(btn_warm).add(btn_main)
 
+            await message.answer(message_response, parse_mode=types.ParseMode.HTML)
             await message.answer("<b>🔮 Change the route to run: </b>",
                                  parse_mode=types.ParseMode.HTML,
                                  reply_markup=keyboard)
 
         if current_network == 'stark':
+            message_response += Info.info_route_stark
+
             keyboard = InlineKeyboardMarkup()
-            btn_test = InlineKeyboardButton("WARM UP", callback_data="earn_stark_test", )
-            btn_medium = InlineKeyboardButton("MEDIUM", callback_data="earn_stark_medium")
+            btn_test = InlineKeyboardButton("🔥WARM-UP🔥", callback_data="earn_stark_test", )
+            btn_medium = InlineKeyboardButton("⛏ MEDIUM ⛏", callback_data="earn_stark_medium")
             # btn_hard = InlineKeyboardButton("HARD", callback_data="earn_stark_hard")
 
             keyboard.add(btn_test).add(btn_medium)
 
+            await message.answer(message_response, parse_mode=types.ParseMode.HTML)
             await message.answer("<b>🎡 Change the route to run: </b>",
                                  parse_mode=types.ParseMode.HTML,
                                  reply_markup=keyboard)
+
         return
     else:
-
+        await UserFollowing.get_private_keys.set()
         if not is_ready_to_start:
             message_response += f"\n😕 You don't have required amount ETH on your wallet\n"
+            await message.answer(message_response, parse_mode=types.ParseMode.HTML)
         else:
-            message_response += f"\n😕 Invalid private keys\n"
-
-        await UserFollowing.get_private_keys.set()
-        await message.answer(message_response, parse_mode=types.ParseMode.HTML)
+            keyboard = InlineKeyboardMarkup()
+            btn_how_to = InlineKeyboardButton("🔑 How to extract my private keys?", callback_data="send_gif")
+            keyboard.add(btn_how_to)
+            message_response += (f"\n😕 Invalid private keys\n\n"
+                                 f"<b>⚠️ We do not support Bravos wallet yet, but we're working on it now..</b>")
+            await message.answer(message_response, parse_mode=types.ParseMode.HTML, reply_markup=keyboard)
         return
 
 

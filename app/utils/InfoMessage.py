@@ -33,7 +33,9 @@ class InfoMessage:
                         
 <b>3. Premium route</b>
                         
-<i>S00N...</i> 
+<i>S00N...</i>
+
+⚠️ <b>We do not support Bravos wallet yet, but we're working on it now..</b>
      """
 
     info_route_zora = """   

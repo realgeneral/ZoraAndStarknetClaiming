@@ -177,8 +177,8 @@ async def tap_to_earn_stark(message: types.Message, state: FSMContext):
     buttons.row(b3)
 
     keyboard = InlineKeyboardMarkup()
-    btn_test = InlineKeyboardButton("WARM UP", callback_data="earn_stark_test", )
-    btn_medium = InlineKeyboardButton("MEDIUM", callback_data="earn_stark_medium")
+    btn_test = InlineKeyboardButton("🔥WARM-UP🔥", callback_data="earn_stark_test", )
+    btn_medium = InlineKeyboardButton("⛏ MEDIUM ⛏", callback_data="earn_stark_medium")
     # btn_hard = InlineKeyboardButton("HARD", callback_data="earn_stark_hard")
 
     keyboard.add(btn_test).add(btn_medium)
@@ -567,11 +567,27 @@ async def start_earn_stark(message: types.Message, state: FSMContext):
                     final_statistic += f"{task_name}: <i>{status}</i>\n"
 
             except Exception as err:
+                final_statistic = "⚠️ We do not support Bravos wallet yet, but we're working on it now.."
                 logger.error(f"#{i} Something went wrong while client declaring or getting params: {err}")
                 await bot.edit_message_text(chat_id=wait_message.chat.id,
                                             message_id=wait_message.message_id,
                                             text=f"#{i} Something went wrong while client declaring or getting params: _{err}_",
                                             parse_mode=types.ParseMode.MARKDOWN)
+                await state.update_data(is_ready=0)
+                await UserFollowing.wallet_menu.set()
+
+                await bot.delete_message(chat_id=wait_message.chat.id,
+                                         message_id=wait_message.message_id)
+
+                buttons = [
+                    KeyboardButton(text="⬅ Go to menu"),
+                ]
+                reply_markup = ReplyKeyboardMarkup(keyboard=[buttons],
+                                                   resize_keyboard=True)
+                await message.answer(final_statistic,
+                                     parse_mode=types.ParseMode.HTML,
+                                     reply_markup=reply_markup)
+                return
 
         is_free_run = user_db.is_free_run(message.from_user.id)  # 1 == free
 
