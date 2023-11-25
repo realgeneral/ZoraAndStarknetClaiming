@@ -124,7 +124,6 @@ class Users:
     def update_balance(self, user_id, to_add):
         balance = self.get_current_balance(user_id)
         new_balance = balance + to_add
-
         try:
             self.cursor.execute("""
                 UPDATE users

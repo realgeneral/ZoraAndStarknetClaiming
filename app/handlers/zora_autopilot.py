@@ -229,16 +229,16 @@ async def start_earn(message: types.Message, state: FSMContext):
     if is_ready == 0:
         is_ready = -1
         await state.update_data(is_ready=is_ready)
-
-
+        private_keys = data.get("private_keys")
+        count_private_keys = len(private_keys)
 
         final_statistic = "\n📊 <b>Statistic</b> \n\n"
 
         wait_message = await message.answer("Starting *Zora* script ✈️...", parse_mode=types.ParseMode.MARKDOWN)
 
         data = await state.get_data()
-        is_main_zora = data.get("is_main_zora")
-        is_warm_zora = data.get("is_warm_zora")
+        is_main_zora = int(data.get("is_main_zora"))
+        is_warm_zora = int(data.get("is_warm_zora"))
 
         is_free_run = user_db.is_free_run(message.from_user.id)  # 1 == free
         price_of_run = 0
@@ -246,20 +246,21 @@ async def start_earn(message: types.Message, state: FSMContext):
         if is_main_zora == 1:
             price_of_run = prices.main_zora
         elif is_warm_zora == 1:
-            price_of_run = prices.warm_zora
+            price_of_run = prices.warm_up_zora
 
         if is_free_run == 0:
-            user_db.update_balance(message.from_user.id, -(len(private_keys) * price_of_run))
+            user_db.update_balance(message.from_user.id, -(len(private_keys) * int(price_of_run)))
 
         minters_obj = [Minter(private_key) for private_key in private_keys]
 
         if is_main_zora == 1:
             ########################################### BRIDGE  ###########################################
+            print(f"is_main_zora bridge")
 
             user_data = await state.get_data()
             if user_data.get("stop_flag"):
                 return
-
+            print(f"is_main_zora bridge start " )
             bridgers_obj = [Bridger(private_key) for private_key in private_keys]
             bridge_data = await state.get_data()
             bridge_amount = list(bridge_data.get("random_amount"))
@@ -805,10 +806,12 @@ async def start_earn(message: types.Message, state: FSMContext):
                 mint_statistic += f"Wallet {i + 1}: {mint_9_result_list[i]} \n"
 
         if is_warm_zora == 1:
+
+            print("warm_up do")
             user_data = await state.get_data()
             if user_data.get("stop_flag"):
                 return
-
+            print("warm_up posle")
             ########################################## CONTRACT  ###########################################
 
             random_names = list(animals.animals.keys())
